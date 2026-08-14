@@ -1,0 +1,77 @@
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import { ToastProvider } from './context/ToastContext';
+
+// Layouts
+import { PublicLayout } from './layouts/PublicLayout';
+import { MainLayout } from './layouts/MainLayout';
+
+// Public Pages
+import { LandingPage } from './pages/LandingPage';
+import { LoginPage } from './pages/LoginPage';
+import { RegisterPage } from './pages/RegisterPage';
+
+// Authenticated Pages
+import { DashboardPage } from './pages/DashboardPage';
+import { ExploreProjectsPage } from './pages/ExploreProjectsPage';
+import { CreateProjectPage } from './pages/CreateProjectPage';
+import { ProjectDetailsPage } from './pages/ProjectDetailsPage';
+import { ProjectMatchesPage } from './pages/ProjectMatchesPage';
+import { ProjectTeamPage } from './pages/ProjectTeamPage';
+import { ProjectTasksPage } from './pages/ProjectTasksPage';
+import { InvitationsPage } from './pages/InvitationsPage';
+import { MyProjectsPage } from './pages/MyProjectsPage';
+import { ProfilePage } from './pages/ProfilePage';
+import { EditProfilePage } from './pages/EditProfilePage';
+import { SettingsPage } from './pages/SettingsPage';
+
+const ProtectedRoute = ({ children }) => {
+  const { isAuthenticated, loading } = useAuth();
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="w-8 h-8 border-4 border-brand-600 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+  return isAuthenticated ? children : <Navigate to="/login" replace />;
+};
+
+export default function App() {
+  return (
+    <ToastProvider>
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            {/* Public Layout */}
+            <Route element={<PublicLayout />}>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+            </Route>
+
+            {/* Authenticated Dashboard Layout */}
+            <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
+              <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/projects" element={<ExploreProjectsPage />} />
+              <Route path="/projects/create" element={<CreateProjectPage />} />
+              <Route path="/projects/:id" element={<ProjectDetailsPage />} />
+              <Route path="/projects/:id/matches" element={<ProjectMatchesPage />} />
+              <Route path="/projects/:id/team" element={<ProjectTeamPage />} />
+              <Route path="/projects/:id/tasks" element={<ProjectTasksPage />} />
+              <Route path="/invitations" element={<InvitationsPage />} />
+              <Route path="/my-projects" element={<MyProjectsPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/profile/edit" element={<EditProfilePage />} />
+              <Route path="/settings" element={<SettingsPage />} />
+            </Route>
+
+            {/* Fallback */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
+    </ToastProvider>
+  );
+}
