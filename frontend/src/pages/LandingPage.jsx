@@ -16,71 +16,17 @@ import {
 } from 'lucide-react';
 import { Button } from '../components/common/Button';
 import { Badge } from '../components/common/Badge';
+import { TeamForge3DHero } from '../components/landing/TeamForge3DHero';
 
 export const LandingPage = () => {
-  const floatingSkills = [
-    { name: 'React', delay: '0s', pos: 'top-10 left-6 sm:left-12' },
-    { name: 'Python', delay: '1s', pos: 'top-20 right-6 sm:right-16' },
-    { name: 'AI / ML', delay: '2s', pos: 'bottom-20 left-10 sm:left-20' },
-    { name: 'UI / UX', delay: '1.5s', pos: 'bottom-16 right-8 sm:right-24' },
-    { name: 'Node.js', delay: '0.5s', pos: 'top-1/2 left-2 sm:left-6' },
-    { name: 'Figma', delay: '2.5s', pos: 'top-1/3 right-4 sm:right-10' }
-  ];
-
   return (
     <div className="overflow-hidden">
-      {/* HERO SECTION */}
-      <section className="relative pt-16 pb-20 md:pt-24 md:pb-32 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center">
-        {/* Background Ambient Glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-gradient-to-tr from-brand-400/20 via-indigo-400/20 to-violet-400/20 blur-[100px] pointer-events-none -z-10" />
+      {/* THREE.JS 3D HERO SECTION */}
+      <TeamForge3DHero />
 
-        {/* Floating Skill Badges */}
-        {floatingSkills.map((badge, idx) => (
-          <div
-            key={idx}
-            className={`hidden md:inline-flex absolute ${badge.pos} items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/90 shadow-md border border-slate-200/80 text-xs font-bold text-slate-700 animate-float-slow`}
-            style={{ animationDelay: badge.delay }}
-          >
-            <span className="w-2 h-2 rounded-full bg-brand-500" />
-            {badge.name}
-          </div>
-        ))}
-
-        {/* Hero Tagline Chip */}
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-50 border border-brand-200 text-brand-700 text-xs font-bold tracking-wide uppercase mb-6 shadow-xs">
-          <Sparkles className="w-3.5 h-3.5 text-brand-600" />
-          <span>AI-Powered Student Team Formation</span>
-        </div>
-
-        {/* Hero Main Headline */}
-        <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-slate-900 max-w-4xl mx-auto leading-[1.1] mb-6">
-          Forge the right team. <br className="hidden sm:inline" />
-          <span className="bg-gradient-to-r from-brand-600 via-indigo-600 to-violet-600 bg-clip-text text-transparent">
-            Build the right project.
-          </span>
-        </h1>
-
-        {/* Subheading */}
-        <p className="text-lg sm:text-xl text-slate-600 max-w-2xl mx-auto font-normal leading-relaxed mb-10">
-          TeamForge intelligently connects students based on skills, interests, availability, and project requirements to form high-performing hackathon and engineering teams.
-        </p>
-
-        {/* Hero CTA Buttons */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
-          <Link to="/register">
-            <Button variant="gradient" size="lg" icon={ArrowRight}>
-              Build My Team
-            </Button>
-          </Link>
-          <Link to="/projects">
-            <Button variant="secondary" size="lg" icon={Search}>
-              Explore Projects
-            </Button>
-          </Link>
-        </div>
-
-        {/* ABSTRACT TEAM-MATCHING CSS ILLUSTRATION */}
-        <div className="relative max-w-3xl mx-auto bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-xl">
+      {/* ABSTRACT TEAM-MATCHING PROCESS & STATS */}
+      <section className="relative -mt-12 z-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="relative max-w-4xl mx-auto bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-2xl">
           <div className="grid grid-cols-1 md:grid-cols-5 items-center gap-4 text-center">
             {/* Step 1: Student */}
             <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80">
@@ -118,18 +64,18 @@ export const LandingPage = () => {
         </div>
 
         {/* STATS SECTION */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-4xl mx-auto mt-16 pt-12 border-t border-slate-200">
-          <div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-4xl mx-auto mt-12 text-center">
+          <div className="p-6 rounded-2xl bg-white border border-slate-200/80 shadow-sm">
             <div className="text-3xl sm:text-4xl font-extrabold text-slate-900">1,200+</div>
-            <div className="text-xs sm:text-sm font-medium text-slate-500 mt-1">Active Students</div>
+            <div className="text-xs sm:text-sm font-semibold text-slate-500 mt-1">Active Students</div>
           </div>
-          <div>
+          <div className="p-6 rounded-2xl bg-white border border-slate-200/80 shadow-sm">
             <div className="text-3xl sm:text-4xl font-extrabold text-brand-600">300+</div>
-            <div className="text-xs sm:text-sm font-medium text-slate-500 mt-1">Hackathon Projects</div>
+            <div className="text-xs sm:text-sm font-semibold text-slate-500 mt-1">Hackathon Projects</div>
           </div>
-          <div>
+          <div className="p-6 rounded-2xl bg-white border border-slate-200/80 shadow-sm">
             <div className="text-3xl sm:text-4xl font-extrabold text-emerald-600">180+</div>
-            <div className="text-xs sm:text-sm font-medium text-slate-500 mt-1">Teams Successfully Formed</div>
+            <div className="text-xs sm:text-sm font-semibold text-slate-500 mt-1">Teams Formed</div>
           </div>
         </div>
       </section>
