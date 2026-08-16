@@ -14,6 +14,7 @@ import { RegisterPage } from './pages/RegisterPage';
 
 // Authenticated Pages
 import { DashboardPage } from './pages/DashboardPage';
+import { CommunityPage } from './pages/CommunityPage';
 import { ExploreProjectsPage } from './pages/ExploreProjectsPage';
 import { CreateProjectPage } from './pages/CreateProjectPage';
 import { ProjectDetailsPage } from './pages/ProjectDetailsPage';
@@ -54,6 +55,7 @@ export default function App() {
             {/* Authenticated Dashboard Layout */}
             <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
               <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/community" element={<CommunityPage />} />
               <Route path="/projects" element={<ExploreProjectsPage />} />
               <Route path="/projects/create" element={<CreateProjectPage />} />
               <Route path="/projects/:id" element={<ProjectDetailsPage />} />

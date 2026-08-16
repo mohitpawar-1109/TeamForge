@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const API = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
   timeout: 15000,
   headers: {
     'Content-Type': 'application/json'
@@ -79,6 +79,15 @@ export const notifAPI = {
   getNotifications: () => API.get('/notifications'),
   markRead: (id) => API.patch(`/notifications/${id}/read`),
   markAllRead: () => API.patch('/notifications/mark-all-read')
+};
+
+export const postAPI = {
+  getPosts: (params) => API.get('/posts', { params }),
+  getPostById: (id) => API.get(`/posts/${id}`),
+  createPost: (data) => API.post('/posts', data),
+  updatePost: (id, data) => API.put(`/posts/${id}`, data),
+  deletePost: (id) => API.delete(`/posts/${id}`),
+  toggleLike: (id) => API.post(`/posts/${id}/like`)
 };
 
 export default API;

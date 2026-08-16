@@ -13,6 +13,7 @@ import aiRoutes from './routes/ai.routes.js';
 import inviteRoutes from './routes/invite.routes.js';
 import taskRoutes from './routes/task.routes.js';
 import notifRoutes from './routes/notif.routes.js';
+import postRoutes from './routes/post.routes.js';
 
 dotenv.config();
 
@@ -66,6 +67,7 @@ app.use('/api/ai', aiRoutes);
 app.use('/api/invitations', inviteRoutes);
 app.use('/api', taskRoutes);
 app.use('/api/notifications', notifRoutes);
+app.use('/api/posts', postRoutes);
 
 // Centralized Error Handler
 app.use(errorHandler);

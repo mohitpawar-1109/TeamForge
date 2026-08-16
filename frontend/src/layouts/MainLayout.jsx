@@ -14,9 +14,8 @@ import {
   Menu,
   X,
   Layers,
-  Sparkles,
-  Search,
-  CheckCircle2
+  CheckCircle2,
+  MessageSquare
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { notifAPI } from '../services/api';
@@ -69,8 +68,9 @@ export const MainLayout = () => {
 
   const navItems = [
     { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-    { label: 'My Projects', path: '/my-projects', icon: FolderGit2 },
+    { label: 'Community', path: '/community', icon: MessageSquare },
     { label: 'Explore', path: '/projects', icon: Compass },
+    { label: 'My Projects', path: '/my-projects', icon: FolderGit2 },
     { label: 'Invitations', path: '/invitations', icon: Mail, badge: unreadCount > 0 ? unreadCount : null },
     { label: 'Profile', path: '/profile', icon: User },
     { label: 'Settings', path: '/settings', icon: Settings },
