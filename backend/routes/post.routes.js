@@ -8,6 +8,10 @@ import {
   likePost,
   unlikePost
 } from '../controllers/post.controller.js';
+import {
+  getPostComments,
+  createComment
+} from '../controllers/comment.controller.js';
 import { protect } from '../middleware/auth.middleware.js';
 
 const router = express.Router();
@@ -24,5 +28,9 @@ router.route('/:id')
 router.route('/:id/like')
   .post(protect, likePost)
   .delete(protect, unlikePost);
+
+router.route('/:id/comments')
+  .get(getPostComments)
+  .post(protect, createComment);
 
 export default router;

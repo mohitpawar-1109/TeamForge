@@ -19,6 +19,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { postAPI } from '../../services/api';
 import { POST_TYPES } from './PostTypeSelector';
+import { CommentsDrawer } from './CommentsDrawer';
 import { Badge } from '../common/Badge';
 
 export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
@@ -34,7 +35,6 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
   const [editContent, setEditContent] = useState(post.content || '');
   const [savingEdit, setSavingEdit] = useState(false);
   const [commentsOpen, setCommentsOpen] = useState(false);
-  const [commentText, setCommentText] = useState('');
   const [localCommentsCount, setLocalCommentsCount] = useState(post.commentsCount || 0);
 
   const currentUserId = user?._id?.toString();
@@ -149,14 +149,6 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
     } catch (err) {
       success('Link copied to clipboard!');
     }
-  };
-
-  const handleAddComment = (e) => {
-    e.preventDefault();
-    if (!commentText.trim()) return;
-    setLocalCommentsCount(prev => prev + 1);
-    setCommentText('');
-    success('Comment added to discussion! 💬');
   };
 
   const formatTime = (dateStr) => {
@@ -381,11 +373,13 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
           {/* Comment Button */}
           <button
             type="button"
-            onClick={() => setCommentsOpen(!commentsOpen)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors"
+            onClick={() => setCommentsOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors"
           >
-            <MessageCircle className="w-4 h-4" />
-            <span>{localCommentsCount > 0 ? `${localCommentsCount} Comment${localCommentsCount > 1 ? 's' : ''}` : 'Comment'}</span>
+            <MessageCircle className="w-4 h-4 text-slate-400 group-hover:text-brand-500" />
+            <span>
+              {localCommentsCount} {localCommentsCount === 1 ? 'Comment' : 'Comments'}
+            </span>
           </button>
         </div>
 
@@ -393,38 +387,20 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
         <button
           type="button"
           onClick={handleShare}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition-colors"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors"
         >
           <Share2 className="w-4 h-4" />
           <span className="hidden sm:inline">Share</span>
         </button>
       </div>
 
-      {/* Expandable Comments Drawer */}
-      {commentsOpen && (
-        <div className="mt-4 pt-3 border-t border-slate-100 space-y-3 animate-fadeIn">
-          <form onSubmit={handleAddComment} className="flex gap-2">
-            <input
-              type="text"
-              placeholder="Write a comment or suggestion..."
-              value={commentText}
-              onChange={(e) => setCommentText(e.target.value)}
-              className="flex-1 px-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-brand-500 focus:outline-none"
-            />
-            <button
-              type="submit"
-              disabled={!commentText.trim()}
-              className="px-3 py-1.5 text-xs font-bold bg-brand-600 text-white rounded-xl hover:bg-brand-700 disabled:opacity-50 transition-colors"
-            >
-              Reply
-            </button>
-          </form>
-
-          {localCommentsCount === 0 && (
-            <p className="text-[11px] text-slate-400 italic">No comments yet. Start the conversation!</p>
-          )}
-        </div>
-      )}
+      {/* Interactive Comments Drawer */}
+      <CommentsDrawer
+        isOpen={commentsOpen}
+        onClose={() => setCommentsOpen(false)}
+        post={post}
+        onCommentsCountChange={(newCount) => setLocalCommentsCount(newCount)}
+      />
     </div>
   );
 };

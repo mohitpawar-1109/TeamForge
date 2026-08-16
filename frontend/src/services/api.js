@@ -92,4 +92,11 @@ export const postAPI = {
   toggleLike: (id, currentlyLiked) => currentlyLiked ? API.delete(`/posts/${id}/like`) : API.post(`/posts/${id}/like`)
 };
 
+export const commentAPI = {
+  getComments: (postId) => API.get(`/posts/${postId}/comments`),
+  createComment: (postId, data) => API.post(`/posts/${postId}/comments`, data),
+  updateComment: (commentId, data) => API.put(`/comments/${commentId}`, data),
+  deleteComment: (commentId) => API.delete(`/comments/${commentId}`)
+};
+
 export default API;
