@@ -44,7 +44,8 @@ export const authAPI = {
 export const userAPI = {
   getUsers: (params) => API.get('/users', { params }),
   getUserById: (id) => API.get(`/users/${id}`),
-  updateProfile: (data) => API.put('/users/profile', data)
+  updateProfile: (data) => API.put('/users/profile', data),
+  getSkillNetwork: (params) => API.get('/users/skill-network', { params })
 };
 
 export const projectAPI = {

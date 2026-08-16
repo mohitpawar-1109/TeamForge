@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { Search, Filter, Sparkles, SlidersHorizontal } from 'lucide-react';
+import { useSearchParams, Link } from 'react-router-dom';
+import { Search, Filter, Sparkles, SlidersHorizontal, Network } from 'lucide-react';
 import { projectAPI } from '../services/api';
 import { ProjectCard } from '../components/cards/ProjectCard';
 import { Button } from '../components/common/Button';
@@ -53,11 +53,24 @@ export const ExploreProjectsPage = () => {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Explore Projects</h1>
-        <p className="text-xs sm:text-sm text-slate-500 mt-1">
-          Discover active projects, hackathon ideas, and teams recruiting for specific skill sets.
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Explore Projects</h1>
+          <p className="text-xs sm:text-sm text-slate-500 mt-1">
+            Discover active projects, hackathon ideas, and teams recruiting for specific skill sets.
+          </p>
+        </div>
+
+        <Link to="/network">
+          <Button
+            variant="outline"
+            size="md"
+            icon={Network}
+            className="bg-indigo-50/60 border-indigo-200 text-indigo-700 hover:bg-indigo-100 font-bold"
+          >
+            ✨ 3D Skill Network
+          </Button>
+        </Link>
       </div>
 
       {/* Search & Main Filter Controls */}

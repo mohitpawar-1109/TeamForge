@@ -61,3 +61,97 @@ export const updateProfile = async (req, res, next) => {
     next(error);
   }
 };
+
+const categorizeSkill = (skillName) => {
+  const s = (skillName || '').toLowerCase().trim();
+  if (/react|vue|angular|frontend|tailwind|css|html|javascript|typescript|next|svelte|flutter|redux|web/i.test(s)) return 'Frontend';
+  if (/node|express|django|flask|spring|backend|api|mongo|postgres|sql|database|golang|go|java|c\+\+|redis|graphql/i.test(s)) return 'Backend';
+  if (/ai|ml|machine learning|deep learning|python|nlp|vision|tensorflow|pytorch|data|pandas|gemini|llm|scikit/i.test(s)) return 'AI/ML';
+  if (/figma|ui|ux|design|adobe|wireframe|prototype|product design|canva/i.test(s)) return 'Design';
+  if (/docker|kubernetes|aws|cloud|devops|ci\/cd|linux|git|gcp|azure|terraform/i.test(s)) return 'DevOps';
+  return 'General';
+};
+
+export const getSkillNetwork = async (req, res, next) => {
+  try {
+    const { category, search } = req.query;
+
+    const users = await User.find({})
+      .select('name headline avatar college course skills interests experienceLevel pastProjectsCount')
+      .limit(60)
+      .lean();
+
+    const skillMap = new Map();
+    const userList = [];
+    const links = [];
+
+    users.forEach(u => {
+      const userSkills = (u.skills || []).map(s => (typeof s === 'string' ? s : s?.name || '').trim()).filter(Boolean);
+      
+      const userNode = {
+        id: `user_${u._id}`,
+        dbId: u._id,
+        type: 'user',
+        name: u.name,
+        headline: u.headline || 'Student Developer',
+        avatar: u.avatar || '',
+        college: u.college || 'Institute of Technology',
+        course: u.course || 'Computer Science',
+        experienceLevel: u.experienceLevel || 'Intermediate',
+        skills: userSkills
+      };
+      userList.push(userNode);
+
+      userSkills.forEach(sName => {
+        const cat = categorizeSkill(sName);
+        const skillKey = sName.toLowerCase();
+
+        if (!skillMap.has(skillKey)) {
+          skillMap.set(skillKey, {
+            id: `skill_${skillKey.replace(/[^a-z0-9]/g, '_')}`,
+            name: sName,
+            type: 'skill',
+            category: cat,
+            userCount: 0,
+            userIds: []
+          });
+        }
+
+        const skillNode = skillMap.get(skillKey);
+        skillNode.userCount += 1;
+        skillNode.userIds.push(userNode.id);
+
+        links.push({
+          source: userNode.id,
+          target: skillNode.id,
+          type: 'user_skill'
+        });
+      });
+    });
+
+    let skillList = Array.from(skillMap.values()).sort((a, b) => b.userCount - a.userCount);
+
+    // Apply optional category or search filters
+    if (category && category !== 'All') {
+      skillList = skillList.filter(s => s.category.toLowerCase() === category.toLowerCase());
+    }
+
+    if (search) {
+      const q = search.toLowerCase();
+      skillList = skillList.filter(s => s.name.toLowerCase().includes(q));
+    }
+
+    res.json({
+      success: true,
+      data: {
+        skills: skillList,
+        users: userList,
+        links: links,
+        totalSkills: skillList.length,
+        totalUsers: userList.length
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};

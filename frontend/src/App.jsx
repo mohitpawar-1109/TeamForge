@@ -26,6 +26,7 @@ import { MyProjectsPage } from './pages/MyProjectsPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { EditProfilePage } from './pages/EditProfilePage';
 import { SettingsPage } from './pages/SettingsPage';
+import { SkillNetworkPage } from './pages/SkillNetworkPage';
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
@@ -57,6 +58,7 @@ export default function App() {
               <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/community" element={<CommunityPage />} />
               <Route path="/projects" element={<ExploreProjectsPage />} />
+              <Route path="/network" element={<SkillNetworkPage />} />
               <Route path="/projects/create" element={<CreateProjectPage />} />
               <Route path="/projects/:id" element={<ProjectDetailsPage />} />
               <Route path="/projects/:id/matches" element={<ProjectMatchesPage />} />

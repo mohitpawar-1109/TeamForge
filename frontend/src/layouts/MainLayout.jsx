@@ -15,7 +15,8 @@ import {
   X,
   Layers,
   CheckCircle2,
-  MessageSquare
+  MessageSquare,
+  Network
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/common/Button';
@@ -39,6 +40,7 @@ export const MainLayout = () => {
     { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
     { label: 'Community', path: '/community', icon: MessageSquare },
     { label: 'Explore', path: '/projects', icon: Compass },
+    { label: 'Skill Network', path: '/network', icon: Network },
     { label: 'My Projects', path: '/my-projects', icon: FolderGit2 },
     { label: 'Invitations', path: '/invitations', icon: Mail, badge: unreadCount > 0 ? unreadCount : null },
     { label: 'Profile', path: '/profile', icon: User },
