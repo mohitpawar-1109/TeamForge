@@ -26,7 +26,9 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
   const { success, error } = useToast();
 
   const [likes, setLikes] = useState(post.likes || []);
+  const [likeCount, setLikeCount] = useState(post.likes?.length || 0);
   const [likeLoading, setLikeLoading] = useState(false);
+  const [heartAnimated, setHeartAnimated] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState(post.content || '');
@@ -36,35 +38,67 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
   const [localCommentsCount, setLocalCommentsCount] = useState(post.commentsCount || 0);
 
   const currentUserId = user?._id?.toString();
-  const isLiked = likes.some(id => (id?._id || id)?.toString() === currentUserId);
-  const isAuthor = currentUserId && (post.author?._id?.toString() === currentUserId || post.author?.toString() === currentUserId);
+  const isLiked = Boolean(
+    currentUserId &&
+    likes.some(id => (id?._id || id)?.toString() === currentUserId)
+  );
+  const isAuthor = Boolean(
+    currentUserId &&
+    ((post.author?._id || post.author)?.toString() === currentUserId)
+  );
 
   const typeConfig = POST_TYPES.find(t => t.id === post.type) || POST_TYPES[0];
   const TypeIcon = typeConfig.icon;
 
   const handleToggleLike = async () => {
     if (!user) {
-      error('Please sign in to like posts.');
+      error('Please log in to like posts.');
       return;
     }
 
-    setLikeLoading(true);
-    // Optimistic update
+    if (likeLoading) return;
+
+    // Snapshot state for potential rollback
     const previousLikes = [...likes];
-    if (isLiked) {
-      setLikes(likes.filter(id => (id?._id || id)?.toString() !== currentUserId));
-    } else {
+    const previousCount = likeCount;
+    const nextIsLiked = !isLiked;
+
+    // Optimistic UI updates
+    if (nextIsLiked) {
       setLikes([...likes, user._id]);
+      setLikeCount(prev => prev + 1);
+      setHeartAnimated(true);
+      setTimeout(() => setHeartAnimated(false), 400);
+    } else {
+      setLikes(likes.filter(id => (id?._id || id)?.toString() !== currentUserId));
+      setLikeCount(prev => Math.max(0, prev - 1));
     }
 
+    setLikeLoading(true);
+
     try {
-      const res = await postAPI.toggleLike(post._id);
+      let res;
+      if (nextIsLiked) {
+        res = await postAPI.likePost(post._id);
+      } else {
+        res = await postAPI.unlikePost(post._id);
+      }
+
       if (res.data.success) {
-        setLikes(res.data.data.likes);
+        if (typeof res.data.likeCount === 'number') {
+          setLikeCount(res.data.likeCount);
+        }
+      } else {
+        // Rollback
+        setLikes(previousLikes);
+        setLikeCount(previousCount);
+        error(res.data.message || 'Failed to update like.');
       }
     } catch (err) {
+      // Rollback on network or server failure
       setLikes(previousLikes);
-      error('Failed to update like.');
+      setLikeCount(previousCount);
+      error(err.response?.data?.message || 'Network error. Could not update like.');
     } finally {
       setLikeLoading(false);
     }
@@ -326,14 +360,22 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
             type="button"
             onClick={handleToggleLike}
             disabled={likeLoading}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all ${
+            className={`group relative flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 ${
               isLiked
-                ? 'text-rose-600 bg-rose-50 font-bold border border-rose-200'
-                : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 border border-transparent'
+                ? 'text-rose-600 bg-rose-50 font-bold border border-rose-200 shadow-xs'
+                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-transparent'
             }`}
           >
-            <Heart className={`w-4 h-4 transition-transform active:scale-125 ${isLiked ? 'fill-rose-600 text-rose-600' : ''}`} />
-            <span>{likes.length > 0 ? `${likes.length} Like${likes.length > 1 ? 's' : ''}` : 'Like'}</span>
+            <span
+              className={`inline-block transition-transform duration-200 text-sm select-none ${
+                heartAnimated ? 'scale-125 text-rose-600' : 'group-hover:scale-110'
+              } ${isLiked ? 'text-rose-600' : 'text-slate-400 group-hover:text-rose-500'}`}
+            >
+              {isLiked ? '♥' : '♡'}
+            </span>
+            <span>
+              {likeCount} {likeCount === 1 ? 'Like' : 'Likes'}
+            </span>
           </button>
 
           {/* Comment Button */}

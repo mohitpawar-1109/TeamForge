@@ -5,7 +5,8 @@ import {
   getPostById,
   updatePost,
   deletePost,
-  toggleLikePost
+  likePost,
+  unlikePost
 } from '../controllers/post.controller.js';
 import { protect } from '../middleware/auth.middleware.js';
 
@@ -20,6 +21,8 @@ router.route('/:id')
   .put(protect, updatePost)
   .delete(protect, deletePost);
 
-router.post('/:id/like', protect, toggleLikePost);
+router.route('/:id/like')
+  .post(protect, likePost)
+  .delete(protect, unlikePost);
 
 export default router;

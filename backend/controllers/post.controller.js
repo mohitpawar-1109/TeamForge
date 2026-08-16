@@ -228,10 +228,10 @@ export const deletePost = async (req, res, next) => {
   }
 };
 
-// @desc    Toggle like on a post
+// @desc    Like a post
 // @route   POST /api/posts/:id/like
 // @access  Private
-export const toggleLikePost = async (req, res, next) => {
+export const likePost = async (req, res, next) => {
   try {
     const post = await Post.findById(req.params.id);
 
@@ -243,29 +243,49 @@ export const toggleLikePost = async (req, res, next) => {
     }
 
     const userIdStr = req.user._id.toString();
-    const existingIndex = post.likes.findIndex(id => id.toString() === userIdStr);
+    const alreadyLiked = post.likes.some(id => (id?._id || id)?.toString() === userIdStr);
 
-    let isLiked = false;
-    if (existingIndex > -1) {
-      // Unlike
-      post.likes.splice(existingIndex, 1);
-      isLiked = false;
-    } else {
-      // Like
+    if (!alreadyLiked) {
       post.likes.push(req.user._id);
-      isLiked = true;
+      await post.save();
     }
-
-    await post.save();
 
     res.json({
       success: true,
-      data: {
-        postId: post._id,
-        likesCount: post.likes.length,
-        isLiked,
-        likes: post.likes
-      }
+      liked: true,
+      likeCount: post.likes.length
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Unlike a post
+// @route   DELETE /api/posts/:id/like
+// @access  Private
+export const unlikePost = async (req, res, next) => {
+  try {
+    const post = await Post.findById(req.params.id);
+
+    if (!post) {
+      return res.status(404).json({
+        success: false,
+        message: 'Post not found'
+      });
+    }
+
+    const userIdStr = req.user._id.toString();
+    const initialCount = post.likes.length;
+    post.likes = post.likes.filter(id => (id?._id || id)?.toString() !== userIdStr);
+
+    if (post.likes.length !== initialCount) {
+      await post.save();
+    }
+
+    res.json({
+      success: true,
+      liked: false,
+      likeCount: post.likes.length
     });
   } catch (error) {
     next(error);

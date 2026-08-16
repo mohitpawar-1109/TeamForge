@@ -96,26 +96,26 @@ async function runPostsTests() {
     if (!res.ok || !json.data || json.data._id !== postId) throw new Error('Get single post failed');
   });
 
-  // 6. POST /api/posts/:id/like (Toggle Like)
-  await test(`POST /api/posts/${postId}/like (Toggle Like ON)`, async () => {
+  // 6. Like & Unlike Post
+  await test(`POST /api/posts/${postId}/like (Like Post)`, async () => {
     const res = await fetch(`${BASE_URL}/posts/${postId}/like`, {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${token}` }
     });
     const json = await res.json();
-    if (!res.ok || !json.data || json.data.likesCount !== 1 || !json.data.isLiked) {
-      throw new Error(`Like ON failed: ${JSON.stringify(json)}`);
+    if (!res.ok || json.liked !== true || json.likeCount !== 1) {
+      throw new Error(`Like failed: ${JSON.stringify(json)}`);
     }
   });
 
-  await test(`POST /api/posts/${postId}/like (Toggle Like OFF)`, async () => {
+  await test(`DELETE /api/posts/${postId}/like (Unlike Post)`, async () => {
     const res = await fetch(`${BASE_URL}/posts/${postId}/like`, {
-      method: 'POST',
+      method: 'DELETE',
       headers: { 'Authorization': `Bearer ${token}` }
     });
     const json = await res.json();
-    if (!res.ok || !json.data || json.data.likesCount !== 0 || json.data.isLiked) {
-      throw new Error(`Like OFF failed: ${JSON.stringify(json)}`);
+    if (!res.ok || json.liked !== false || json.likeCount !== 0) {
+      throw new Error(`Unlike failed: ${JSON.stringify(json)}`);
     }
   });
 

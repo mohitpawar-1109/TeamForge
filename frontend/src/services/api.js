@@ -87,7 +87,9 @@ export const postAPI = {
   createPost: (data) => API.post('/posts', data),
   updatePost: (id, data) => API.put(`/posts/${id}`, data),
   deletePost: (id) => API.delete(`/posts/${id}`),
-  toggleLike: (id) => API.post(`/posts/${id}/like`)
+  likePost: (id) => API.post(`/posts/${id}/like`),
+  unlikePost: (id) => API.delete(`/posts/${id}/like`),
+  toggleLike: (id, currentlyLiked) => currentlyLiked ? API.delete(`/posts/${id}/like`) : API.post(`/posts/${id}/like`)
 };
 
 export default API;
