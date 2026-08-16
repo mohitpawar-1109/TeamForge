@@ -90,7 +90,8 @@ export const postAPI = {
   deletePost: (id) => API.delete(`/posts/${id}`),
   likePost: (id) => API.post(`/posts/${id}/like`),
   unlikePost: (id) => API.delete(`/posts/${id}/like`),
-  toggleLike: (id, currentlyLiked) => currentlyLiked ? API.delete(`/posts/${id}/like`) : API.post(`/posts/${id}/like`)
+  toggleLike: (id, currentlyLiked) => currentlyLiked ? API.delete(`/posts/${id}/like`) : API.post(`/posts/${id}/like`),
+  getPostMatches: (postId) => API.get(`/posts/${postId}/matches`)
 };
 
 export const commentAPI = {

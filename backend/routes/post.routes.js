@@ -7,7 +7,8 @@ import {
   deletePost,
   likePost,
   unlikePost,
-  joinTeamPost
+  joinTeamPost,
+  getPostMatches
 } from '../controllers/post.controller.js';
 import {
   getPostComments,
@@ -20,6 +21,8 @@ const router = express.Router();
 router.route('/')
   .get(getPosts)
   .post(protect, createPost);
+
+router.get('/:id/matches', protect, getPostMatches);
 
 router.route('/:id')
   .get(getPostById)

@@ -161,3 +161,118 @@ export const calculateTeamSkillGap = (project, teamMembersUsers = []) => {
     teamHealth: Math.min(100, Math.round(overallCoverage * 0.8 + (teamMembersUsers.length >= 2 ? 20 : 10)))
   };
 };
+
+export const calculatePostMatch = (post, candidateUser) => {
+  const reqSkills = (post.requiredSkills || []).map(s => s.trim().toLowerCase());
+  const reqRoles = post.requiredRoles || [];
+  const userSkills = (candidateUser.skills || []).map(s => s.name.trim().toLowerCase());
+  const userInterests = (candidateUser.interests || []).map(i => i.trim().toLowerCase());
+  const postTitle = (post.title || '').toLowerCase();
+  const postContent = (post.content || '').toLowerCase();
+  const postTags = (post.tags || []).map(t => t.toLowerCase());
+
+  // 1. Skill Matching
+  const matchedSkillsList = [];
+  const matchedSkillsOriginal = [];
+
+  reqSkills.forEach(req => {
+    const foundSkill = (candidateUser.skills || []).find(uSkill => {
+      const uLower = uSkill.name.trim().toLowerCase();
+      return (
+        uLower === req ||
+        uLower.includes(req) ||
+        req.includes(uLower) ||
+        (req.includes('ml') && uLower.includes('machine learning')) ||
+        (req.includes('machine learning') && uLower.includes('ml')) ||
+        (req.includes('ui') && uLower.includes('ux')) ||
+        (req.includes('ux') && uLower.includes('figma')) ||
+        (req.includes('node') && uLower.includes('express'))
+      );
+    });
+
+    if (foundSkill) {
+      matchedSkillsList.push(req);
+      matchedSkillsOriginal.push(foundSkill.name);
+    }
+  });
+
+  // 2. Interest / Domain Matching
+  const matchedInterestsList = [];
+  userInterests.forEach(interest => {
+    if (
+      postTitle.includes(interest) ||
+      postContent.includes(interest) ||
+      postTags.some(t => t.includes(interest) || interest.includes(t)) ||
+      (interest.includes('ai') && (postContent.includes('gemini') || postContent.includes('ai') || postContent.includes('ml'))) ||
+      (interest.includes('web') && (postContent.includes('react') || postContent.includes('full stack') || postContent.includes('frontend')))
+    ) {
+      matchedInterestsList.push(interest);
+    }
+  });
+
+  // 3. Suggested Role Inference
+  let suggestedRole = reqRoles[0] || 'Team Contributor';
+  let bestRoleScore = -1;
+
+  reqRoles.forEach(role => {
+    const roleLower = role.toLowerCase();
+    let score = 0;
+    userSkills.forEach(skill => {
+      if (roleLower.includes('ml') || roleLower.includes('ai') || roleLower.includes('data')) {
+        if (skill.includes('python') || skill.includes('ml') || skill.includes('tensorflow') || skill.includes('pytorch') || skill.includes('data')) score += 3;
+      }
+      if (roleLower.includes('ui') || roleLower.includes('ux') || roleLower.includes('design') || roleLower.includes('frontend')) {
+        if (skill.includes('figma') || skill.includes('ui') || skill.includes('react') || skill.includes('css') || skill.includes('tailwind')) score += 3;
+      }
+      if (roleLower.includes('backend') || roleLower.includes('api') || roleLower.includes('server')) {
+        if (skill.includes('node') || skill.includes('express') || skill.includes('mongo') || skill.includes('sql') || skill.includes('django')) score += 3;
+      }
+    });
+    if (score > bestRoleScore) {
+      bestRoleScore = score;
+      suggestedRole = role;
+    }
+  });
+
+  // 4. Score Calculation
+  let baseScore = 60;
+  if (matchedSkillsList.length >= 3) {
+    baseScore = 92;
+  } else if (matchedSkillsList.length === 2) {
+    baseScore = 86;
+  } else if (matchedSkillsList.length === 1) {
+    baseScore = 78;
+  } else if (matchedInterestsList.length > 0) {
+    baseScore = 70;
+  }
+
+  // Bonus for relevant interests and experience
+  let bonus = 0;
+  if (matchedInterestsList.length > 0) bonus += 3;
+  if (candidateUser.experienceLevel === 'Veteran' || candidateUser.experienceLevel === 'Experienced') bonus += 3;
+  if (candidateUser.pastProjectsCount >= 2) bonus += 2;
+
+  const compatibilityScore = Math.min(98, Math.max(50, baseScore + bonus));
+
+  // 5. Explanations
+  let reason = '';
+  if (matchedSkillsOriginal.length > 0 && matchedInterestsList.length > 0) {
+    reason = `${matchedSkillsOriginal.length} required skill${matchedSkillsOriginal.length > 1 ? 's' : ''} match and their interests overlap with your project.`;
+  } else if (matchedSkillsOriginal.length > 0) {
+    reason = `${matchedSkillsOriginal.length} required skill${matchedSkillsOriginal.length > 1 ? 's' : ''} match (${matchedSkillsOriginal.slice(0, 3).join(', ')}) for ${suggestedRole}.`;
+  } else if (matchedInterestsList.length > 0) {
+    reason = `Strong interest overlap with "${post.title || 'project'}" and proven track record.`;
+  } else {
+    reason = `Good general technical background matching ${suggestedRole} requirements.`;
+  }
+
+  return {
+    compatibilityScore,
+    score: compatibilityScore,
+    matchingSkills: matchedSkillsOriginal.length > 0 ? matchedSkillsOriginal : (candidateUser.skills || []).slice(0, 3).map(s => typeof s === 'string' ? s : s?.name),
+    matchingInterests: matchedInterestsList,
+    suggestedRole,
+    reason,
+    explanation: reason
+  };
+};

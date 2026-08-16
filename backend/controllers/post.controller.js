@@ -1,6 +1,8 @@
 import Post from '../models/Post.js';
 import TeamRequest from '../models/TeamRequest.js';
 import Notification from '../models/Notification.js';
+import User from '../models/User.js';
+import { calculatePostMatch } from '../services/match.service.js';
 
 // @desc    Create a new post
 // @route   POST /api/posts
@@ -479,6 +481,63 @@ export const joinTeamPost = async (req, res, next) => {
       success: true,
       message: 'Join request sent successfully',
       data: populatedRequest
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Get AI-assisted teammate matches for a LOOKING_FOR_TEAMMATES post
+// @route   GET /api/posts/:id/matches
+// @access  Private
+export const getPostMatches = async (req, res, next) => {
+  try {
+    const postId = req.params.id;
+    const post = await Post.findById(postId);
+
+    if (!post) {
+      return res.status(404).json({
+        success: false,
+        message: 'Post not found'
+      });
+    }
+
+    // Identify users to exclude (post author and existing members)
+    const excludeIds = [
+      post.author.toString(),
+      ...(post.members || []).map(m => (m?._id || m).toString())
+    ];
+
+    // Fetch potential candidates
+    const candidateUsers = await User.find({
+      _id: { $nin: excludeIds }
+    }).select('-password');
+
+    // Calculate match for each candidate
+    const matches = candidateUsers.map(candidate => {
+      const matchDetails = calculatePostMatch(post, candidate);
+      return {
+        user: candidate,
+        ...matchDetails
+      };
+    });
+
+    // Sort descending by score
+    matches.sort((a, b) => b.compatibilityScore - a.compatibilityScore);
+
+    res.json({
+      success: true,
+      count: matches.length,
+      post: {
+        _id: post._id,
+        title: post.title,
+        type: post.type,
+        requiredRoles: post.requiredRoles,
+        requiredSkills: post.requiredSkills,
+        teamSize: post.teamSize,
+        currentMembers: post.currentMembers
+      },
+      data: matches
     });
   } catch (error) {
     next(error);

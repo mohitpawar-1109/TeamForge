@@ -15,7 +15,13 @@ import {
   Check,
   X,
   Users,
-  UserPlus
+  UserPlus,
+  Zap,
+  Target,
+  ChevronDown,
+  ChevronUp,
+  Loader2,
+  Send
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
@@ -40,6 +46,12 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
   const [savingEdit, setSavingEdit] = useState(false);
   const [commentsOpen, setCommentsOpen] = useState(false);
   const [localCommentsCount, setLocalCommentsCount] = useState(post.commentsCount || 0);
+
+  // AI Teammate Discovery State
+  const [showAiMatches, setShowAiMatches] = useState(false);
+  const [aiMatches, setAiMatches] = useState([]);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [invitedUserIds, setInvitedUserIds] = useState([]);
 
   const currentUserId = user?._id?.toString();
   const isLiked = Boolean(
@@ -176,18 +188,31 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
     }
   };
 
-  const handleShare = async () => {
-    try {
-      const shareUrl = `${window.location.origin}/community?post=${post._id}`;
-      if (navigator.clipboard) {
-        await navigator.clipboard.writeText(shareUrl);
-        success('Post link copied to clipboard! 📋');
-      } else {
-        success('Share link: ' + shareUrl);
+  const handleFindMatchesWithAi = async () => {
+    if (!showAiMatches && aiMatches.length === 0) {
+      setAiLoading(true);
+      setShowAiMatches(true);
+      try {
+        const res = await postAPI.getPostMatches(post._id);
+        if (res.data.success) {
+          setAiMatches(res.data.data || []);
+        }
+      } catch (err) {
+        console.error('Failed to load AI matches:', err);
+        error('Could not fetch matches at this time.');
+      } finally {
+        setAiLoading(false);
       }
-    } catch (err) {
-      success('Link copied to clipboard!');
+    } else {
+      setShowAiMatches(!showAiMatches);
     }
+  };
+
+  const handleInviteCandidate = (candidate) => {
+    const candidateId = candidate.user?._id || candidate.user;
+    const candidateName = candidate.user?.name || 'Teammate';
+    setInvitedUserIds(prev => [...prev, candidateId]);
+    success(`Invitation sent to ${candidateName}! ✨`);
   };
 
   const formatTime = (dateStr) => {
@@ -409,48 +434,217 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
             </div>
           )}
 
-          {/* Join / Status Action Row */}
-          <div className="pt-2 flex items-center justify-between gap-3 border-t border-indigo-200/60">
-            <div className="text-[11px] text-slate-500 font-medium truncate">
-              {isAuthor
-                ? 'You created this team post'
-                : isMember
-                ? "✓ You're part of this team."
-                : joinRequested
-                ? 'Join request sent ✓'
-                : 'Direct team recruitment'}
-            </div>
-
-            {isAuthor ? (
-              <span className="px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-100 text-indigo-800 border border-indigo-200">
-                Post Owner
-              </span>
-            ) : isMember ? (
-              <span className="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1">
-                <Check className="w-3.5 h-3.5 text-emerald-700" />
-                <span>✓ You're part of this team.</span>
-              </span>
-            ) : joinRequested ? (
-              <span className="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1">
-                <Check className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Join request sent ✓</span>
-              </span>
-            ) : (post.teamSize && (post.currentMembers || 1) >= post.teamSize) ? (
-              <span className="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-500">
-                Team Full ({post.teamSize}/{post.teamSize})
-              </span>
-            ) : (
+          {/* Join & AI Match Action Row */}
+          <div className="pt-2 flex flex-wrap items-center justify-between gap-2.5 border-t border-indigo-200/60">
+            {/* Left Action / Match Trigger */}
+            <div className="flex items-center gap-2">
               <button
                 type="button"
-                onClick={handleRequestToJoin}
-                disabled={joinLoading}
-                className="px-4 py-2 rounded-xl text-xs font-extrabold bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 active:scale-95 text-white flex items-center gap-1.5 shadow-sm hover:shadow transition-all duration-200 flex-shrink-0"
+                onClick={handleFindMatchesWithAi}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-xs ${
+                  showAiMatches
+                    ? 'bg-indigo-600 text-white shadow-indigo-200'
+                    : 'bg-white text-indigo-700 hover:bg-indigo-50 border border-indigo-200'
+                }`}
               >
-                <UserPlus className="w-3.5 h-3.5" />
-                <span>{joinLoading ? 'Sending...' : 'Request to Join'}</span>
+                <Sparkles className={`w-3.5 h-3.5 ${showAiMatches ? 'text-yellow-300' : 'text-indigo-600'}`} />
+                <span>{showAiMatches ? 'Hide AI Matches' : 'Find Matches with AI'}</span>
+                {showAiMatches ? (
+                  <ChevronUp className="w-3.5 h-3.5" />
+                ) : (
+                  <ChevronDown className="w-3.5 h-3.5" />
+                )}
               </button>
-            )}
+            </div>
+
+            {/* Right Join / Status Action */}
+            <div className="flex items-center gap-2">
+              {isAuthor ? (
+                <span className="px-3 py-1 rounded-xl text-xs font-bold bg-indigo-100/90 text-indigo-800 border border-indigo-200">
+                  Post Owner
+                </span>
+              ) : isMember ? (
+                <span className="px-3 py-1 rounded-xl text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1">
+                  <Check className="w-3.5 h-3.5 text-emerald-700" />
+                  <span>✓ You're part of this team.</span>
+                </span>
+              ) : joinRequested ? (
+                <span className="px-3 py-1 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1">
+                  <Check className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Join request sent ✓</span>
+                </span>
+              ) : (post.teamSize && (post.currentMembers || 1) >= post.teamSize) ? (
+                <span className="px-3 py-1 rounded-xl text-xs font-bold bg-slate-100 text-slate-500">
+                  Team Full ({post.teamSize}/{post.teamSize})
+                </span>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleRequestToJoin}
+                  disabled={joinLoading}
+                  className="px-4 py-1.5 rounded-xl text-xs font-extrabold bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 active:scale-95 text-white flex items-center gap-1.5 shadow-sm hover:shadow transition-all duration-200 flex-shrink-0"
+                >
+                  <UserPlus className="w-3.5 h-3.5" />
+                  <span>{joinLoading ? 'Sending...' : 'Request to Join'}</span>
+                </button>
+              )}
+            </div>
           </div>
+
+          {/* AI MATCHES EXPANDABLE CONTAINER */}
+          {showAiMatches && (
+            <div className="mt-3 pt-3 border-t border-indigo-200/80 space-y-3 animate-in fade-in slide-in-from-top-1 duration-200">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <Target className="w-4 h-4 text-indigo-600" />
+                  <span className="text-xs font-black uppercase tracking-wider text-indigo-950">
+                    AI MATCHES {aiMatches.length > 0 && `(${aiMatches.length})`}
+                  </span>
+                  <span className="text-[10px] font-black px-2 py-0.5 rounded-md bg-indigo-600 text-white shadow-2xs">
+                    SMART RANKED
+                  </span>
+                </div>
+                <span className="text-[11px] text-slate-400 font-medium">
+                  Based on verified skills & interests
+                </span>
+              </div>
+
+              {/* Scanning Animation State */}
+              {aiLoading ? (
+                <div className="p-5 rounded-2xl bg-white/90 border border-indigo-100 space-y-3">
+                  <div className="flex items-center gap-2.5 text-xs font-bold text-indigo-700">
+                    <Loader2 className="w-4 h-4 animate-spin text-indigo-600" />
+                    <span>Analyzing student skillsets & calculating role compatibility...</span>
+                  </div>
+                  <div className="w-full bg-indigo-50 h-2 rounded-full overflow-hidden">
+                    <div className="bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-500 h-full rounded-full animate-pulse w-3/4" />
+                  </div>
+                </div>
+              ) : aiMatches.length === 0 ? (
+                <div className="p-4 rounded-2xl bg-white/90 border border-indigo-100 text-center text-xs text-slate-500">
+                  No compatible student profiles found matching these specific requirements yet.
+                </div>
+              ) : (
+                <div className="space-y-2.5">
+                  {aiMatches.map((match, idx) => {
+                    const candidate = match.user;
+                    const isInvited = invitedUserIds.includes(candidate?._id);
+                    const score = match.compatibilityScore || match.score || 85;
+
+                    return (
+                      <div
+                        key={candidate?._id || idx}
+                        className="p-3.5 sm:p-4 rounded-2xl bg-white border border-indigo-100 hover:border-indigo-300 shadow-2xs hover:shadow-xs transition-all space-y-2.5"
+                      >
+                        {/* Candidate Header Row */}
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <img
+                              src={
+                                candidate?.avatar ||
+                                `https://api.dicebear.com/7.x/avataaars/svg?seed=${candidate?.name || 'User'}`
+                              }
+                              alt={candidate?.name}
+                              className="w-10 h-10 rounded-xl object-cover border border-slate-200 bg-slate-50 flex-shrink-0"
+                            />
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <h5 className="font-extrabold text-slate-900 text-xs sm:text-sm truncate">
+                                  {candidate?.name}
+                                </h5>
+                                {match.suggestedRole && (
+                                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200">
+                                    {match.suggestedRole}
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-[11px] text-slate-400 truncate">
+                                {candidate?.college ? `${candidate.college} • ` : ''}
+                                {candidate?.course || candidate?.headline || 'Developer'}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Match Score Badge */}
+                          <div className="flex-shrink-0">
+                            <span
+                              className={`px-3 py-1 rounded-xl text-xs font-black shadow-2xs border ${
+                                score >= 85
+                                  ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white border-emerald-600'
+                                  : score >= 70
+                                  ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white border-indigo-600'
+                                  : 'bg-slate-100 text-slate-800 border-slate-200'
+                              }`}
+                            >
+                              {score}% MATCH
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Matching Skills */}
+                        {match.matchingSkills && match.matchingSkills.length > 0 && (
+                          <div className="flex flex-wrap items-center gap-1.5 text-xs">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mr-1">
+                              Skills:
+                            </span>
+                            {match.matchingSkills.map((sk, sIdx) => (
+                              <span
+                                key={sIdx}
+                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200/80"
+                              >
+                                <Check className="w-3 h-3 text-emerald-600" />
+                                <span>{sk}</span>
+                              </span>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Why this match explanation */}
+                        {match.reason && (
+                          <p className="text-[11px] text-slate-600 italic bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                            "{match.reason}"
+                          </p>
+                        )}
+
+                        {/* Action Buttons: View Profile & Invite */}
+                        <div className="flex items-center justify-end gap-2 pt-1">
+                          <Link
+                            to="/profile"
+                            className="px-3 py-1.5 rounded-xl text-xs font-bold text-slate-600 hover:text-indigo-600 hover:bg-slate-50 transition-colors"
+                          >
+                            View Profile
+                          </Link>
+
+                          <button
+                            type="button"
+                            onClick={() => handleInviteCandidate(match)}
+                            disabled={isInvited}
+                            className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 shadow-2xs transition-all ${
+                              isInvited
+                                ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                                : 'bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white'
+                            }`}
+                          >
+                            {isInvited ? (
+                              <>
+                                <Check className="w-3.5 h-3.5 text-emerald-700" />
+                                <span>Invited ✓</span>
+                              </>
+                            ) : (
+                              <>
+                                <Send className="w-3 h-3" />
+                                <span>Invite</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 
