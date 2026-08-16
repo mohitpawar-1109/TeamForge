@@ -1,5 +1,6 @@
 import TeamRequest from '../models/TeamRequest.js';
 import Post from '../models/Post.js';
+import Notification from '../models/Notification.js';
 
 // @desc    Get team join requests (incoming & outgoing)
 // @route   GET /api/team-requests
@@ -74,10 +75,13 @@ export const updateTeamRequestStatus = async (req, res, next) => {
       });
     }
 
+    let postTitle = 'the team';
+
     // Handle acceptance logic
     if (status === 'accepted' && teamRequest.status !== 'accepted') {
       const post = await Post.findById(teamRequest.post);
       if (post) {
+        postTitle = post.title || 'the team';
         // Increment currentMembers up to teamSize
         if (post.teamSize && post.currentMembers >= post.teamSize) {
           return res.status(400).json({
@@ -93,10 +97,42 @@ export const updateTeamRequestStatus = async (req, res, next) => {
         }
         await post.save();
       }
+    } else if (status === 'rejected') {
+      const post = await Post.findById(teamRequest.post);
+      if (post) {
+        postTitle = post.title || 'the team';
+      }
     }
 
     teamRequest.status = status;
     await teamRequest.save();
+
+    // Create Notification for requester
+    try {
+      if (status === 'accepted') {
+        await Notification.create({
+          recipient: teamRequest.requester,
+          sender: req.user._id,
+          type: 'TEAM_REQUEST_ACCEPTED',
+          title: 'Team Request Accepted',
+          message: `${req.user.name} accepted your request to join ${postTitle}`,
+          relatedPost: teamRequest.post,
+          relatedTeamRequest: teamRequest._id
+        });
+      } else {
+        await Notification.create({
+          recipient: teamRequest.requester,
+          sender: req.user._id,
+          type: 'TEAM_REQUEST_REJECTED',
+          title: 'Team Request Declined',
+          message: `Your request to join ${postTitle} was declined`,
+          relatedPost: teamRequest.post,
+          relatedTeamRequest: teamRequest._id
+        });
+      }
+    } catch (notifErr) {
+      console.warn('Failed to create team request status notification:', notifErr.message);
+    }
 
     const updated = await TeamRequest.findById(requestId)
       .populate('requester', 'name email headline avatar college course year skills')

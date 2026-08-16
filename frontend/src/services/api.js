@@ -78,7 +78,8 @@ export const taskAPI = {
 export const notifAPI = {
   getNotifications: () => API.get('/notifications'),
   markRead: (id) => API.patch(`/notifications/${id}/read`),
-  markAllRead: () => API.patch('/notifications/mark-all-read')
+  markAllRead: () => API.patch('/notifications/read-all'),
+  markAllNotificationsRead: () => API.patch('/notifications/read-all')
 };
 
 export const postAPI = {

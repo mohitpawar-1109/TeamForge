@@ -1,5 +1,6 @@
 import Post from '../models/Post.js';
 import TeamRequest from '../models/TeamRequest.js';
+import Notification from '../models/Notification.js';
 
 // @desc    Create a new post
 // @route   POST /api/posts
@@ -326,6 +327,22 @@ export const likePost = async (req, res, next) => {
     if (!alreadyLiked) {
       post.likes.push(req.user._id);
       await post.save();
+
+      // Create LIKE notification for post author if not liking own post
+      if (post.author.toString() !== req.user._id.toString()) {
+        try {
+          await Notification.create({
+            recipient: post.author,
+            sender: req.user._id,
+            type: 'LIKE',
+            title: 'New Like',
+            message: `${req.user.name} liked your post`,
+            relatedPost: post._id
+          });
+        } catch (notifErr) {
+          console.warn('Failed to create like notification:', notifErr.message);
+        }
+      }
     }
 
     res.json({
@@ -438,6 +455,21 @@ export const joinTeamPost = async (req, res, next) => {
       message: message ? message.trim() : '',
       status: 'pending'
     });
+
+    // Create TEAM_REQUEST notification for post author
+    try {
+      await Notification.create({
+        recipient: post.author,
+        sender: req.user._id,
+        type: 'TEAM_REQUEST',
+        title: 'Team Join Request',
+        message: `${req.user.name} wants to join your team`,
+        relatedPost: post._id,
+        relatedTeamRequest: teamRequest._id
+      });
+    } catch (notifErr) {
+      console.warn('Failed to create team request notification:', notifErr.message);
+    }
 
     const populatedRequest = await TeamRequest.findById(teamRequest._id)
       .populate('requester', 'name email headline avatar college course year skills')

@@ -5,7 +5,8 @@ import { protect } from '../middleware/auth.middleware.js';
 const router = express.Router();
 
 router.get('/', protect, getNotifications);
-router.patch('/:id/read', protect, markNotificationRead);
+router.patch('/read-all', protect, markAllNotificationsRead);
 router.patch('/mark-all-read', protect, markAllNotificationsRead);
+router.patch('/:id/read', protect, markNotificationRead);
 
 export default router;

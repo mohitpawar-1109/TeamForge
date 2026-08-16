@@ -38,7 +38,9 @@ export const createInvitation = async (req, res, next) => {
 
     // Create a notification for the receiver
     await Notification.create({
+      recipient: receiverId,
       user: receiverId,
+      sender: req.user._id,
       type: 'invite',
       title: 'New Team Invitation',
       message: `${req.user.name} invited you to join "${project.title}" as ${role || 'Team Member'}.`,

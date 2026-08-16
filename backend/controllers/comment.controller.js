@@ -1,5 +1,6 @@
 import Comment from '../models/Comment.js';
 import Post from '../models/Post.js';
+import Notification from '../models/Notification.js';
 
 // @desc    Get all comments for a specific post
 // @route   GET /api/posts/:id/comments
@@ -61,6 +62,22 @@ export const createComment = async (req, res, next) => {
 
     // Increment post's commentsCount
     await Post.findByIdAndUpdate(postId, { $inc: { commentsCount: 1 } });
+
+    // Create COMMENT notification if not commenting on own post
+    if (post.author.toString() !== req.user._id.toString()) {
+      try {
+        await Notification.create({
+          recipient: post.author,
+          sender: req.user._id,
+          type: 'COMMENT',
+          title: 'New Comment',
+          message: `${req.user.name} commented on your post`,
+          relatedPost: post._id
+        });
+      } catch (notifErr) {
+        console.warn('Failed to create comment notification:', notifErr.message);
+      }
+    }
 
     const populatedComment = await Comment.findById(comment._id)
       .populate('author', 'name email headline avatar college course year');
