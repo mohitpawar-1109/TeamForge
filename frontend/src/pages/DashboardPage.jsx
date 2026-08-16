@@ -11,13 +11,15 @@ import {
   TrendingUp,
   Clock,
   Compass,
-  AlertCircle
+  AlertCircle,
+  Brain
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { projectAPI, inviteAPI } from '../services/api';
 import { ProjectCard } from '../components/cards/ProjectCard';
 import { Button } from '../components/common/Button';
 import { TeamRequestsSection } from '../components/community/TeamRequestsSection';
+import { AiMatchVisualizer3D } from '../components/matching/AiMatchVisualizer3D';
 
 export const DashboardPage = () => {
   const { user } = useAuth();
@@ -25,6 +27,7 @@ export const DashboardPage = () => {
   const [myProjects, setMyProjects] = useState([]);
   const [invitations, setInvitations] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [show3DMatcher, setShow3DMatcher] = useState(false);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -89,18 +92,30 @@ export const DashboardPage = () => {
         </div>
 
         <div className="relative z-10 flex flex-wrap gap-3">
+          <Button
+            variant="secondary"
+            size="md"
+            icon={Sparkles}
+            onClick={() => setShow3DMatcher(!show3DMatcher)}
+            className="bg-white text-indigo-700 hover:bg-slate-50 border-transparent shadow-lg font-extrabold"
+          >
+            {show3DMatcher ? 'Close Matcher' : '✨ Find My Best Teammate'}
+          </Button>
           <Link to="/projects/create">
-            <Button variant="secondary" size="md" icon={PlusCircle} className="bg-white text-brand-700 hover:bg-slate-50 border-transparent shadow-md">
+            <Button variant="outline" size="md" icon={PlusCircle} className="text-white border-white/40 hover:bg-white/10">
               Create Project
-            </Button>
-          </Link>
-          <Link to="/projects">
-            <Button variant="outline" size="md" icon={Compass} className="text-white border-white/40 hover:bg-white/10">
-              Explore Projects
             </Button>
           </Link>
         </div>
       </div>
+
+      {/* 3D AI Matcher Section */}
+      {show3DMatcher && (
+        <AiMatchVisualizer3D
+          projectId={myProjects.length > 0 ? myProjects[0]._id : null}
+          onClose={() => setShow3DMatcher(false)}
+        />
+      )}
 
       {/* STATS CARDS */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">

@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Sparkles, ArrowLeft, Users, Mail, CheckCircle2 } from 'lucide-react';
+import { Sparkles, ArrowLeft, Users, Mail, CheckCircle2, Brain } from 'lucide-react';
 import { projectAPI, inviteAPI } from '../services/api';
 import { useToast } from '../context/ToastContext';
 import { CandidateCard } from '../components/cards/CandidateCard';
 import { Modal } from '../components/common/Modal';
 import { Button } from '../components/common/Button';
+import { AiMatchVisualizer3D } from '../components/matching/AiMatchVisualizer3D';
 
 export const ProjectMatchesPage = () => {
   const { id } = useParams();
@@ -14,6 +15,7 @@ export const ProjectMatchesPage = () => {
   const [matches, setMatches] = useState([]);
   const [projectTitle, setProjectTitle] = useState('');
   const [loading, setLoading] = useState(true);
+  const [show3DVisualizer, setShow3DVisualizer] = useState(false);
 
   // Invite Modal state
   const [selectedCandidate, setSelectedCandidate] = useState(null);
@@ -92,7 +94,26 @@ export const ProjectMatchesPage = () => {
             Ranked candidates for <span className="font-bold text-slate-700">"{projectTitle}"</span> calculated from skill coverage, interests, and schedule compatibility.
           </p>
         </div>
+
+        <Button
+          variant={show3DVisualizer ? 'secondary' : 'gradient'}
+          size="md"
+          icon={Brain}
+          onClick={() => setShow3DVisualizer(!show3DVisualizer)}
+          className={!show3DVisualizer ? 'bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 text-white font-extrabold shadow-md' : ''}
+        >
+          {show3DVisualizer ? 'Close 3D Match' : '✨ 3D AI Match Flow'}
+        </Button>
       </div>
+
+      {/* 3D AI Match Visualizer Section */}
+      {show3DVisualizer && (
+        <AiMatchVisualizer3D
+          projectId={id}
+          onClose={() => setShow3DVisualizer(false)}
+          onTeammateInvited={() => fetchMatches()}
+        />
+      )}
 
       {/* Match Results Grid */}
       {loading ? (
