@@ -17,6 +17,7 @@ import { useAuth } from '../context/AuthContext';
 import { projectAPI, inviteAPI } from '../services/api';
 import { ProjectCard } from '../components/cards/ProjectCard';
 import { Button } from '../components/common/Button';
+import { TeamRequestsSection } from '../components/community/TeamRequestsSection';
 
 export const DashboardPage = () => {
   const { user } = useAuth();
@@ -273,6 +274,9 @@ export const DashboardPage = () => {
           )}
         </div>
       </div>
+
+      {/* COMMUNITY TEAM RECRUITMENT REQUESTS */}
+      <TeamRequestsSection />
     </div>
   );
 };

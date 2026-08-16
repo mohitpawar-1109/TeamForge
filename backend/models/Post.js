@@ -43,7 +43,36 @@ const postSchema = new mongoose.Schema({
   commentsCount: {
     type: Number,
     default: 0
-  }
+  },
+  // Team Building Fields (for LOOKING_FOR_TEAMMATES)
+  title: {
+    type: String,
+    trim: true,
+    default: ''
+  },
+  requiredRoles: [{
+    type: String,
+    trim: true
+  }],
+  requiredSkills: [{
+    type: String,
+    trim: true
+  }],
+  teamSize: {
+    type: Number,
+    default: 4,
+    min: 2,
+    max: 20
+  },
+  currentMembers: {
+    type: Number,
+    default: 1,
+    min: 1
+  },
+  members: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }]
 }, {
   timestamps: true
 });

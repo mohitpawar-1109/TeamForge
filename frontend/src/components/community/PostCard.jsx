@@ -13,11 +13,13 @@ import {
   Sparkles,
   Tag,
   Check,
-  X
+  X,
+  Users,
+  UserPlus
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
-import { postAPI } from '../../services/api';
+import { postAPI, teamRequestAPI } from '../../services/api';
 import { POST_TYPES } from './PostTypeSelector';
 import { CommentsDrawer } from './CommentsDrawer';
 import { Badge } from '../common/Badge';
@@ -30,6 +32,8 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
   const [likeCount, setLikeCount] = useState(post.likes?.length || 0);
   const [likeLoading, setLikeLoading] = useState(false);
   const [heartAnimated, setHeartAnimated] = useState(false);
+  const [joinRequested, setJoinRequested] = useState(false);
+  const [joinLoading, setJoinLoading] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState(post.content || '');
@@ -45,6 +49,10 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
   const isAuthor = Boolean(
     currentUserId &&
     ((post.author?._id || post.author)?.toString() === currentUserId)
+  );
+  const isMember = Boolean(
+    currentUserId &&
+    post.members?.some(m => (m?._id || m)?.toString() === currentUserId)
   );
 
   const typeConfig = POST_TYPES.find(t => t.id === post.type) || POST_TYPES[0];
@@ -134,6 +142,37 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
       error(err.response?.data?.message || 'Failed to update post.');
     } finally {
       setSavingEdit(false);
+    }
+  };
+
+  const handleRequestToJoin = async () => {
+    if (!user) {
+      error('Please sign in to request joining a team.');
+      return;
+    }
+    if (isAuthor) {
+      error('You are the creator of this team post.');
+      return;
+    }
+    if (isMember) {
+      success("You're already part of this team.");
+      return;
+    }
+    if (joinRequested) {
+      return;
+    }
+
+    setJoinLoading(true);
+    try {
+      const res = await teamRequestAPI.joinTeamPost(post._id);
+      if (res.data.success) {
+        setJoinRequested(true);
+        success('Join request sent ✓');
+      }
+    } catch (err) {
+      error(err.response?.data?.message || 'Failed to send join request.');
+    } finally {
+      setJoinLoading(false);
     }
   };
 
@@ -289,10 +328,129 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
           </div>
         </div>
       ) : (
-        <div className="mb-4">
+        <div className="mb-4 space-y-3">
+          {post.title && post.type !== 'LOOKING_FOR_TEAMMATES' && (
+            <h4 className="font-bold text-slate-900 text-sm sm:text-base">
+              {post.title}
+            </h4>
+          )}
           <p className="text-sm text-slate-800 whitespace-pre-line leading-relaxed">
             {post.content}
           </p>
+        </div>
+      )}
+
+      {/* LOOKING_FOR_TEAMMATES Specialized Recruitment Card */}
+      {post.type === 'LOOKING_FOR_TEAMMATES' && (
+        <div className="mb-4 p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-indigo-50/90 via-purple-50/60 to-blue-50/40 border border-indigo-200/80 shadow-xs space-y-3.5">
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-black bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-xs tracking-wide">
+              <span>🚀</span>
+              <span>TEAM NEEDED</span>
+            </span>
+
+            {/* Capacity Counter */}
+            <div className="flex items-center gap-1.5 text-xs font-bold text-indigo-900 bg-white/90 border border-indigo-200 px-3 py-1 rounded-xl shadow-xs">
+              <Users className="w-3.5 h-3.5 text-indigo-600" />
+              <span>
+                {post.currentMembers || 1}/{post.teamSize || 4} members
+              </span>
+            </div>
+          </div>
+
+          {/* Project Title */}
+          {post.title && (
+            <h4 className="font-black text-slate-900 text-base sm:text-lg tracking-tight">
+              {post.title}
+            </h4>
+          )}
+
+          {/* Required Roles */}
+          {post.requiredRoles && post.requiredRoles.length > 0 && (
+            <div className="space-y-1.5">
+              <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 block">
+                Looking for:
+              </span>
+              <div className="flex flex-wrap gap-2">
+                {post.requiredRoles.map((role, idx) => {
+                  const roleEmoticons = ['🟣', '🔵', '🟢', '🟠', '🟡'];
+                  const roleColors = [
+                    'bg-purple-100/90 text-purple-900 border-purple-200',
+                    'bg-blue-100/90 text-blue-900 border-blue-200',
+                    'bg-emerald-100/90 text-emerald-900 border-emerald-200',
+                    'bg-amber-100/90 text-amber-900 border-amber-200',
+                    'bg-rose-100/90 text-rose-900 border-rose-200'
+                  ];
+                  return (
+                    <span
+                      key={idx}
+                      className={`inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-xl border shadow-xs ${
+                        roleColors[idx % roleColors.length]
+                      }`}
+                    >
+                      <span>{roleEmoticons[idx % roleEmoticons.length]}</span>
+                      <span>{role}</span>
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Required Skills */}
+          {post.requiredSkills && post.requiredSkills.length > 0 && (
+            <div className="space-y-1">
+              <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 block">
+                Skills:
+              </span>
+              <p className="text-xs font-bold text-indigo-950">
+                {post.requiredSkills.join(' • ')}
+              </p>
+            </div>
+          )}
+
+          {/* Join / Status Action Row */}
+          <div className="pt-2 flex items-center justify-between gap-3 border-t border-indigo-200/60">
+            <div className="text-[11px] text-slate-500 font-medium truncate">
+              {isAuthor
+                ? 'You created this team post'
+                : isMember
+                ? "✓ You're part of this team."
+                : joinRequested
+                ? 'Join request sent ✓'
+                : 'Direct team recruitment'}
+            </div>
+
+            {isAuthor ? (
+              <span className="px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-100 text-indigo-800 border border-indigo-200">
+                Post Owner
+              </span>
+            ) : isMember ? (
+              <span className="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1">
+                <Check className="w-3.5 h-3.5 text-emerald-700" />
+                <span>✓ You're part of this team.</span>
+              </span>
+            ) : joinRequested ? (
+              <span className="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1">
+                <Check className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Join request sent ✓</span>
+              </span>
+            ) : (post.teamSize && (post.currentMembers || 1) >= post.teamSize) ? (
+              <span className="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-500">
+                Team Full ({post.teamSize}/{post.teamSize})
+              </span>
+            ) : (
+              <button
+                type="button"
+                onClick={handleRequestToJoin}
+                disabled={joinLoading}
+                className="px-4 py-2 rounded-xl text-xs font-extrabold bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 active:scale-95 text-white flex items-center gap-1.5 shadow-sm hover:shadow transition-all duration-200 flex-shrink-0"
+              >
+                <UserPlus className="w-3.5 h-3.5" />
+                <span>{joinLoading ? 'Sending...' : 'Request to Join'}</span>
+              </button>
+            )}
+          </div>
         </div>
       )}
 

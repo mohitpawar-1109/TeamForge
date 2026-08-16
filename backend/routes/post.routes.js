@@ -6,7 +6,8 @@ import {
   updatePost,
   deletePost,
   likePost,
-  unlikePost
+  unlikePost,
+  joinTeamPost
 } from '../controllers/post.controller.js';
 import {
   getPostComments,
@@ -32,5 +33,7 @@ router.route('/:id/like')
 router.route('/:id/comments')
   .get(getPostComments)
   .post(protect, createComment);
+
+router.post('/:id/join', protect, joinTeamPost);
 
 export default router;

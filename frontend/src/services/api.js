@@ -99,4 +99,10 @@ export const commentAPI = {
   deleteComment: (commentId) => API.delete(`/comments/${commentId}`)
 };
 
+export const teamRequestAPI = {
+  joinTeamPost: (postId, data) => API.post(`/posts/${postId}/join`, data),
+  getTeamRequests: (params) => API.get('/team-requests', { params }),
+  updateRequestStatus: (id, status) => API.patch(`/team-requests/${id}`, { status })
+};
+
 export default API;

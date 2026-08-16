@@ -21,6 +21,13 @@ export const CreatePost = ({ onPostCreated }) => {
 
   const [content, setContent] = useState('');
   const [type, setType] = useState('TEXT');
+  const [title, setTitle] = useState('');
+  const [requiredRoles, setRequiredRoles] = useState([]);
+  const [roleInput, setRoleInput] = useState('');
+  const [requiredSkills, setRequiredSkills] = useState([]);
+  const [skillInput, setSkillInput] = useState('');
+  const [teamSize, setTeamSize] = useState(4);
+  const [currentMembers, setCurrentMembers] = useState(1);
   const [tags, setTags] = useState([]);
   const [tagInput, setTagInput] = useState('');
   const [projectLink, setProjectLink] = useState('');
@@ -29,6 +36,30 @@ export const CreatePost = ({ onPostCreated }) => {
   const [loading, setLoading] = useState(false);
 
   const selectedTypeConfig = POST_TYPES.find(t => t.id === type) || POST_TYPES[0];
+
+  const handleAddRole = (roleToAdd) => {
+    const clean = (roleToAdd || roleInput).trim();
+    if (clean && !requiredRoles.includes(clean) && requiredRoles.length < 6) {
+      setRequiredRoles([...requiredRoles, clean]);
+      setRoleInput('');
+    }
+  };
+
+  const handleRemoveRole = (roleToRemove) => {
+    setRequiredRoles(requiredRoles.filter(r => r !== roleToRemove));
+  };
+
+  const handleAddSkill = (skillToAdd) => {
+    const clean = (skillToAdd || skillInput).trim();
+    if (clean && !requiredSkills.includes(clean) && requiredSkills.length < 8) {
+      setRequiredSkills([...requiredSkills, clean]);
+      setSkillInput('');
+    }
+  };
+
+  const handleRemoveSkill = (skillToRemove) => {
+    setRequiredSkills(requiredSkills.filter(s => s !== skillToRemove));
+  };
 
   const handleAddTag = (e) => {
     e?.preventDefault();
@@ -64,12 +95,22 @@ export const CreatePost = ({ onPostCreated }) => {
         type,
         tags,
         projectLink: projectLink.trim(),
-        image: imageUrl.trim()
+        image: imageUrl.trim(),
+        title: title.trim(),
+        requiredRoles,
+        requiredSkills,
+        teamSize: Number(teamSize) || 4,
+        currentMembers: Number(currentMembers) || 1
       });
 
       if (res.data.success) {
         success('Post published to Community feed! 🎉');
         setContent('');
+        setTitle('');
+        setRequiredRoles([]);
+        setRequiredSkills([]);
+        setTeamSize(4);
+        setCurrentMembers(1);
         setTags([]);
         setTagInput('');
         setProjectLink('');
@@ -136,6 +177,195 @@ export const CreatePost = ({ onPostCreated }) => {
             className="w-full px-4 py-3 text-sm bg-slate-50 border border-slate-200 rounded-2xl focus:bg-white focus:border-brand-500 focus:outline-none transition-all placeholder:text-slate-400 resize-y min-h-[90px]"
           />
         </div>
+
+        {/* Team Builder Panel for LOOKING_FOR_TEAMMATES */}
+        {type === 'LOOKING_FOR_TEAMMATES' && (
+          <div className="p-4 bg-gradient-to-br from-indigo-50/70 via-purple-50/50 to-brand-50/40 rounded-2xl border border-indigo-200/80 space-y-4 animate-fadeIn">
+            <div className="flex items-center gap-2 text-xs font-bold text-indigo-900">
+              <span className="text-base">🚀</span>
+              <span>Team Recruitment Details</span>
+            </div>
+
+            {/* Project / Team Title */}
+            <div>
+              <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                Project / Team Title
+              </label>
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="e.g. AI Resume Analyzer or SIH Smart Mobility"
+                className="w-full px-3 py-2 text-xs bg-white border border-slate-200 rounded-xl focus:border-brand-500 focus:outline-none"
+              />
+            </div>
+
+            {/* Required Roles */}
+            <div>
+              <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                Looking for Roles:
+              </label>
+              {requiredRoles.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mb-2">
+                  {requiredRoles.map((role) => (
+                    <span
+                      key={role}
+                      className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg bg-indigo-100/80 text-indigo-800 border border-indigo-200"
+                    >
+                      <span>🟣 {role}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveRole(role)}
+                        className="hover:text-indigo-950 focus:outline-none"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={roleInput}
+                  onChange={(e) => setRoleInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddRole();
+                    }
+                  }}
+                  placeholder="e.g. ML Developer, UI/UX Designer..."
+                  className="flex-1 px-3 py-1.5 text-xs bg-white border border-slate-200 rounded-xl focus:border-brand-500 focus:outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => handleAddRole()}
+                  className="px-3 py-1.5 text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl"
+                >
+                  + Add Role
+                </button>
+              </div>
+
+              {/* Quick preset roles */}
+              <div className="flex flex-wrap gap-1 mt-2">
+                <span className="text-[10px] text-slate-400 font-medium mr-1 self-center">Presets:</span>
+                {['ML Developer', 'UI/UX Designer', 'Backend Developer', 'Frontend Developer', 'App Developer'].map((r) => (
+                  <button
+                    key={r}
+                    type="button"
+                    onClick={() => handleAddRole(r)}
+                    className="text-[11px] font-medium px-2 py-0.5 rounded-md bg-white border border-slate-200 hover:bg-indigo-50 text-slate-600 hover:text-indigo-700 transition-colors"
+                  >
+                    + {r}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Required Skills */}
+            <div>
+              <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                Required Skills & Tech Stack:
+              </label>
+              {requiredSkills.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mb-2">
+                  {requiredSkills.map((skill) => (
+                    <span
+                      key={skill}
+                      className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg bg-purple-100/80 text-purple-800 border border-purple-200"
+                    >
+                      <span>{skill}</span>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveSkill(skill)}
+                        className="hover:text-purple-950 focus:outline-none"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={skillInput}
+                  onChange={(e) => setSkillInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddSkill();
+                    }
+                  }}
+                  placeholder="e.g. Python, React, Gemini..."
+                  className="flex-1 px-3 py-1.5 text-xs bg-white border border-slate-200 rounded-xl focus:border-brand-500 focus:outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => handleAddSkill()}
+                  className="px-3 py-1.5 text-xs font-bold bg-purple-600 hover:bg-purple-700 text-white rounded-xl"
+                >
+                  + Add Skill
+                </button>
+              </div>
+
+              {/* Quick preset skills */}
+              <div className="flex flex-wrap gap-1 mt-2">
+                <span className="text-[10px] text-slate-400 font-medium mr-1 self-center">Presets:</span>
+                {['Python', 'React', 'Gemini', 'Node.js', 'Figma', 'PyTorch', 'Tailwind'].map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => handleAddSkill(s)}
+                    className="text-[11px] font-medium px-2 py-0.5 rounded-md bg-white border border-slate-200 hover:bg-purple-50 text-slate-600 hover:text-purple-700 transition-colors"
+                  >
+                    + {s}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Team Size & Current Members */}
+            <div className="grid grid-cols-2 gap-3 pt-1">
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                  Target Team Size
+                </label>
+                <select
+                  value={teamSize}
+                  onChange={(e) => setTeamSize(Number(e.target.value))}
+                  className="w-full px-3 py-2 text-xs bg-white border border-slate-200 rounded-xl focus:border-brand-500 focus:outline-none"
+                >
+                  <option value={2}>2 Members</option>
+                  <option value={3}>3 Members</option>
+                  <option value={4}>4 Members</option>
+                  <option value={5}>5 Members</option>
+                  <option value={6}>6 Members</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                  Current Members
+                </label>
+                <select
+                  value={currentMembers}
+                  onChange={(e) => setCurrentMembers(Number(e.target.value))}
+                  className="w-full px-3 py-2 text-xs bg-white border border-slate-200 rounded-xl focus:border-brand-500 focus:outline-none"
+                >
+                  <option value={1}>1 (Only you)</option>
+                  <option value={2}>2 Members</option>
+                  <option value={3}>3 Members</option>
+                  <option value={4}>4 Members</option>
+                  <option value={5}>5 Members</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Tags Container */}
         <div className="space-y-2">

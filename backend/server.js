@@ -15,6 +15,7 @@ import taskRoutes from './routes/task.routes.js';
 import notifRoutes from './routes/notif.routes.js';
 import postRoutes from './routes/post.routes.js';
 import commentRoutes from './routes/comment.routes.js';
+import teamRequestRoutes from './routes/teamRequest.routes.js';
 
 dotenv.config();
 
@@ -70,6 +71,7 @@ app.use('/api', taskRoutes);
 app.use('/api/notifications', notifRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/comments', commentRoutes);
+app.use('/api/team-requests', teamRequestRoutes);
 
 // Centralized Error Handler
 app.use(errorHandler);
