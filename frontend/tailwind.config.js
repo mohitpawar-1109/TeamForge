@@ -21,6 +21,14 @@ export default {
           900: '#312e81',
           950: '#1e1b4b',
         },
+        dark: {
+          bg: '#09090B',
+          surface: '#111113',
+          card: '#18181B',
+          elevated: '#1F1F23',
+          border: '#27272A',
+          'border-subtle': '#1E1E22',
+        },
         slate: {
           850: '#172033',
           950: '#0b0f19',

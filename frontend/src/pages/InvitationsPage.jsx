@@ -49,20 +49,20 @@ export const InvitationsPage = () => {
     <div className="space-y-6 max-w-4xl mx-auto">
       {/* Header */}
       <div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Team Invitations</h1>
-        <p className="text-xs sm:text-sm text-slate-500 mt-1">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-[#FAFAFA] tracking-tight">Team Invitations</h1>
+        <p className="text-xs sm:text-sm text-zinc-400 mt-1">
           Review incoming recruitment requests from team leads and track invitations you have dispatched.
         </p>
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-3 border-b border-slate-200">
+      <div className="flex items-center gap-4 border-b border-[#27272A]">
         <button
           onClick={() => setActiveTab('received')}
           className={`pb-3 text-sm font-bold transition-all border-b-2 ${
             activeTab === 'received'
-              ? 'border-brand-600 text-brand-600'
-              : 'border-transparent text-slate-500 hover:text-slate-800'
+              ? 'border-indigo-500 text-indigo-400'
+              : 'border-transparent text-zinc-400 hover:text-[#FAFAFA]'
           }`}
         >
           Received Requests ({received.length})
@@ -71,8 +71,8 @@ export const InvitationsPage = () => {
           onClick={() => setActiveTab('sent')}
           className={`pb-3 text-sm font-bold transition-all border-b-2 ${
             activeTab === 'sent'
-              ? 'border-brand-600 text-brand-600'
-              : 'border-transparent text-slate-500 hover:text-slate-800'
+              ? 'border-indigo-500 text-indigo-400'
+              : 'border-transparent text-zinc-400 hover:text-[#FAFAFA]'
           }`}
         >
           Sent Invitations ({sent.length})
@@ -82,7 +82,7 @@ export const InvitationsPage = () => {
       {/* Content */}
       {loading ? (
         <div className="space-y-4">
-          {[1, 2].map(i => <div key={i} className="h-32 bg-slate-100 rounded-2xl animate-pulse" />)}
+          {[1, 2].map(i => <div key={i} className="h-32 bg-[#18181B] border border-[#27272A] rounded-2xl animate-pulse" />)}
         </div>
       ) : activeTab === 'received' ? (
         received.length === 0 ? (
@@ -98,28 +98,28 @@ export const InvitationsPage = () => {
             {received.map((inv) => (
               <div
                 key={inv._id}
-                className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-soft flex flex-col sm:flex-row sm:items-center justify-between gap-5"
+                className="bg-[#18181B] rounded-2xl border border-[#27272A] p-5 shadow-soft flex flex-col sm:flex-row sm:items-center justify-between gap-5"
               >
                 <div className="flex items-start gap-4">
                   <img
                     src={inv.sender?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${inv.sender?.name}`}
                     alt=""
-                    className="w-12 h-12 rounded-xl object-cover border border-slate-200 bg-slate-100 flex-shrink-0"
+                    className="w-12 h-12 rounded-xl object-cover border border-[#27272A] bg-[#111113] flex-shrink-0"
                   />
                   <div>
                     <div className="flex items-center gap-2">
-                      <h4 className="font-bold text-slate-900 text-base">{inv.project?.title}</h4>
+                      <h4 className="font-bold text-[#FAFAFA] text-base">{inv.project?.title}</h4>
                       <Badge variant={inv.status === 'accepted' ? 'success' : inv.status === 'declined' ? 'danger' : 'brand'}>
                         {inv.status}
                       </Badge>
                     </div>
 
-                    <p className="text-xs text-slate-600 mt-1">
-                      Invited by <span className="font-semibold">{inv.sender?.name}</span> ({inv.sender?.college}) as <span className="font-bold text-brand-700">{inv.role || 'Contributor'}</span>
+                    <p className="text-xs text-zinc-300 mt-1">
+                      Invited by <span className="font-semibold text-zinc-100">{inv.sender?.name}</span> ({inv.sender?.college}) as <span className="font-bold text-indigo-400">{inv.role || 'Contributor'}</span>
                     </p>
 
                     {inv.message && (
-                      <p className="text-xs text-slate-500 mt-2 italic bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+                      <p className="text-xs text-zinc-300 mt-2 italic bg-[#111113] p-2.5 rounded-lg border border-[#27272A]">
                         "{inv.message}"
                       </p>
                     )}
@@ -154,7 +154,7 @@ export const InvitationsPage = () => {
                       </Button>
                     </Link>
                   ) : (
-                    <span className="text-xs font-semibold text-slate-400">Declined</span>
+                    <span className="text-xs font-semibold text-zinc-500">Declined</span>
                   )}
                 </div>
               </div>
@@ -176,19 +176,19 @@ export const InvitationsPage = () => {
             {sent.map((inv) => (
               <div
                 key={inv._id}
-                className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-soft flex items-center justify-between gap-4"
+                className="bg-[#18181B] rounded-2xl border border-[#27272A] p-5 shadow-soft flex items-center justify-between gap-4"
               >
                 <div className="flex items-center gap-4">
                   <img
                     src={inv.receiver?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${inv.receiver?.name}`}
                     alt=""
-                    className="w-10 h-10 rounded-xl object-cover border border-slate-200 bg-slate-100"
+                    className="w-10 h-10 rounded-xl object-cover border border-[#27272A] bg-[#111113]"
                   />
                   <div>
-                    <h4 className="font-bold text-slate-900 text-sm">
+                    <h4 className="font-bold text-[#FAFAFA] text-sm">
                       Invited {inv.receiver?.name} to "{inv.project?.title}"
                     </h4>
-                    <p className="text-xs text-slate-500 mt-0.5">
+                    <p className="text-xs text-zinc-400 mt-0.5">
                       Role: {inv.role || 'Member'} • Sent {new Date(inv.createdAt).toLocaleDateString()}
                     </p>
                   </div>

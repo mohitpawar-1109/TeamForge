@@ -43,23 +43,27 @@ export const MainLayout = () => {
     { label: 'Explore', path: '/projects', icon: Compass },
     { label: 'Skill Network', path: '/network', icon: Network },
     { label: 'My Projects', path: '/my-projects', icon: FolderGit2 },
-    { label: 'Invitations', path: '/invitations', icon: Mail, badge: unreadCount > 0 ? unreadCount : null },
+    {
+      label: 'Invitations',
+      path: '/invitations',
+      icon: Mail
+    },
     { label: 'Profile', path: '/profile', icon: User },
     { label: 'Settings', path: '/settings', icon: Settings },
   ];
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] flex">
+    <div className="min-h-screen bg-[#09090B] text-[#FAFAFA] flex">
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex flex-col w-64 border-r border-slate-200 bg-white sticky top-0 h-screen z-30 justify-between">
+      <aside className="hidden lg:flex flex-col w-64 border-r border-[#27272A] bg-[#18181B] sticky top-0 h-screen z-30 justify-between">
         <div>
           {/* Logo Header */}
-          <div className="h-16 flex items-center px-6 border-b border-slate-100 gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-brand-600 to-violet-600 flex items-center justify-center shadow-md shadow-brand-500/20">
+          <div className="h-16 flex items-center px-6 border-b border-[#27272A] gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center shadow-md shadow-indigo-500/20">
               <Layers className="w-4 h-4 text-white" />
             </div>
-            <span className="text-lg font-bold tracking-tight text-slate-900">
-              TEAM<span className="text-brand-600">FORGE</span>
+            <span className="text-lg font-bold tracking-tight text-white">
+              TEAM<span className="text-indigo-400">FORGE</span>
             </span>
           </div>
 
@@ -83,16 +87,16 @@ export const MainLayout = () => {
                   to={item.path}
                   className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
                     isActive
-                      ? 'bg-brand-50 text-brand-700 font-semibold shadow-xs'
-                      : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                      ? 'bg-indigo-950/50 text-indigo-300 font-semibold border border-indigo-500/20 shadow-xs'
+                      : 'text-zinc-400 hover:bg-[#27272A] hover:text-[#FAFAFA]'
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <Icon className={`w-4 h-4 ${isActive ? 'text-brand-600' : 'text-slate-400'}`} />
+                    <Icon className={`w-4 h-4 ${isActive ? 'text-indigo-400' : 'text-zinc-400'}`} />
                     <span>{item.label}</span>
                   </div>
                   {item.badge ? (
-                    <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-brand-600 text-white">
+                    <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-600 text-white">
                       {item.badge}
                     </span>
                   ) : null}
@@ -103,49 +107,61 @@ export const MainLayout = () => {
         </div>
 
         {/* User Card & Demo Switcher at Bottom */}
-        <div className="p-4 border-t border-slate-100">
+        <div className="p-4 border-t border-[#27272A] bg-[#111113]">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2.5 min-w-0">
               <img
                 src={user?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.name}`}
                 alt={user?.name}
-                className="w-9 h-9 rounded-xl object-cover border border-slate-200 bg-slate-100 flex-shrink-0"
+                className="w-9 h-9 rounded-xl object-cover border border-[#27272A] bg-[#18181B] flex-shrink-0"
               />
               <div className="min-w-0">
-                <p className="text-xs font-bold text-slate-900 truncate">{user?.name}</p>
-                <p className="text-[11px] text-slate-400 truncate">{user?.course || 'Student'}</p>
+                <p className="text-xs font-bold text-[#FAFAFA] truncate">{user?.name}</p>
+                <p className="text-[11px] text-zinc-400 truncate">{user?.course || 'Student'}</p>
               </div>
             </div>
             <button
               onClick={logout}
               title="Logout"
-              className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+              className="p-1.5 rounded-lg text-zinc-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
             >
               <LogOut className="w-4 h-4" />
             </button>
           </div>
 
           {/* Quick Demo Switcher Mini Pills */}
-          <div className="pt-2 border-t border-slate-100">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+          <div className="pt-2 border-t border-[#27272A]">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 block mb-1">
               Switch Demo User:
             </span>
             <div className="grid grid-cols-3 gap-1">
               <button
                 onClick={() => quickSwitchDemoUser('mohit@teamforge.app')}
-                className={`text-[10px] font-semibold py-1 rounded border ${user?.email === 'mohit@teamforge.app' ? 'bg-brand-100 text-brand-800 border-brand-300' : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'}`}
+                className={`text-[10px] font-semibold py-1 rounded-lg border transition-all ${
+                  user?.email === 'mohit@teamforge.app'
+                    ? 'bg-indigo-950/60 text-indigo-300 border-indigo-500/40'
+                    : 'bg-[#18181B] text-zinc-400 border-[#27272A] hover:bg-[#27272A] hover:text-zinc-200'
+                }`}
               >
                 Mohit
               </button>
               <button
                 onClick={() => quickSwitchDemoUser('priya@teamforge.app')}
-                className={`text-[10px] font-semibold py-1 rounded border ${user?.email === 'priya@teamforge.app' ? 'bg-brand-100 text-brand-800 border-brand-300' : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'}`}
+                className={`text-[10px] font-semibold py-1 rounded-lg border transition-all ${
+                  user?.email === 'priya@teamforge.app'
+                    ? 'bg-indigo-950/60 text-indigo-300 border-indigo-500/40'
+                    : 'bg-[#18181B] text-zinc-400 border-[#27272A] hover:bg-[#27272A] hover:text-zinc-200'
+                }`}
               >
                 Priya
               </button>
               <button
                 onClick={() => quickSwitchDemoUser('aarav@teamforge.app')}
-                className={`text-[10px] font-semibold py-1 rounded border ${user?.email === 'aarav@teamforge.app' ? 'bg-brand-100 text-brand-800 border-brand-300' : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'}`}
+                className={`text-[10px] font-semibold py-1 rounded-lg border transition-all ${
+                  user?.email === 'aarav@teamforge.app'
+                    ? 'bg-indigo-950/60 text-indigo-300 border-indigo-500/40'
+                    : 'bg-[#18181B] text-zinc-400 border-[#27272A] hover:bg-[#27272A] hover:text-zinc-200'
+                }`}
               >
                 Aarav
               </button>
@@ -157,27 +173,27 @@ export const MainLayout = () => {
       {/* Main Content Column */}
       <div className="flex-1 flex flex-col min-w-0 pb-20 lg:pb-8">
         {/* Top Header Bar */}
-        <header className="sticky top-0 z-20 h-16 bg-white/80 backdrop-blur-md border-b border-slate-200 px-4 sm:px-8 flex items-center justify-between gap-4">
+        <header className="sticky top-0 z-20 h-16 bg-[#09090B]/85 backdrop-blur-md border-b border-[#27272A] px-4 sm:px-8 flex items-center justify-between gap-4">
           {/* Mobile hamburger & title */}
           <div className="flex items-center gap-3 lg:hidden">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-xl text-slate-600 hover:bg-slate-100"
+              className="p-2 rounded-xl text-zinc-400 hover:bg-[#18181B] hover:text-white"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
-            <span className="font-bold text-slate-900 text-base">TEAMFORGE</span>
+            <span className="font-bold text-white text-base">TEAMFORGE</span>
           </div>
 
           {/* Global Search Bar */}
           <form onSubmit={handleSearchSubmit} className="hidden sm:flex items-center flex-1 max-w-md relative">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 pointer-events-none" />
+            <Search className="w-4 h-4 text-zinc-400 absolute left-3 pointer-events-none" />
             <input
               type="text"
               placeholder="Search projects, skills, students..."
               value={globalSearch}
               onChange={(e) => setGlobalSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-brand-500 focus:outline-none transition-all"
+              className="w-full pl-9 pr-4 py-2 text-xs sm:text-sm bg-[#18181B] border border-[#27272A] text-zinc-200 placeholder-zinc-500 rounded-xl focus:bg-[#111113] focus:border-indigo-500 focus:outline-none transition-all"
             />
           </form>
 
@@ -191,9 +207,9 @@ export const MainLayout = () => {
               <img
                 src={user?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.name}`}
                 alt={user?.name}
-                className="w-8 h-8 rounded-xl object-cover border border-slate-200 bg-slate-100"
+                className="w-8 h-8 rounded-xl object-cover border border-[#27272A] bg-[#18181B]"
               />
-              <span className="hidden sm:inline-block text-xs font-semibold text-slate-700 max-w-[100px] truncate">
+              <span className="hidden sm:inline-block text-xs font-semibold text-zinc-300 max-w-[100px] truncate">
                 {user?.name}
               </span>
             </Link>
@@ -202,24 +218,29 @@ export const MainLayout = () => {
 
         {/* Mobile Flyout Menu */}
         {mobileMenuOpen && (
-          <div className="lg:hidden fixed inset-0 z-40 bg-slate-900/50" onClick={() => setMobileMenuOpen(false)}>
-            <div className="w-64 bg-white h-full p-4 flex flex-col justify-between" onClick={e => e.stopPropagation()}>
+          <div className="lg:hidden fixed inset-0 z-40 bg-black/70 backdrop-blur-xs" onClick={() => setMobileMenuOpen(false)}>
+            <div className="w-64 bg-[#18181B] border-r border-[#27272A] h-full p-4 flex flex-col justify-between" onClick={e => e.stopPropagation()}>
               <div>
-                <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
-                  <span className="font-bold text-slate-900">TEAMFORGE</span>
-                  <button onClick={() => setMobileMenuOpen(false)}><X className="w-5 h-5 text-slate-400" /></button>
+                <div className="flex items-center justify-between pb-4 border-b border-[#27272A] mb-4">
+                  <span className="font-bold text-white">TEAMFORGE</span>
+                  <button onClick={() => setMobileMenuOpen(false)}><X className="w-5 h-5 text-zinc-400" /></button>
                 </div>
                 <nav className="space-y-1">
                   {navItems.map((item) => {
                     const Icon = item.icon;
+                    const isActive = location.pathname === item.path;
                     return (
                       <Link
                         key={item.path}
                         to={item.path}
                         onClick={() => setMobileMenuOpen(false)}
-                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-700 hover:bg-brand-50"
+                        className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium ${
+                          isActive
+                            ? 'bg-indigo-950/50 text-indigo-300 border border-indigo-500/20'
+                            : 'text-zinc-400 hover:bg-[#27272A] hover:text-white'
+                        }`}
                       >
-                        <Icon className="w-4 h-4 text-slate-400" />
+                        <Icon className="w-4 h-4 text-zinc-400" />
                         <span>{item.label}</span>
                       </Link>
                     );
@@ -229,7 +250,7 @@ export const MainLayout = () => {
 
               <button
                 onClick={logout}
-                className="flex items-center gap-2 p-3 text-rose-600 hover:bg-rose-50 rounded-xl text-sm font-medium"
+                className="flex items-center gap-2 p-3 text-rose-400 hover:bg-rose-500/10 rounded-xl text-sm font-medium"
               >
                 <LogOut className="w-4 h-4" />
                 <span>Logout</span>
@@ -245,26 +266,26 @@ export const MainLayout = () => {
       </div>
 
       {/* Mobile Bottom Navigation Bar */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 h-16 bg-white/95 backdrop-blur-md border-t border-slate-200 z-30 flex items-center justify-around px-2">
-        <Link to="/dashboard" className="flex flex-col items-center gap-1 text-[10px] font-medium text-slate-600 hover:text-brand-600">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 h-16 bg-[#111113]/95 backdrop-blur-md border-t border-[#27272A] z-30 flex items-center justify-around px-2">
+        <Link to="/dashboard" className={`flex flex-col items-center gap-1 text-[10px] font-medium ${location.pathname === '/dashboard' ? 'text-indigo-400 font-bold' : 'text-zinc-400 hover:text-indigo-400'}`}>
           <LayoutDashboard className="w-5 h-5" />
           <span>Home</span>
         </Link>
-        <Link to="/projects" className="flex flex-col items-center gap-1 text-[10px] font-medium text-slate-600 hover:text-brand-600">
+        <Link to="/projects" className={`flex flex-col items-center gap-1 text-[10px] font-medium ${location.pathname === '/projects' ? 'text-indigo-400 font-bold' : 'text-zinc-400 hover:text-indigo-400'}`}>
           <Compass className="w-5 h-5" />
           <span>Explore</span>
         </Link>
-        <Link to="/projects/create" className="flex flex-col items-center gap-1 text-[10px] font-medium text-brand-600">
-          <div className="w-8 h-8 rounded-full bg-brand-600 text-white flex items-center justify-center shadow-md">
+        <Link to="/projects/create" className="flex flex-col items-center gap-1 text-[10px] font-medium text-indigo-400">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 text-white flex items-center justify-center shadow-md shadow-indigo-500/20">
             <PlusCircle className="w-5 h-5" />
           </div>
           <span>Create</span>
         </Link>
-        <Link to="/invitations" className="flex flex-col items-center gap-1 text-[10px] font-medium text-slate-600 hover:text-brand-600">
+        <Link to="/invitations" className={`flex flex-col items-center gap-1 text-[10px] font-medium ${location.pathname === '/invitations' ? 'text-indigo-400 font-bold' : 'text-zinc-400 hover:text-indigo-400'}`}>
           <Mail className="w-5 h-5" />
           <span>Invites</span>
         </Link>
-        <Link to="/profile" className="flex flex-col items-center gap-1 text-[10px] font-medium text-slate-600 hover:text-brand-600">
+        <Link to="/profile" className={`flex flex-col items-center gap-1 text-[10px] font-medium ${location.pathname === '/profile' ? 'text-indigo-400 font-bold' : 'text-zinc-400 hover:text-indigo-400'}`}>
           <User className="w-5 h-5" />
           <span>Profile</span>
         </Link>

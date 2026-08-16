@@ -70,8 +70,8 @@ export const ProjectDetailsPage = () => {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="h-48 rounded-3xl bg-slate-100 animate-pulse" />
-        <div className="h-64 rounded-3xl bg-slate-100 animate-pulse" />
+        <div className="h-48 rounded-3xl bg-[#18181B] border border-[#27272A] animate-pulse" />
+        <div className="h-64 rounded-3xl bg-[#18181B] border border-[#27272A] animate-pulse" />
       </div>
     );
   }
@@ -79,8 +79,8 @@ export const ProjectDetailsPage = () => {
   if (!project) {
     return (
       <div className="text-center py-12">
-        <p className="text-slate-500">Project not found.</p>
-        <Link to="/projects" className="text-brand-600 font-bold mt-2 inline-block">Back to Explore</Link>
+        <p className="text-zinc-400">Project not found.</p>
+        <Link to="/projects" className="text-indigo-400 font-bold mt-2 inline-block">Back to Explore</Link>
       </div>
     );
   }
@@ -91,22 +91,22 @@ export const ProjectDetailsPage = () => {
   return (
     <div className="space-y-8">
       {/* Top Banner Card */}
-      <div className="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-soft">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-slate-100">
+      <div className="bg-[#18181B] rounded-3xl border border-[#27272A] p-6 sm:p-8 shadow-soft">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-[#27272A]">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-brand-600 bg-brand-50 px-2.5 py-0.5 rounded-md border border-brand-200">
+              <span className="text-xs font-bold uppercase tracking-wider text-indigo-300 bg-indigo-950/60 px-2.5 py-0.5 rounded-md border border-indigo-500/30">
                 {project.category}
               </span>
               <Badge variant="brand">{project.difficulty} Difficulty</Badge>
               <Badge variant={project.status === 'Recruiting' ? 'success' : 'purple'}>{project.status}</Badge>
             </div>
 
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-[#FAFAFA] tracking-tight">
               {project.title}
             </h1>
-            <p className="text-xs text-slate-500 mt-1">
-              Created by <span className="font-semibold text-slate-700">{project.owner?.name}</span> • Duration: {project.duration}
+            <p className="text-xs text-zinc-400 mt-1">
+              Created by <span className="font-semibold text-zinc-200">{project.owner?.name}</span> • Duration: {project.duration}
             </p>
           </div>
 
@@ -138,7 +138,7 @@ export const ProjectDetailsPage = () => {
               <button
                 onClick={handleDeleteProject}
                 title="Delete Project"
-                className="p-2.5 rounded-xl border border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100 transition-colors"
+                className="p-2.5 rounded-xl border border-rose-500/30 bg-rose-950/40 text-rose-400 hover:bg-rose-900/50 transition-colors"
               >
                 <Trash2 className="w-4 h-4" />
               </button>
@@ -147,9 +147,9 @@ export const ProjectDetailsPage = () => {
         </div>
 
         {/* Project Description */}
-        <div className="py-6 border-b border-slate-100">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Overview & Objectives</h3>
-          <p className="text-sm text-slate-700 leading-relaxed max-w-4xl">
+        <div className="py-6 border-b border-[#27272A]">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-2">Overview & Objectives</h3>
+          <p className="text-sm text-zinc-300 leading-relaxed max-w-4xl">
             {project.description}
           </p>
         </div>
@@ -157,12 +157,12 @@ export const ProjectDetailsPage = () => {
         {/* Required Skills & Roles */}
         <div className="pt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Required Skills</h4>
+            <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-2">Required Skills</h4>
             <div className="flex flex-wrap gap-1.5">
               {(project.requiredSkills || []).map((skill, idx) => (
                 <span
                   key={idx}
-                  className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-800 border border-slate-200"
+                  className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-[#111113] text-zinc-300 border border-[#27272A]"
                 >
                   {skill}
                 </span>
@@ -171,13 +171,13 @@ export const ProjectDetailsPage = () => {
           </div>
 
           <div>
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Team Capacity</h4>
-            <div className="flex items-center gap-3 text-sm text-slate-700">
-              <Users className="w-5 h-5 text-slate-400" />
+            <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-2">Team Capacity</h4>
+            <div className="flex items-center gap-3 text-sm text-zinc-300">
+              <Users className="w-5 h-5 text-zinc-500" />
               <span className="font-bold">{project.members?.length || 1} / {project.teamSize} Formed</span>
-              <div className="flex-1 bg-slate-100 h-2 rounded-full overflow-hidden max-w-[150px]">
+              <div className="flex-1 bg-[#111113] h-2 rounded-full overflow-hidden max-w-[150px] border border-[#27272A]">
                 <div
-                  className="bg-brand-500 h-full rounded-full"
+                  className="bg-indigo-500 h-full rounded-full"
                   style={{ width: `${((project.members?.length || 1) / project.teamSize) * 100}%` }}
                 />
               </div>
@@ -191,15 +191,15 @@ export const ProjectDetailsPage = () => {
 
       {/* AI Insights Card if analyzed */}
       {project.aiAnalysis?.analyzed && (
-        <div className="bg-gradient-to-br from-indigo-50/70 via-purple-50/40 to-slate-50 rounded-3xl border border-indigo-200 p-6 sm:p-8">
+        <div className="bg-indigo-950/20 rounded-3xl border border-indigo-500/30 p-6 sm:p-8">
           <div className="flex items-center gap-2 mb-4">
-            <Brain className="w-5 h-5 text-indigo-600" />
-            <h3 className="text-base font-bold text-slate-900">AI Architectural Analysis</h3>
+            <Brain className="w-5 h-5 text-indigo-400" />
+            <h3 className="text-base font-bold text-[#FAFAFA]">AI Architectural Analysis</h3>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
             <div>
-              <span className="font-bold text-slate-700 block mb-2">Suggested Team Roles:</span>
+              <span className="font-bold text-zinc-300 block mb-2">Suggested Team Roles:</span>
               <div className="flex flex-wrap gap-1.5">
                 {(project.aiAnalysis.suggestedRoles || []).map((role, idx) => (
                   <Badge key={idx} variant="purple">{role}</Badge>
@@ -208,11 +208,11 @@ export const ProjectDetailsPage = () => {
             </div>
 
             <div>
-              <span className="font-bold text-slate-700 block mb-2">Potential Technical Challenges:</span>
-              <ul className="space-y-1 text-slate-600">
+              <span className="font-bold text-zinc-300 block mb-2">Potential Technical Challenges:</span>
+              <ul className="space-y-1 text-zinc-300">
                 {(project.aiAnalysis.potentialChallenges || []).map((ch, idx) => (
                   <li key={idx} className="flex items-start gap-1.5">
-                    <span className="text-indigo-600 font-bold">•</span>
+                    <span className="text-indigo-400 font-bold">•</span>
                     <span>{ch}</span>
                   </li>
                 ))}

@@ -38,20 +38,20 @@ export const CommunityPage = () => {
   return (
     <div className="space-y-8">
       {/* Top Banner Header */}
-      <div className="bg-gradient-to-r from-brand-600 via-indigo-600 to-violet-700 rounded-3xl p-6 sm:p-8 text-white shadow-soft relative overflow-hidden flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+      <div className="bg-gradient-to-r from-indigo-700 via-indigo-800 to-purple-800 rounded-3xl p-6 sm:p-8 text-white shadow-soft relative overflow-hidden flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 border border-indigo-500/20">
         {/* Subtle background glow */}
-        <div className="absolute -right-10 -bottom-10 w-72 h-72 bg-white/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -right-10 -bottom-10 w-72 h-72 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 backdrop-blur-md text-xs font-bold uppercase tracking-wider mb-3">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-xs font-bold uppercase tracking-wider mb-3 text-indigo-200 border border-white/10">
             <Sparkles className="w-3.5 h-3.5 text-yellow-300" />
             <span>TeamForge Community Hub</span>
           </div>
 
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#FAFAFA]">
             Community
           </h1>
-          <p className="text-sm text-brand-100 mt-1 max-w-xl">
+          <p className="text-sm text-indigo-200 mt-1 max-w-xl">
             Share ideas. Find teammates. Build together. Connect with passionate student creators across universities.
           </p>
         </div>
@@ -62,7 +62,7 @@ export const CommunityPage = () => {
               variant="secondary"
               size="md"
               icon={PlusCircle}
-              className="bg-white text-brand-700 hover:bg-slate-50 border-transparent shadow-md font-bold"
+              className="bg-[#18181B] text-indigo-300 hover:bg-[#27272A] border border-indigo-500/30 shadow-md font-bold"
             >
               Post Project
             </Button>
@@ -72,7 +72,7 @@ export const CommunityPage = () => {
               variant="outline"
               size="md"
               icon={Compass}
-              className="text-white border-white/40 hover:bg-white/10"
+              className="text-white border-white/30 hover:bg-white/10"
             >
               Explore Teams
             </Button>
@@ -100,14 +100,14 @@ export const CommunityPage = () => {
           <TeamRequestsSection isCompact={true} />
 
           {/* Trending Topics Card */}
-          <div className="bg-white rounded-3xl border border-slate-200/80 p-5 sm:p-6 shadow-soft">
-            <div className="flex items-center gap-2 mb-4 pb-3 border-b border-slate-100">
-              <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+          <div className="bg-[#18181B] rounded-3xl border border-[#27272A] p-5 sm:p-6 shadow-soft">
+            <div className="flex items-center gap-2 mb-4 pb-3 border-b border-[#27272A]">
+              <div className="w-8 h-8 rounded-xl bg-amber-950/60 text-amber-400 border border-amber-500/30 flex items-center justify-center">
                 <Flame className="w-4 h-4" />
               </div>
               <div>
-                <h3 className="font-bold text-slate-900 text-sm">Trending Discussions</h3>
-                <p className="text-[11px] text-slate-400">Popular topics in the student hub</p>
+                <h3 className="font-bold text-[#FAFAFA] text-sm">Trending Discussions</h3>
+                <p className="text-[11px] text-zinc-400">Popular topics in the student hub</p>
               </div>
             </div>
 
@@ -115,44 +115,44 @@ export const CommunityPage = () => {
               {trendingTags.map((tag, idx) => (
                 <div
                   key={idx}
-                  className="flex items-center justify-between p-2 rounded-xl hover:bg-slate-50 transition-colors text-xs font-semibold"
+                  className="flex items-center justify-between p-2 rounded-xl hover:bg-[#111113] transition-colors text-xs font-semibold"
                 >
-                  <span className="text-brand-700 hover:underline">#{tag.name}</span>
-                  <span className="text-[10px] text-slate-400 font-medium">{tag.count}</span>
+                  <span className="text-indigo-400 hover:underline">#{tag.name}</span>
+                  <span className="text-[10px] text-zinc-500 font-medium">{tag.count}</span>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Community Guidelines / Collaboration Tips */}
-          <div className="bg-gradient-to-br from-indigo-50/60 via-purple-50/40 to-slate-50 rounded-3xl border border-indigo-200/80 p-5 sm:p-6 shadow-soft">
+          <div className="bg-indigo-950/20 rounded-3xl border border-indigo-500/30 p-5 sm:p-6 shadow-soft">
             <div className="flex items-center gap-2 mb-3">
-              <ShieldCheck className="w-5 h-5 text-indigo-600" />
-              <h3 className="font-bold text-slate-900 text-sm">Collaboration Etiquette</h3>
+              <ShieldCheck className="w-5 h-5 text-indigo-400" />
+              <h3 className="font-bold text-[#FAFAFA] text-sm">Collaboration Etiquette</h3>
             </div>
-            <ul className="space-y-2 text-xs text-slate-600 leading-relaxed">
+            <ul className="space-y-2 text-xs text-zinc-300 leading-relaxed">
               <li className="flex items-start gap-2">
-                <span className="text-indigo-600 font-bold">•</span>
+                <span className="text-indigo-400 font-bold">•</span>
                 <span><strong>Be Specific:</strong> State required tech stack and weekly time commitments clearly.</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-indigo-600 font-bold">•</span>
+                <span className="text-indigo-400 font-bold">•</span>
                 <span><strong>Include Demo Links:</strong> Share GitHub repos or live prototypes for faster feedback.</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-indigo-600 font-bold">•</span>
+                <span className="text-indigo-400 font-bold">•</span>
                 <span><strong>Prompt Replies:</strong> Respond to team requests within 24 hours to secure teammates.</span>
               </li>
             </ul>
           </div>
 
           {/* Quick Explore Projects CTA */}
-          <div className="bg-white rounded-3xl border border-slate-200/80 p-5 sm:p-6 shadow-soft text-center">
-            <div className="w-12 h-12 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center mx-auto mb-3">
+          <div className="bg-[#18181B] rounded-3xl border border-[#27272A] p-5 sm:p-6 shadow-soft text-center">
+            <div className="w-12 h-12 rounded-2xl bg-indigo-950/60 text-indigo-400 border border-indigo-500/30 flex items-center justify-center mx-auto mb-3">
               <FolderGit2 className="w-6 h-6" />
             </div>
-            <h4 className="font-bold text-slate-900 text-sm">Need a Ready-to-Join Team?</h4>
-            <p className="text-xs text-slate-500 mt-1 mb-4">
+            <h4 className="font-bold text-[#FAFAFA] text-sm">Need a Ready-to-Join Team?</h4>
+            <p className="text-xs text-zinc-400 mt-1 mb-4">
               Browse actively recruiting projects with AI skill matching.
             </p>
             <Link to="/projects">

@@ -57,8 +57,8 @@ export const ExploreProjectsPage = () => {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Explore Projects</h1>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-[#FAFAFA] tracking-tight">Explore Projects</h1>
+          <p className="text-xs sm:text-sm text-zinc-400 mt-1">
             Discover active projects, hackathon ideas, and teams recruiting for specific skill sets.
           </p>
         </div>
@@ -68,7 +68,7 @@ export const ExploreProjectsPage = () => {
             variant="outline"
             size="md"
             icon={Network}
-            className="bg-indigo-50/60 border-indigo-200 text-indigo-700 hover:bg-indigo-100 font-bold"
+            className="bg-indigo-950/60 border-indigo-500/30 text-indigo-300 hover:bg-indigo-950 font-bold"
           >
             ✨ 3D Skill Network
           </Button>
@@ -76,17 +76,17 @@ export const ExploreProjectsPage = () => {
       </div>
 
       {/* Search & Main Filter Controls */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-5 shadow-soft space-y-4">
+      <div className="bg-[#18181B] rounded-2xl border border-[#27272A] p-4 sm:p-5 shadow-soft space-y-4">
         {/* Search Input */}
         <form onSubmit={handleSearchSubmit} className="flex gap-2">
           <div className="relative flex-1">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5 pointer-events-none" />
+            <Search className="w-4 h-4 text-zinc-500 absolute left-3.5 top-3.5 pointer-events-none" />
             <input
               type="text"
               placeholder="Search by project title, keyword, or skill (e.g. React, Python, NLP)..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-brand-500 focus:outline-none transition-all"
+              className="w-full pl-10 pr-4 py-2.5 text-sm bg-[#111113] border border-[#27272A] text-[#FAFAFA] rounded-xl focus:bg-[#09090B] focus:border-indigo-500 focus:outline-none transition-all placeholder:text-zinc-500"
             />
           </div>
           <Button type="submit" variant="primary" size="md">
@@ -95,17 +95,17 @@ export const ExploreProjectsPage = () => {
         </form>
 
         {/* Filter Pills */}
-        <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-100">
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-[#27272A]">
           {/* Categories */}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full">
             {categories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap border ${
                   selectedCategory === cat
-                    ? 'bg-brand-600 text-white shadow-xs'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    ? 'bg-indigo-600 text-white border-indigo-600 shadow-xs'
+                    : 'bg-[#111113] border-[#27272A] text-zinc-400 hover:bg-[#27272A] hover:text-[#FAFAFA]'
                 }`}
               >
                 {cat}
@@ -118,7 +118,7 @@ export const ExploreProjectsPage = () => {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="text-xs font-medium bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 focus:outline-none focus:border-brand-500"
+              className="text-xs font-medium bg-[#111113] border border-[#27272A] text-zinc-300 rounded-xl px-3 py-1.5 focus:outline-none focus:border-indigo-500"
             >
               <option value="best_match">Sort: Best Match</option>
               <option value="most_active">Sort: Most Active</option>
@@ -128,7 +128,7 @@ export const ExploreProjectsPage = () => {
             <select
               value={selectedDifficulty}
               onChange={(e) => setSelectedDifficulty(e.target.value)}
-              className="text-xs font-medium bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 focus:outline-none focus:border-brand-500"
+              className="text-xs font-medium bg-[#111113] border border-[#27272A] text-zinc-300 rounded-xl px-3 py-1.5 focus:outline-none focus:border-indigo-500"
             >
               <option value="All">All Difficulties</option>
               <option value="Beginner">Beginner</option>

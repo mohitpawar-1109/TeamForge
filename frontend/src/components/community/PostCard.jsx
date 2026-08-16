@@ -228,8 +228,31 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
     return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
   };
 
+  const handleShare = async () => {
+    try {
+      const shareData = {
+        title: post?.title || 'TeamForge Post',
+        text: post?.content || 'Check out this post on TeamForge!',
+        url: window.location.href,
+      };
+
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else if (navigator.clipboard) {
+        await navigator.clipboard.writeText(window.location.href);
+        success('Post link copied to clipboard!');
+      } else {
+        success('Post link: ' + window.location.href);
+      }
+    } catch (err) {
+      if (err.name !== 'AbortError') {
+        console.error('Share failed:', err);
+      }
+    }
+  };
+
   return (
-    <div className="bg-white rounded-3xl border border-slate-200/80 p-5 sm:p-6 shadow-soft hover:shadow-soft-lg transition-all duration-300">
+    <div className="bg-[#18181B] rounded-3xl border border-[#27272A] p-5 sm:p-6 shadow-soft hover:border-zinc-700 transition-all duration-300">
       {/* Header: Author info, Post Type Badge, Actions Menu */}
       <div className="flex items-start justify-between gap-3 mb-4">
         <div className="flex items-center gap-3 min-w-0">
@@ -237,38 +260,38 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
             <img
               src={post.author?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${post.author?.name || 'Student'}`}
               alt={post.author?.name}
-              className="w-11 h-11 rounded-2xl object-cover border border-slate-200 bg-slate-100 flex-shrink-0 hover:ring-2 hover:ring-brand-500 transition-all"
+              className="w-11 h-11 rounded-2xl object-cover border border-[#27272A] bg-[#111113] flex-shrink-0 hover:ring-2 hover:ring-indigo-500 transition-all"
             />
           </Link>
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <Link
                 to={`/profile?id=${post.author?._id}`}
-                className="font-bold text-slate-900 text-sm sm:text-base hover:text-brand-600 transition-colors truncate"
+                className="font-bold text-[#FAFAFA] text-sm sm:text-base hover:text-indigo-400 transition-colors truncate"
               >
                 {post.author?.name || 'Student Developer'}
               </Link>
               {post.author?.year && (
-                <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200">
+                <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-[#111113] text-zinc-300 border border-[#27272A]">
                   {post.author.year}
                 </span>
               )}
             </div>
 
-            <p className="text-xs text-slate-500 font-medium truncate">
+            <p className="text-xs text-zinc-400 font-medium truncate">
               {post.author?.headline || 'Student Builder'}
             </p>
 
-            <div className="flex items-center gap-2 text-[11px] text-slate-400 mt-0.5">
+            <div className="flex items-center gap-2 text-[11px] text-zinc-500 mt-0.5">
               {post.author?.college && (
                 <span className="flex items-center gap-1 truncate max-w-[180px]">
-                  <GraduationCap className="w-3 h-3 text-slate-400" />
+                  <GraduationCap className="w-3 h-3 text-zinc-500" />
                   {post.author.college}
                 </span>
               )}
               <span>•</span>
               <span className="flex items-center gap-1">
-                <Clock className="w-3 h-3 text-slate-400" />
+                <Clock className="w-3 h-3 text-zinc-500" />
                 {formatTime(post.createdAt)}
               </span>
             </div>
@@ -289,14 +312,14 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
               <button
                 type="button"
                 onClick={() => setMenuOpen(!menuOpen)}
-                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+                className="p-1.5 rounded-xl text-zinc-400 hover:text-[#FAFAFA] hover:bg-[#27272A] transition-colors"
               >
                 <MoreVertical className="w-4 h-4" />
               </button>
 
               {menuOpen && (
                 <div
-                  className="absolute right-0 mt-1 w-32 bg-white rounded-xl shadow-lg border border-slate-200 py-1 z-20 text-xs font-semibold"
+                  className="absolute right-0 mt-1 w-32 bg-[#18181B] rounded-xl shadow-xl border border-[#27272A] py-1 z-20 text-xs font-semibold"
                   onMouseLeave={() => setMenuOpen(false)}
                 >
                   <button
@@ -304,7 +327,7 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
                       setIsEditing(true);
                       setMenuOpen(false);
                     }}
-                    className="w-full px-3 py-2 text-left text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+                    className="w-full px-3 py-2 text-left text-zinc-300 hover:bg-[#27272A] hover:text-[#FAFAFA] flex items-center gap-2"
                   >
                     <Edit2 className="w-3.5 h-3.5" />
                     <span>Edit Post</span>
@@ -314,7 +337,7 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
                       handleDelete();
                       setMenuOpen(false);
                     }}
-                    className="w-full px-3 py-2 text-left text-rose-600 hover:bg-rose-50 flex items-center gap-2"
+                    className="w-full px-3 py-2 text-left text-rose-400 hover:bg-rose-500/10 flex items-center gap-2"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                     <span>Delete</span>
@@ -333,19 +356,19 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
             rows={3}
             value={editContent}
             onChange={(e) => setEditContent(e.target.value)}
-            className="w-full p-3 text-sm bg-slate-50 border border-slate-200 rounded-2xl focus:bg-white focus:border-brand-500 focus:outline-none"
+            className="w-full p-3 text-sm bg-[#111113] border border-[#27272A] text-[#FAFAFA] rounded-2xl focus:bg-[#09090B] focus:border-indigo-500 focus:outline-none"
           />
           <div className="flex justify-end gap-2">
             <button
               onClick={() => setIsEditing(false)}
-              className="px-3 py-1.5 text-xs font-semibold rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700"
+              className="px-3 py-1.5 text-xs font-semibold rounded-xl bg-[#27272A] hover:bg-[#3F3F46] text-zinc-300"
             >
               Cancel
             </button>
             <button
               onClick={handleSaveEdit}
               disabled={savingEdit}
-              className="px-3 py-1.5 text-xs font-semibold rounded-xl bg-brand-600 hover:bg-brand-700 text-white flex items-center gap-1 shadow-xs"
+              className="px-3 py-1.5 text-xs font-semibold rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white flex items-center gap-1 shadow-xs"
             >
               <Check className="w-3.5 h-3.5" />
               <span>Save</span>
@@ -355,11 +378,11 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
       ) : (
         <div className="mb-4 space-y-3">
           {post.title && post.type !== 'LOOKING_FOR_TEAMMATES' && (
-            <h4 className="font-bold text-slate-900 text-sm sm:text-base">
+            <h4 className="font-bold text-[#FAFAFA] text-sm sm:text-base">
               {post.title}
             </h4>
           )}
-          <p className="text-sm text-slate-800 whitespace-pre-line leading-relaxed">
+          <p className="text-sm text-zinc-200 whitespace-pre-line leading-relaxed">
             {post.content}
           </p>
         </div>
@@ -367,7 +390,7 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
 
       {/* LOOKING_FOR_TEAMMATES Specialized Recruitment Card */}
       {post.type === 'LOOKING_FOR_TEAMMATES' && (
-        <div className="mb-4 p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-indigo-50/90 via-purple-50/60 to-blue-50/40 border border-indigo-200/80 shadow-xs space-y-3.5">
+        <div className="mb-4 p-4 sm:p-5 rounded-2xl bg-indigo-950/20 border border-indigo-500/30 shadow-xs space-y-3.5">
           <div className="flex items-center justify-between gap-2 flex-wrap">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-black bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-xs tracking-wide">
               <span>🚀</span>
@@ -375,8 +398,8 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
             </span>
 
             {/* Capacity Counter */}
-            <div className="flex items-center gap-1.5 text-xs font-bold text-indigo-900 bg-white/90 border border-indigo-200 px-3 py-1 rounded-xl shadow-xs">
-              <Users className="w-3.5 h-3.5 text-indigo-600" />
+            <div className="flex items-center gap-1.5 text-xs font-bold text-indigo-300 bg-[#111113] border border-indigo-500/30 px-3 py-1 rounded-xl shadow-xs">
+              <Users className="w-3.5 h-3.5 text-indigo-400" />
               <span>
                 {post.currentMembers || 1}/{post.teamSize || 4} members
               </span>
@@ -385,7 +408,7 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
 
           {/* Project Title */}
           {post.title && (
-            <h4 className="font-black text-slate-900 text-base sm:text-lg tracking-tight">
+            <h4 className="font-black text-[#FAFAFA] text-base sm:text-lg tracking-tight">
               {post.title}
             </h4>
           )}
@@ -393,25 +416,24 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
           {/* Required Roles */}
           {post.requiredRoles && post.requiredRoles.length > 0 && (
             <div className="space-y-1.5">
-              <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 block">
+              <span className="text-[11px] font-extrabold uppercase tracking-wider text-zinc-400 block">
                 Looking for:
               </span>
               <div className="flex flex-wrap gap-2">
                 {post.requiredRoles.map((role, idx) => {
                   const roleEmoticons = ['🟣', '🔵', '🟢', '🟠', '🟡'];
                   const roleColors = [
-                    'bg-purple-100/90 text-purple-900 border-purple-200',
-                    'bg-blue-100/90 text-blue-900 border-blue-200',
-                    'bg-emerald-100/90 text-emerald-900 border-emerald-200',
-                    'bg-amber-100/90 text-amber-900 border-amber-200',
-                    'bg-rose-100/90 text-rose-900 border-rose-200'
+                    'bg-purple-950/60 text-purple-300 border-purple-500/40',
+                    'bg-blue-950/60 text-blue-300 border-blue-500/40',
+                    'bg-emerald-950/60 text-emerald-300 border-emerald-500/40',
+                    'bg-amber-950/60 text-amber-300 border-amber-500/40',
+                    'bg-rose-950/60 text-rose-300 border-rose-500/40'
                   ];
                   return (
                     <span
                       key={idx}
-                      className={`inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-xl border shadow-xs ${
-                        roleColors[idx % roleColors.length]
-                      }`}
+                      className={`inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-xl border shadow-xs ${roleColors[idx % roleColors.length]
+                        }`}
                     >
                       <span>{roleEmoticons[idx % roleEmoticons.length]}</span>
                       <span>{role}</span>
@@ -425,29 +447,28 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
           {/* Required Skills */}
           {post.requiredSkills && post.requiredSkills.length > 0 && (
             <div className="space-y-1">
-              <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 block">
+              <span className="text-[11px] font-extrabold uppercase tracking-wider text-zinc-400 block">
                 Skills:
               </span>
-              <p className="text-xs font-bold text-indigo-950">
+              <p className="text-xs font-bold text-indigo-300">
                 {post.requiredSkills.join(' • ')}
               </p>
             </div>
           )}
 
           {/* Join & AI Match Action Row */}
-          <div className="pt-2 flex flex-wrap items-center justify-between gap-2.5 border-t border-indigo-200/60">
+          <div className="pt-2 flex flex-wrap items-center justify-between gap-2.5 border-t border-indigo-500/20">
             {/* Left Action / Match Trigger */}
             <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={handleFindMatchesWithAi}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-xs ${
-                  showAiMatches
-                    ? 'bg-indigo-600 text-white shadow-indigo-200'
-                    : 'bg-white text-indigo-700 hover:bg-indigo-50 border border-indigo-200'
-                }`}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-xs ${showAiMatches
+                    ? 'bg-indigo-600 text-white shadow-indigo-900/50'
+                    : 'bg-[#111113] text-indigo-300 hover:bg-[#18181B] border border-indigo-500/30'
+                  }`}
               >
-                <Sparkles className={`w-3.5 h-3.5 ${showAiMatches ? 'text-yellow-300' : 'text-indigo-600'}`} />
+                <Sparkles className={`w-3.5 h-3.5 ${showAiMatches ? 'text-yellow-300' : 'text-indigo-400'}`} />
                 <span>{showAiMatches ? 'Hide AI Matches' : 'Find Matches with AI'}</span>
                 {showAiMatches ? (
                   <ChevronUp className="w-3.5 h-3.5" />
@@ -460,21 +481,21 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
             {/* Right Join / Status Action */}
             <div className="flex items-center gap-2">
               {isAuthor ? (
-                <span className="px-3 py-1 rounded-xl text-xs font-bold bg-indigo-100/90 text-indigo-800 border border-indigo-200">
+                <span className="px-3 py-1 rounded-xl text-xs font-bold bg-indigo-950/60 text-indigo-300 border border-indigo-500/30">
                   Post Owner
                 </span>
               ) : isMember ? (
-                <span className="px-3 py-1 rounded-xl text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1">
-                  <Check className="w-3.5 h-3.5 text-emerald-700" />
+                <span className="px-3 py-1 rounded-xl text-xs font-bold bg-emerald-950/60 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
+                  <Check className="w-3.5 h-3.5 text-emerald-400" />
                   <span>✓ You're part of this team.</span>
                 </span>
               ) : joinRequested ? (
-                <span className="px-3 py-1 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200 flex items-center gap-1">
-                  <Check className="w-3.5 h-3.5 text-emerald-600" />
+                <span className="px-3 py-1 rounded-xl text-xs font-bold bg-[#111113] text-zinc-300 border border-[#27272A] flex items-center gap-1">
+                  <Check className="w-3.5 h-3.5 text-emerald-400" />
                   <span>Join request sent ✓</span>
                 </span>
               ) : (post.teamSize && (post.currentMembers || 1) >= post.teamSize) ? (
-                <span className="px-3 py-1 rounded-xl text-xs font-bold bg-slate-100 text-slate-500">
+                <span className="px-3 py-1 rounded-xl text-xs font-bold bg-[#111113] text-zinc-500 border border-[#27272A]">
                   Team Full ({post.teamSize}/{post.teamSize})
                 </span>
               ) : (
@@ -482,7 +503,7 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
                   type="button"
                   onClick={handleRequestToJoin}
                   disabled={joinLoading}
-                  className="px-4 py-1.5 rounded-xl text-xs font-extrabold bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 active:scale-95 text-white flex items-center gap-1.5 shadow-sm hover:shadow transition-all duration-200 flex-shrink-0"
+                  className="px-4 py-1.5 rounded-xl text-xs font-extrabold bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 active:scale-95 text-white flex items-center gap-1.5 shadow-sm hover:shadow transition-all duration-200 flex-shrink-0"
                 >
                   <UserPlus className="w-3.5 h-3.5" />
                   <span>{joinLoading ? 'Sending...' : 'Request to Join'}</span>
@@ -493,35 +514,35 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
 
           {/* AI MATCHES EXPANDABLE CONTAINER */}
           {showAiMatches && (
-            <div className="mt-3 pt-3 border-t border-indigo-200/80 space-y-3 animate-in fade-in slide-in-from-top-1 duration-200">
+            <div className="mt-3 pt-3 border-t border-indigo-500/30 space-y-3 animate-in fade-in slide-in-from-top-1 duration-200">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
-                  <Target className="w-4 h-4 text-indigo-600" />
-                  <span className="text-xs font-black uppercase tracking-wider text-indigo-950">
+                  <Target className="w-4 h-4 text-indigo-400" />
+                  <span className="text-xs font-black uppercase tracking-wider text-indigo-200">
                     AI MATCHES {aiMatches.length > 0 && `(${aiMatches.length})`}
                   </span>
-                  <span className="text-[10px] font-black px-2 py-0.5 rounded-md bg-indigo-600 text-white shadow-2xs">
+                  <span className="text-[10px] font-black px-2 py-0.5 rounded-md bg-indigo-600 text-white shadow-xs">
                     SMART RANKED
                   </span>
                 </div>
-                <span className="text-[11px] text-slate-400 font-medium">
+                <span className="text-[11px] text-zinc-400 font-medium">
                   Based on verified skills & interests
                 </span>
               </div>
 
               {/* Scanning Animation State */}
               {aiLoading ? (
-                <div className="p-5 rounded-2xl bg-white/90 border border-indigo-100 space-y-3">
-                  <div className="flex items-center gap-2.5 text-xs font-bold text-indigo-700">
-                    <Loader2 className="w-4 h-4 animate-spin text-indigo-600" />
+                <div className="p-5 rounded-2xl bg-[#111113] border border-indigo-500/30 space-y-3">
+                  <div className="flex items-center gap-2.5 text-xs font-bold text-indigo-300">
+                    <Loader2 className="w-4 h-4 animate-spin text-indigo-400" />
                     <span>Analyzing student skillsets & calculating role compatibility...</span>
                   </div>
-                  <div className="w-full bg-indigo-50 h-2 rounded-full overflow-hidden">
+                  <div className="w-full bg-[#18181B] h-2 rounded-full overflow-hidden">
                     <div className="bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-500 h-full rounded-full animate-pulse w-3/4" />
                   </div>
                 </div>
               ) : aiMatches.length === 0 ? (
-                <div className="p-4 rounded-2xl bg-white/90 border border-indigo-100 text-center text-xs text-slate-500">
+                <div className="p-4 rounded-2xl bg-[#111113] border border-[#27272A] text-center text-xs text-zinc-400">
                   No compatible student profiles found matching these specific requirements yet.
                 </div>
               ) : (
@@ -534,7 +555,7 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
                     return (
                       <div
                         key={candidate?._id || idx}
-                        className="p-3.5 sm:p-4 rounded-2xl bg-white border border-indigo-100 hover:border-indigo-300 shadow-2xs hover:shadow-xs transition-all space-y-2.5"
+                        className="p-3.5 sm:p-4 rounded-2xl bg-[#111113] border border-[#27272A] hover:border-indigo-500/40 shadow-xs hover:shadow-md transition-all space-y-2.5"
                       >
                         {/* Candidate Header Row */}
                         <div className="flex items-start justify-between gap-3">
@@ -545,20 +566,20 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
                                 `https://api.dicebear.com/7.x/avataaars/svg?seed=${candidate?.name || 'User'}`
                               }
                               alt={candidate?.name}
-                              className="w-10 h-10 rounded-xl object-cover border border-slate-200 bg-slate-50 flex-shrink-0"
+                              className="w-10 h-10 rounded-xl object-cover border border-[#27272A] bg-[#18181B] flex-shrink-0"
                             />
                             <div className="min-w-0">
                               <div className="flex items-center gap-2 flex-wrap">
-                                <h5 className="font-extrabold text-slate-900 text-xs sm:text-sm truncate">
+                                <h5 className="font-extrabold text-[#FAFAFA] text-xs sm:text-sm truncate">
                                   {candidate?.name}
                                 </h5>
                                 {match.suggestedRole && (
-                                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200">
+                                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-indigo-950/60 text-indigo-300 border border-indigo-500/30">
                                     {match.suggestedRole}
                                   </span>
                                 )}
                               </div>
-                              <p className="text-[11px] text-slate-400 truncate">
+                              <p className="text-[11px] text-zinc-400 truncate">
                                 {candidate?.college ? `${candidate.college} • ` : ''}
                                 {candidate?.course || candidate?.headline || 'Developer'}
                               </p>
@@ -568,13 +589,12 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
                           {/* Match Score Badge */}
                           <div className="flex-shrink-0">
                             <span
-                              className={`px-3 py-1 rounded-xl text-xs font-black shadow-2xs border ${
-                                score >= 85
-                                  ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white border-emerald-600'
+                              className={`px-3 py-1 rounded-xl text-xs font-black shadow-xs border ${score >= 85
+                                  ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white border-emerald-500'
                                   : score >= 70
-                                  ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white border-indigo-600'
-                                  : 'bg-slate-100 text-slate-800 border-slate-200'
-                              }`}
+                                    ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white border-indigo-500'
+                                    : 'bg-[#18181B] text-zinc-300 border-[#27272A]'
+                                }`}
                             >
                               {score}% MATCH
                             </span>
@@ -584,15 +604,15 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
                         {/* Matching Skills */}
                         {match.matchingSkills && match.matchingSkills.length > 0 && (
                           <div className="flex flex-wrap items-center gap-1.5 text-xs">
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mr-1">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 mr-1">
                               Skills:
                             </span>
                             {match.matchingSkills.map((sk, sIdx) => (
                               <span
                                 key={sIdx}
-                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200/80"
+                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[11px] font-bold bg-emerald-950/60 text-emerald-300 border border-emerald-500/30"
                               >
-                                <Check className="w-3 h-3 text-emerald-600" />
+                                <Check className="w-3 h-3 text-emerald-400" />
                                 <span>{sk}</span>
                               </span>
                             ))}
@@ -601,7 +621,7 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
 
                         {/* Why this match explanation */}
                         {match.reason && (
-                          <p className="text-[11px] text-slate-600 italic bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                          <p className="text-[11px] text-zinc-300 italic bg-[#18181B] p-2.5 rounded-xl border border-[#27272A]">
                             "{match.reason}"
                           </p>
                         )}
@@ -609,8 +629,8 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
                         {/* Action Buttons: View Profile & Invite */}
                         <div className="flex items-center justify-end gap-2 pt-1">
                           <Link
-                            to="/profile"
-                            className="px-3 py-1.5 rounded-xl text-xs font-bold text-slate-600 hover:text-indigo-600 hover:bg-slate-50 transition-colors"
+                            to={`/profile?id=${candidate?._id}`}
+                            className="px-3 py-1.5 rounded-xl text-xs font-bold text-zinc-300 hover:text-indigo-400 hover:bg-[#18181B] transition-colors"
                           >
                             View Profile
                           </Link>
@@ -619,15 +639,14 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
                             type="button"
                             onClick={() => handleInviteCandidate(match)}
                             disabled={isInvited}
-                            className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 shadow-2xs transition-all ${
-                              isInvited
-                                ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
-                                : 'bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white'
-                            }`}
+                            className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 shadow-xs transition-all ${isInvited
+                                ? 'bg-emerald-950/60 text-emerald-300 border border-emerald-500/30'
+                                : 'bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white'
+                              }`}
                           >
                             {isInvited ? (
                               <>
-                                <Check className="w-3.5 h-3.5 text-emerald-700" />
+                                <Check className="w-3.5 h-3.5 text-emerald-400" />
                                 <span>Invited ✓</span>
                               </>
                             ) : (
@@ -655,15 +674,15 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
             href={post.projectLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="group flex items-center justify-between p-3 rounded-2xl bg-gradient-to-r from-brand-50/70 to-indigo-50/50 border border-brand-200/80 hover:border-brand-300 transition-all text-xs font-semibold text-brand-900"
+            className="group flex items-center justify-between p-3 rounded-2xl bg-[#111113] border border-[#27272A] hover:border-indigo-500/40 transition-all text-xs font-semibold text-zinc-200"
           >
             <div className="flex items-center gap-2 min-w-0">
-              <div className="w-7 h-7 rounded-lg bg-brand-600 text-white flex items-center justify-center flex-shrink-0 shadow-xs">
+              <div className="w-7 h-7 rounded-lg bg-indigo-600 text-white flex items-center justify-center flex-shrink-0 shadow-xs">
                 <ExternalLink className="w-3.5 h-3.5" />
               </div>
               <span className="truncate">{post.projectLink}</span>
             </div>
-            <span className="text-[11px] font-bold text-brand-600 group-hover:translate-x-0.5 transition-transform flex-shrink-0">
+            <span className="text-[11px] font-bold text-indigo-400 group-hover:translate-x-0.5 transition-transform flex-shrink-0">
               Visit Resource →
             </span>
           </a>
@@ -672,7 +691,7 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
 
       {/* Optional Attached Image */}
       {post.image && (
-        <div className="mb-4 rounded-2xl overflow-hidden border border-slate-200 max-h-96 bg-slate-100 flex items-center justify-center">
+        <div className="mb-4 rounded-2xl overflow-hidden border border-[#27272A] max-h-96 bg-[#111113] flex items-center justify-center">
           <img
             src={post.image}
             alt="Post attachment"
@@ -688,7 +707,7 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
           {post.tags.map((tag, idx) => (
             <span
               key={idx}
-              className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-0.5 rounded-lg bg-slate-100 text-slate-700 border border-slate-200 hover:bg-brand-50 hover:text-brand-700 transition-colors"
+              className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-0.5 rounded-lg bg-[#111113] text-zinc-300 border border-[#27272A] hover:border-indigo-500/40 hover:text-indigo-300 transition-colors"
             >
               #{tag}
             </span>
@@ -697,23 +716,21 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
       )}
 
       {/* Action Buttons: Like, Comment, Share */}
-      <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 font-semibold">
+      <div className="pt-3 border-t border-[#27272A] flex items-center justify-between text-xs text-zinc-400 font-semibold">
         <div className="flex items-center gap-2 sm:gap-4">
           {/* Like Button */}
           <button
             type="button"
             onClick={handleToggleLike}
             disabled={likeLoading}
-            className={`group relative flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 ${
-              isLiked
-                ? 'text-rose-600 bg-rose-50 font-bold border border-rose-200 shadow-xs'
-                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 border border-transparent'
-            }`}
+            className={`group relative flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 ${isLiked
+                ? 'text-rose-400 bg-rose-950/40 font-bold border border-rose-500/30 shadow-xs'
+                : 'text-zinc-400 hover:bg-[#27272A] hover:text-[#FAFAFA] border border-transparent'
+              }`}
           >
             <span
-              className={`inline-block transition-transform duration-200 text-sm select-none ${
-                heartAnimated ? 'scale-125 text-rose-600' : 'group-hover:scale-110'
-              } ${isLiked ? 'text-rose-600' : 'text-slate-400 group-hover:text-rose-500'}`}
+              className={`inline-block transition-transform duration-200 text-sm select-none ${heartAnimated ? 'scale-125 text-rose-400' : 'group-hover:scale-110'
+                } ${isLiked ? 'text-rose-400' : 'text-zinc-500 group-hover:text-rose-400'}`}
             >
               {isLiked ? '♥' : '♡'}
             </span>
@@ -726,9 +743,9 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
           <button
             type="button"
             onClick={() => setCommentsOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-zinc-400 hover:bg-[#27272A] hover:text-[#FAFAFA] transition-colors"
           >
-            <MessageCircle className="w-4 h-4 text-slate-400 group-hover:text-brand-500" />
+            <MessageCircle className="w-4 h-4 text-zinc-500 group-hover:text-indigo-400" />
             <span>
               {localCommentsCount} {localCommentsCount === 1 ? 'Comment' : 'Comments'}
             </span>
@@ -739,7 +756,7 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
         <button
           type="button"
           onClick={handleShare}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-zinc-400 hover:bg-[#27272A] hover:text-[#FAFAFA] transition-colors"
         >
           <Share2 className="w-4 h-4" />
           <span className="hidden sm:inline">Share</span>

@@ -176,28 +176,28 @@ export const CommentsDrawer = ({
       {/* Backdrop overlay */}
       <div
         onClick={onClose}
-        className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity duration-300 animate-fadeIn"
+        className="fixed inset-0 bg-black/70 backdrop-blur-xs transition-opacity duration-300 animate-fadeIn"
       />
 
       {/* Drawer Container (Right side on Desktop, Bottom Sheet on Mobile) */}
-      <div className="fixed inset-x-0 bottom-0 md:inset-y-0 md:left-auto md:right-0 w-full md:max-w-md bg-white shadow-2xl md:border-l border-slate-200 flex flex-col max-h-[85vh] md:max-h-full rounded-t-3xl md:rounded-none z-10 transition-transform duration-300 animate-slideUp md:animate-slideInRight">
+      <div className="fixed inset-x-0 bottom-0 md:inset-y-0 md:left-auto md:right-0 w-full md:max-w-md bg-[#18181B] shadow-2xl md:border-l border-t md:border-t-0 border-[#27272A] flex flex-col max-h-[85vh] md:max-h-full rounded-t-3xl md:rounded-none z-10 transition-transform duration-300 animate-slideUp md:animate-slideInRight">
         
         {/* Mobile Pull Handle Indicator */}
         <div className="md:hidden pt-3 pb-1 flex justify-center">
-          <div className="w-12 h-1.5 bg-slate-200 rounded-full" />
+          <div className="w-12 h-1.5 bg-[#27272A] rounded-full" />
         </div>
 
         {/* Drawer Header */}
-        <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between flex-shrink-0">
+        <div className="px-5 py-4 border-b border-[#27272A] flex items-center justify-between flex-shrink-0">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center font-bold">
+            <div className="w-9 h-9 rounded-xl bg-indigo-950/60 text-indigo-400 border border-indigo-500/30 flex items-center justify-center font-bold">
               <MessageCircle className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-bold text-slate-900 text-base leading-tight">
+              <h3 className="font-bold text-[#FAFAFA] text-base leading-tight">
                 Discussion
               </h3>
-              <p className="text-xs text-slate-500 font-medium">
+              <p className="text-xs text-zinc-400 font-medium">
                 {comments.length} {comments.length === 1 ? 'Comment' : 'Comments'}
               </p>
             </div>
@@ -206,7 +206,7 @@ export const CommentsDrawer = ({
           <button
             type="button"
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+            className="p-2 rounded-xl text-zinc-400 hover:text-[#FAFAFA] hover:bg-[#27272A] transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -214,13 +214,13 @@ export const CommentsDrawer = ({
 
         {/* Post Snippet Banner */}
         {post && (
-          <div className="px-5 py-3 bg-slate-50 border-b border-slate-100 flex-shrink-0">
-            <div className="flex items-center gap-2 text-xs text-slate-500 font-semibold mb-1">
-              <span className="font-bold text-slate-700 truncate">{post.author?.name || 'Author'}</span>
+          <div className="px-5 py-3 bg-[#111113] border-b border-[#27272A] flex-shrink-0">
+            <div className="flex items-center gap-2 text-xs text-zinc-400 font-semibold mb-1">
+              <span className="font-bold text-zinc-200 truncate">{post.author?.name || 'Author'}</span>
               <span>•</span>
-              <span className="text-[11px] text-slate-400">{formatRelativeTime(post.createdAt)}</span>
+              <span className="text-[11px] text-zinc-500">{formatRelativeTime(post.createdAt)}</span>
             </div>
-            <p className="text-xs text-slate-700 line-clamp-2 italic font-normal">
+            <p className="text-xs text-zinc-300 line-clamp-2 italic font-normal">
               "{post.content}"
             </p>
           </div>
@@ -233,10 +233,10 @@ export const CommentsDrawer = ({
             <div className="space-y-4">
               {[1, 2, 3].map((i) => (
                 <div key={i} className="flex gap-3 animate-pulse">
-                  <div className="w-8 h-8 rounded-xl bg-slate-200 flex-shrink-0" />
+                  <div className="w-8 h-8 rounded-xl bg-[#27272A] flex-shrink-0" />
                   <div className="flex-1 space-y-2">
-                    <div className="h-3.5 bg-slate-200 rounded-md w-1/3" />
-                    <div className="h-3 bg-slate-100 rounded-md w-5/6" />
+                    <div className="h-3.5 bg-[#27272A] rounded-md w-1/3" />
+                    <div className="h-3 bg-[#27272A]/60 rounded-md w-5/6" />
                   </div>
                 </div>
               ))}
@@ -244,11 +244,11 @@ export const CommentsDrawer = ({
           ) : comments.length === 0 ? (
             /* Empty State */
             <div className="py-12 text-center flex flex-col items-center justify-center">
-              <div className="w-14 h-14 rounded-2xl bg-brand-50/60 border border-brand-100 text-brand-500 flex items-center justify-center mb-3 shadow-soft">
+              <div className="w-14 h-14 rounded-2xl bg-indigo-950/50 border border-indigo-500/30 text-indigo-400 flex items-center justify-center mb-3 shadow-xs">
                 <MessageCircle className="w-7 h-7" />
               </div>
-              <h4 className="font-bold text-slate-800 text-sm mb-1">No comments yet</h4>
-              <p className="text-xs text-slate-500 max-w-xs leading-relaxed">
+              <h4 className="font-bold text-[#FAFAFA] text-sm mb-1">No comments yet</h4>
+              <p className="text-xs text-zinc-400 max-w-xs leading-relaxed">
                 Be the first to share your thoughts, ask questions, or offer team collaboration!
               </p>
             </div>
@@ -264,7 +264,7 @@ export const CommentsDrawer = ({
               return (
                 <div
                   key={comment._id}
-                  className="group relative flex items-start gap-3 p-3.5 rounded-2xl bg-slate-50/80 hover:bg-slate-50 border border-slate-100 transition-colors"
+                  className="group relative flex items-start gap-3 p-3.5 rounded-2xl bg-[#111113] hover:bg-[#111113]/90 border border-[#27272A] transition-colors"
                 >
                   {/* Author Avatar */}
                   <img
@@ -273,25 +273,25 @@ export const CommentsDrawer = ({
                       `https://api.dicebear.com/7.x/avataaars/svg?seed=${comment.author?.name || 'User'}`
                     }
                     alt={comment.author?.name}
-                    className="w-8 h-8 rounded-xl object-cover border border-slate-200 bg-white flex-shrink-0 mt-0.5"
+                    className="w-8 h-8 rounded-xl object-cover border border-[#27272A] bg-[#18181B] flex-shrink-0 mt-0.5"
                   />
 
                   {/* Comment Details */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2 mb-1">
                       <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className="font-bold text-xs text-slate-900 truncate">
+                        <span className="font-bold text-xs text-[#FAFAFA] truncate">
                           {comment.author?.name || 'Community Member'}
                         </span>
                         {comment.author?.headline && (
-                          <span className="text-[10px] text-slate-400 truncate max-w-[120px]">
+                          <span className="text-[10px] text-zinc-500 truncate max-w-[120px]">
                             • {comment.author.headline}
                           </span>
                         )}
                       </div>
 
                       <div className="flex items-center gap-1 flex-shrink-0">
-                        <span className="text-[11px] text-slate-400">
+                        <span className="text-[11px] text-zinc-500">
                           {formatRelativeTime(comment.createdAt)}
                         </span>
 
@@ -303,30 +303,30 @@ export const CommentsDrawer = ({
                               onClick={() =>
                                 setActiveMenuId(activeMenuId === comment._id ? null : comment._id)
                               }
-                              className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors"
+                              className="p-1 rounded-lg text-zinc-500 hover:text-zinc-200 hover:bg-[#27272A] transition-colors"
                             >
                               <MoreVertical className="w-3.5 h-3.5" />
                             </button>
 
                             {activeMenuId === comment._id && (
                               <div
-                                className="absolute right-0 mt-1 w-24 bg-white rounded-xl shadow-lg border border-slate-200 py-1 z-30 text-xs font-semibold"
+                                className="absolute right-0 mt-1 w-24 bg-[#18181B] rounded-xl shadow-xl border border-[#27272A] py-1 z-30 text-xs font-semibold"
                                 onMouseLeave={() => setActiveMenuId(null)}
                               >
                                 <button
                                   type="button"
                                   onClick={() => handleStartEdit(comment)}
-                                  className="w-full px-2.5 py-1.5 text-left text-slate-700 hover:bg-slate-50 flex items-center gap-1.5"
+                                  className="w-full px-2.5 py-1.5 text-left text-zinc-300 hover:bg-[#27272A] hover:text-[#FAFAFA] flex items-center gap-1.5"
                                 >
-                                  <Edit2 className="w-3 h-3 text-slate-500" />
+                                  <Edit2 className="w-3 h-3 text-zinc-400" />
                                   <span>Edit</span>
                                 </button>
                                 <button
                                   type="button"
                                   onClick={() => handleDeleteComment(comment._id)}
-                                  className="w-full px-2.5 py-1.5 text-left text-rose-600 hover:bg-rose-50 flex items-center gap-1.5"
+                                  className="w-full px-2.5 py-1.5 text-left text-rose-400 hover:bg-rose-500/10 flex items-center gap-1.5"
                                 >
-                                  <Trash2 className="w-3 h-3 text-rose-500" />
+                                  <Trash2 className="w-3 h-3 text-rose-400" />
                                   <span>Delete</span>
                                 </button>
                               </div>
@@ -343,7 +343,7 @@ export const CommentsDrawer = ({
                           rows={2}
                           value={editContent}
                           onChange={(e) => setEditContent(e.target.value)}
-                          className="w-full p-2.5 text-xs bg-white border border-brand-300 rounded-xl focus:border-brand-500 focus:outline-none"
+                          className="w-full p-2.5 text-xs bg-[#18181B] border border-indigo-500/40 text-[#FAFAFA] rounded-xl focus:border-indigo-500 focus:outline-none"
                           autoFocus
                         />
                         <div className="flex justify-end gap-1.5">
@@ -353,7 +353,7 @@ export const CommentsDrawer = ({
                               setEditingCommentId(null);
                               setEditContent('');
                             }}
-                            className="px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-700"
+                            className="px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-[#27272A] hover:bg-[#3F3F46] text-zinc-300"
                           >
                             Cancel
                           </button>
@@ -361,7 +361,7 @@ export const CommentsDrawer = ({
                             type="button"
                             onClick={() => handleSaveEdit(comment._id)}
                             disabled={savingEdit}
-                            className="px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-brand-600 hover:bg-brand-700 text-white flex items-center gap-1"
+                            className="px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white flex items-center gap-1"
                           >
                             <Check className="w-3 h-3" />
                             <span>Save</span>
@@ -369,7 +369,7 @@ export const CommentsDrawer = ({
                         </div>
                       </div>
                     ) : (
-                      <p className="text-xs text-slate-800 leading-relaxed whitespace-pre-wrap break-words">
+                      <p className="text-xs text-zinc-200 leading-relaxed whitespace-pre-wrap break-words">
                         {comment.content}
                       </p>
                     )}
@@ -382,7 +382,7 @@ export const CommentsDrawer = ({
         </div>
 
         {/* Bottom Sticky Comment Input Box */}
-        <div className="p-4 bg-white border-t border-slate-100 flex-shrink-0">
+        <div className="p-4 bg-[#18181B] border-t border-[#27272A] flex-shrink-0">
           {user ? (
             <form onSubmit={handleCreateComment} className="flex items-center gap-2">
               <input
@@ -391,13 +391,13 @@ export const CommentsDrawer = ({
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
                 placeholder="Write a comment..."
-                className="flex-1 px-4 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-brand-500 focus:outline-none transition-colors"
+                className="flex-1 px-4 py-2.5 text-xs bg-[#111113] border border-[#27272A] text-[#FAFAFA] rounded-xl focus:bg-[#09090B] focus:border-indigo-500 focus:outline-none transition-colors placeholder:text-zinc-500"
                 maxLength={500}
               />
               <button
                 type="submit"
                 disabled={submitting || !newComment.trim()}
-                className="px-4 py-2.5 text-xs font-bold bg-brand-600 hover:bg-brand-700 disabled:opacity-50 text-white rounded-xl flex items-center gap-1.5 shadow-sm hover:shadow transition-all duration-200 flex-shrink-0"
+                className="px-4 py-2.5 text-xs font-bold bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white rounded-xl flex items-center gap-1.5 shadow-sm hover:shadow transition-all duration-200 flex-shrink-0"
               >
                 {submitting ? (
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -410,8 +410,8 @@ export const CommentsDrawer = ({
               </button>
             </form>
           ) : (
-            <div className="text-center py-2 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-500">
-              Please <span className="font-bold text-brand-600">log in</span> to join the discussion.
+            <div className="text-center py-2 bg-[#111113] rounded-xl border border-[#27272A] text-xs text-zinc-400">
+              Please <span className="font-bold text-indigo-400">log in</span> to join the discussion.
             </div>
           )}
         </div>

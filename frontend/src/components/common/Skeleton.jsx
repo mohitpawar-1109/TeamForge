@@ -30,7 +30,7 @@ export const CardSkeleton = ({ count = 3 }) => (
     {Array.from({ length: count }).map((_, i) => (
       <div
         key={i}
-        className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-soft space-y-4"
+        className="p-5 rounded-2xl bg-[#18181B] border border-[#27272A] space-y-4"
       >
         <div className="flex items-center justify-between">
           <Skeleton variant="rectangular" className="w-24 h-6 rounded-lg" />
@@ -46,7 +46,7 @@ export const CardSkeleton = ({ count = 3 }) => (
           <Skeleton variant="rectangular" className="w-16 h-5 rounded-md" />
           <Skeleton variant="rectangular" className="w-12 h-5 rounded-md" />
         </div>
-        <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+        <div className="pt-4 border-t border-[#27272A] flex items-center justify-between">
           <Skeleton variant="text" className="w-28 h-4" />
           <Skeleton variant="rectangular" className="w-20 h-7 rounded-xl" />
         </div>

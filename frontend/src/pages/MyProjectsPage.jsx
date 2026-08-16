@@ -49,8 +49,8 @@ export const MyProjectsPage = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">My Projects</h1>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-[#FAFAFA] tracking-tight">My Projects</h1>
+          <p className="text-xs sm:text-sm text-zinc-400 mt-1">
             Manage projects you created and collaborative teams you have joined.
           </p>
         </div>
@@ -63,13 +63,13 @@ export const MyProjectsPage = () => {
       </div>
 
       {/* Tab Switcher */}
-      <div className="flex items-center gap-3 border-b border-slate-200">
+      <div className="flex items-center gap-4 border-b border-[#27272A]">
         <button
           onClick={() => setTab('created')}
           className={`pb-3 text-sm font-bold transition-all border-b-2 ${
             tab === 'created'
-              ? 'border-brand-600 text-brand-600'
-              : 'border-transparent text-slate-500 hover:text-slate-800'
+              ? 'border-indigo-500 text-indigo-400'
+              : 'border-transparent text-zinc-400 hover:text-[#FAFAFA]'
           }`}
         >
           Created by You ({createdProjects.length})
@@ -78,8 +78,8 @@ export const MyProjectsPage = () => {
           onClick={() => setTab('joined')}
           className={`pb-3 text-sm font-bold transition-all border-b-2 ${
             tab === 'joined'
-              ? 'border-brand-600 text-brand-600'
-              : 'border-transparent text-slate-500 hover:text-slate-800'
+              ? 'border-indigo-500 text-indigo-400'
+              : 'border-transparent text-zinc-400 hover:text-[#FAFAFA]'
           }`}
         >
           Teams Joined ({joinedProjects.length})

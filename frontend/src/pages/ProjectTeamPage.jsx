@@ -50,8 +50,8 @@ export const ProjectTeamPage = () => {
     }
   };
 
-  if (loading) return <div className="h-64 rounded-3xl bg-slate-100 animate-pulse" />;
-  if (!project) return <div>Project not found</div>;
+  if (loading) return <div className="h-64 rounded-3xl bg-[#18181B] border border-[#27272A] animate-pulse" />;
+  if (!project) return <div className="text-zinc-400">Project not found</div>;
 
   const isOwner = user && (project.owner?._id === user._id || project.owner === user._id);
 
@@ -60,15 +60,15 @@ export const ProjectTeamPage = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <Link to={`/projects/${id}`} className="inline-flex items-center gap-1 text-xs font-semibold text-brand-600 hover:underline mb-2">
+          <Link to={`/projects/${id}`} className="inline-flex items-center gap-1 text-xs font-semibold text-indigo-400 hover:underline mb-2">
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Back to Project Overview</span>
           </Link>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-[#FAFAFA] tracking-tight">
             Team Members & Skill Roster
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            Project: <span className="font-bold text-slate-700">{project.title}</span> • {project.members?.length || 1} / {project.teamSize} Formed
+          <p className="text-xs sm:text-sm text-zinc-400 mt-1">
+            Project: <span className="font-bold text-zinc-200">{project.title}</span> • {project.members?.length || 1} / {project.teamSize} Formed
           </p>
         </div>
 
@@ -92,45 +92,45 @@ export const ProjectTeamPage = () => {
 
       {/* Member Roster Cards */}
       <div>
-        <h3 className="text-sm font-bold uppercase tracking-wider text-slate-500 mb-4">Current Team Roster</h3>
+        <h3 className="text-sm font-bold uppercase tracking-wider text-zinc-400 mb-4">Current Team Roster</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {(project.members || []).map((m, idx) => {
             const memberUser = m.user;
             if (!memberUser) return null;
 
             return (
-              <div key={idx} className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-soft">
+              <div key={idx} className="bg-[#18181B] rounded-2xl border border-[#27272A] p-5 shadow-soft">
                 <div className="flex items-start gap-3 mb-4">
                   <img
                     src={memberUser.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${memberUser.name}`}
                     alt={memberUser.name}
-                    className="w-12 h-12 rounded-xl object-cover border border-slate-200 bg-slate-100 flex-shrink-0"
+                    className="w-12 h-12 rounded-xl object-cover border border-[#27272A] bg-[#111113] flex-shrink-0"
                   />
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between">
-                      <h4 className="font-bold text-slate-900 text-sm truncate">{memberUser.name}</h4>
+                      <h4 className="font-bold text-[#FAFAFA] text-sm truncate">{memberUser.name}</h4>
                       <Badge variant="brand" size="sm">{m.role || 'Member'}</Badge>
                     </div>
-                    <p className="text-xs text-slate-500 truncate">{memberUser.headline}</p>
-                    <p className="text-[11px] text-slate-400 mt-0.5 truncate">{memberUser.college}</p>
+                    <p className="text-xs text-zinc-400 truncate">{memberUser.headline}</p>
+                    <p className="text-[11px] text-zinc-500 mt-0.5 truncate">{memberUser.college}</p>
                   </div>
                 </div>
 
                 {/* Skills chips */}
                 <div className="mb-4">
-                  <span className="text-[11px] font-bold text-slate-400 block mb-1">Contributed Skills:</span>
+                  <span className="text-[11px] font-bold text-zinc-400 block mb-1">Contributed Skills:</span>
                   <div className="flex flex-wrap gap-1">
                     {(memberUser.skills || []).map((s, sIdx) => (
-                      <span key={sIdx} className="text-[11px] font-medium px-2 py-0.5 bg-slate-50 text-slate-700 rounded border border-slate-200">
+                      <span key={sIdx} className="text-[11px] font-medium px-2 py-0.5 bg-[#111113] text-zinc-300 rounded border border-[#27272A]">
                         {s.name}
                       </span>
                     ))}
                   </div>
                 </div>
 
-                <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
+                <div className="pt-3 border-t border-[#27272A] flex items-center justify-between text-[11px] text-zinc-500">
                   <span>Joined {new Date(m.joinedAt || Date.now()).toLocaleDateString()}</span>
-                  <Link to={`/profile?id=${memberUser._id}`} className="font-semibold text-brand-600 hover:underline">
+                  <Link to={`/profile?id=${memberUser._id}`} className="font-semibold text-indigo-400 hover:underline">
                     View Profile →
                   </Link>
                 </div>

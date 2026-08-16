@@ -15,7 +15,7 @@ export const POST_TYPES = [
     label: 'Post',
     subtitle: 'General Discussion',
     icon: MessageSquare,
-    color: 'text-brand-600 bg-brand-50 border-brand-200',
+    color: 'text-indigo-400 bg-indigo-950/60 border-indigo-500/30',
     badgeVariant: 'brand',
     placeholder: "What's on your mind? Share an idea, resource, or tech discovery..."
   },
@@ -24,7 +24,7 @@ export const POST_TYPES = [
     label: 'Looking for Teammates',
     subtitle: 'Recruitment Request',
     icon: Users,
-    color: 'text-amber-700 bg-amber-50 border-amber-200',
+    color: 'text-amber-400 bg-amber-950/60 border-amber-500/30',
     badgeVariant: 'warning',
     placeholder: "Describe your project or hackathon idea and what specific skills/roles you are looking for..."
   },
@@ -33,7 +33,7 @@ export const POST_TYPES = [
     label: 'Project',
     subtitle: 'Showcase / Feedback',
     icon: FolderGit2,
-    color: 'text-indigo-700 bg-indigo-50 border-indigo-200',
+    color: 'text-purple-400 bg-purple-950/60 border-purple-500/30',
     badgeVariant: 'purple',
     placeholder: "Share what you are building! Describe features, tech stack, and what feedback you need..."
   },
@@ -42,7 +42,7 @@ export const POST_TYPES = [
     label: 'Hackathon',
     subtitle: 'Events & Squads',
     icon: Trophy,
-    color: 'text-violet-700 bg-violet-50 border-violet-200',
+    color: 'text-pink-400 bg-pink-950/60 border-pink-500/30',
     badgeVariant: 'purple',
     placeholder: "Announce an upcoming hackathon, dates, problem statement tracks, or team formation call..."
   },
@@ -51,7 +51,7 @@ export const POST_TYPES = [
     label: 'Question',
     subtitle: 'Ask the Community',
     icon: HelpCircle,
-    color: 'text-sky-700 bg-sky-50 border-sky-200',
+    color: 'text-sky-400 bg-sky-950/60 border-sky-500/30',
     badgeVariant: 'brand',
     placeholder: "Ask technical, architecture, or hackathon-related questions to get answers from fellow builders..."
   },
@@ -60,7 +60,7 @@ export const POST_TYPES = [
     label: 'Achievement',
     subtitle: 'Celebrate Wins',
     icon: Award,
-    color: 'text-emerald-700 bg-emerald-50 border-emerald-200',
+    color: 'text-emerald-400 bg-emerald-950/60 border-emerald-500/30',
     badgeVariant: 'success',
     placeholder: "Won a hackathon, finished a big project, or earned a certification? Share your milestone! 🎉"
   }
@@ -80,11 +80,11 @@ export const PostTypeSelector = ({ selectedType, onSelectType, size = 'default' 
             onClick={() => onSelectType(type.id)}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-200 border ${
               isSelected
-                ? 'bg-brand-600 text-white border-brand-600 shadow-sm shadow-brand-500/20'
-                : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100 hover:text-slate-900'
+                ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm shadow-indigo-500/20'
+                : 'bg-[#18181B] text-zinc-400 border-[#27272A] hover:bg-[#27272A] hover:text-[#FAFAFA]'
             }`}
           >
-            <Icon className={`w-3.5 h-3.5 ${isSelected ? 'text-white' : 'text-slate-500'}`} />
+            <Icon className={`w-3.5 h-3.5 ${isSelected ? 'text-white' : 'text-zinc-400'}`} />
             <span>{type.label}</span>
           </button>
         );

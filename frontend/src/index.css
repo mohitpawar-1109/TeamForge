@@ -8,15 +8,18 @@
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    color-scheme: dark;
   }
 
   body {
-    @apply bg-[#f8fafc] text-slate-900 font-sans selection:bg-brand-500 selection:text-white min-h-screen;
+    @apply bg-[#09090B] text-[#FAFAFA] font-sans selection:bg-indigo-600 selection:text-white min-h-screen;
+    background-color: #09090B;
+    color: #FAFAFA;
   }
 
   /* Accessible focus indicators for keyboard navigation */
   :focus-visible {
-    @apply outline-none ring-2 ring-brand-500 ring-offset-2;
+    @apply outline-none ring-2 ring-indigo-500 ring-offset-2 ring-offset-[#09090B];
   }
 
   button, a, input, textarea, select {
@@ -24,27 +27,27 @@
   }
 }
 
-/* Custom Scrollbar */
+/* Custom Sleek Dark Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: #09090B;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #27272A;
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #3F3F46;
 }
 
-/* Skeleton Loading Shimmer */
-@keyframes shimmer {
+/* Dark Skeleton Loading Shimmer */
+@keyframes darkShimmer {
   0% {
     background-position: -200% 0;
   }
@@ -54,23 +57,23 @@
 }
 
 .skeleton-shimmer {
-  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background: linear-gradient(90deg, #18181B 25%, #27272A 50%, #18181B 75%);
   background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
+  animation: darkShimmer 1.5s infinite;
 }
 
-/* Glassmorphism & UI Panels */
+/* Dark Glassmorphism & UI Panels */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(24, 24, 27, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(226, 232, 240, 0.8);
+  border: 1px solid rgba(39, 39, 42, 0.8);
 }
 
 .glass-card {
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(24, 24, 27, 0.95);
   backdrop-filter: blur(8px);
-  border: 1px solid #e2e8f0;
+  border: 1px solid #27272A;
 }
 
 /* Respect Reduced Motion Preferences */

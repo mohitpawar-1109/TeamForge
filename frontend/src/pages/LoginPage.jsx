@@ -36,88 +36,88 @@ export const LoginPage = () => {
         {/* Logo and title */}
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-2 mb-3">
-            <div className="w-10 h-10 rounded-xl bg-brand-600 flex items-center justify-center text-white shadow-md shadow-brand-500/20">
+            <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-md shadow-indigo-500/20">
               <Layers className="w-5 h-5" />
             </div>
           </Link>
-          <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">Sign in to TeamForge</h2>
-          <p className="text-xs text-slate-500 mt-1">Connect with student builders and collaborate</p>
+          <h2 className="text-2xl font-extrabold text-[#FAFAFA] tracking-tight">Sign in to TeamForge</h2>
+          <p className="text-xs text-zinc-400 mt-1">Connect with student builders and collaborate</p>
         </div>
 
         {/* 1-Click Quick Demo Switcher Card for Hackathon Judges */}
-        <div className="bg-gradient-to-br from-brand-50 to-indigo-50/50 rounded-2xl p-4 border border-brand-200 mb-6">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-brand-900 mb-2">
-            <Sparkles className="w-4 h-4 text-brand-600" />
+        <div className="bg-indigo-950/30 rounded-2xl p-4 border border-indigo-500/30 mb-6">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-indigo-300 mb-2">
+            <Sparkles className="w-4 h-4 text-indigo-400" />
             <span>1-Click Hackathon Demo Logins:</span>
           </div>
           <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
               onClick={() => handleQuickLogin('mohit@teamforge.app')}
-              className="p-2 rounded-xl bg-white text-left border border-brand-200 hover:border-brand-400 hover:shadow-xs transition-all text-xs"
+              className="p-2 rounded-xl bg-[#18181B] text-left border border-[#27272A] hover:border-indigo-500/40 hover:shadow-xs transition-all text-xs"
             >
-              <div className="font-bold text-slate-900">Mohit (Lead)</div>
-              <div className="text-[10px] text-slate-500 truncate">React & Node Dev</div>
+              <div className="font-bold text-[#FAFAFA]">Mohit (Lead)</div>
+              <div className="text-[10px] text-zinc-400 truncate">React & Node Dev</div>
             </button>
 
             <button
               type="button"
               onClick={() => handleQuickLogin('aarav@teamforge.app')}
-              className="p-2 rounded-xl bg-white text-left border border-brand-200 hover:border-brand-400 hover:shadow-xs transition-all text-xs"
+              className="p-2 rounded-xl bg-[#18181B] text-left border border-[#27272A] hover:border-indigo-500/40 hover:shadow-xs transition-all text-xs"
             >
-              <div className="font-bold text-slate-900">Aarav (Candidate)</div>
-              <div className="text-[10px] text-slate-500 truncate">Python / ML Engineer</div>
+              <div className="font-bold text-[#FAFAFA]">Aarav (Candidate)</div>
+              <div className="text-[10px] text-zinc-400 truncate">Python / ML Engineer</div>
             </button>
 
             <button
               type="button"
               onClick={() => handleQuickLogin('priya@teamforge.app')}
-              className="p-2 rounded-xl bg-white text-left border border-brand-200 hover:border-brand-400 hover:shadow-xs transition-all text-xs"
+              className="p-2 rounded-xl bg-[#18181B] text-left border border-[#27272A] hover:border-indigo-500/40 hover:shadow-xs transition-all text-xs"
             >
-              <div className="font-bold text-slate-900">Priya (Designer)</div>
-              <div className="text-[10px] text-slate-500 truncate">UI/UX & Figma</div>
+              <div className="font-bold text-[#FAFAFA]">Priya (Designer)</div>
+              <div className="text-[10px] text-zinc-400 truncate">UI/UX & Figma</div>
             </button>
 
             <button
               type="button"
               onClick={() => handleQuickLogin('demo@teamforge.app')}
-              className="p-2 rounded-xl bg-white text-left border border-brand-200 hover:border-brand-400 hover:shadow-xs transition-all text-xs"
+              className="p-2 rounded-xl bg-[#18181B] text-left border border-[#27272A] hover:border-indigo-500/40 hover:shadow-xs transition-all text-xs"
             >
-              <div className="font-bold text-slate-900">Demo Account</div>
-              <div className="text-[10px] text-slate-500 truncate">demo@teamforge.app</div>
+              <div className="font-bold text-[#FAFAFA]">Demo Account</div>
+              <div className="text-[10px] text-zinc-400 truncate">demo@teamforge.app</div>
             </button>
           </div>
         </div>
 
         {/* Standard Form */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-soft">
+        <div className="bg-[#18181B] rounded-2xl border border-[#27272A] p-6 sm:p-8 shadow-soft">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Email Address</label>
+              <label className="block text-xs font-semibold text-zinc-300 mb-1">Email Address</label>
               <div className="relative">
-                <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-3 pointer-events-none" />
+                <Mail className="w-4 h-4 text-zinc-500 absolute left-3 top-3 pointer-events-none" />
                 <input
                   type="email"
                   required
                   placeholder="name@university.edu"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-brand-500 focus:outline-none transition-all"
+                  className="w-full pl-9 pr-3 py-2.5 text-sm bg-[#111113] border border-[#27272A] text-[#FAFAFA] rounded-xl focus:bg-[#09090B] focus:border-indigo-500 focus:outline-none transition-all placeholder:text-zinc-500"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Password</label>
+              <label className="block text-xs font-semibold text-zinc-300 mb-1">Password</label>
               <div className="relative">
-                <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-3 pointer-events-none" />
+                <Lock className="w-4 h-4 text-zinc-500 absolute left-3 top-3 pointer-events-none" />
                 <input
                   type="password"
                   required
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-brand-500 focus:outline-none transition-all"
+                  className="w-full pl-9 pr-3 py-2.5 text-sm bg-[#111113] border border-[#27272A] text-[#FAFAFA] rounded-xl focus:bg-[#09090B] focus:border-indigo-500 focus:outline-none transition-all placeholder:text-zinc-500"
                 />
               </div>
             </div>
@@ -134,9 +134,9 @@ export const LoginPage = () => {
           </form>
         </div>
 
-        <div className="text-center mt-6 text-xs text-slate-500">
+        <div className="text-center mt-6 text-xs text-zinc-400">
           Don't have an account?{' '}
-          <Link to="/register" className="font-bold text-brand-600 hover:text-brand-700">
+          <Link to="/register" className="font-bold text-indigo-400 hover:text-indigo-300">
             Create a student profile
           </Link>
         </div>

@@ -20,33 +20,33 @@ export const AIAnalysisModal = ({ isOpen, onClose, analysisData, onApply }) => {
       <div className="space-y-6">
         {/* Header Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          <div className="bg-slate-50 rounded-xl p-3 border border-slate-100 text-center">
-            <div className="text-xs text-slate-400 font-medium">Difficulty</div>
-            <div className="text-base font-bold text-slate-900 mt-0.5">{difficulty || 'Medium'}</div>
+          <div className="bg-[#111113] rounded-xl p-3 border border-[#27272A] text-center">
+            <div className="text-xs text-zinc-500 font-medium">Difficulty</div>
+            <div className="text-base font-bold text-[#FAFAFA] mt-0.5">{difficulty || 'Medium'}</div>
           </div>
-          <div className="bg-slate-50 rounded-xl p-3 border border-slate-100 text-center">
-            <div className="text-xs text-slate-400 font-medium">Recommended Team</div>
-            <div className="text-base font-bold text-brand-600 mt-0.5">{recommendedTeamSize || 4} Members</div>
+          <div className="bg-[#111113] rounded-xl p-3 border border-[#27272A] text-center">
+            <div className="text-xs text-zinc-500 font-medium">Recommended Team</div>
+            <div className="text-base font-bold text-indigo-400 mt-0.5">{recommendedTeamSize || 4} Members</div>
           </div>
-          <div className="col-span-2 sm:col-span-1 bg-slate-50 rounded-xl p-3 border border-slate-100 text-center">
-            <div className="text-xs text-slate-400 font-medium">Skills Identified</div>
-            <div className="text-base font-bold text-emerald-600 mt-0.5">{(requiredSkills || []).length} Required</div>
+          <div className="col-span-2 sm:col-span-1 bg-[#111113] rounded-xl p-3 border border-[#27272A] text-center">
+            <div className="text-xs text-zinc-500 font-medium">Skills Identified</div>
+            <div className="text-base font-bold text-emerald-400 mt-0.5">{(requiredSkills || []).length} Required</div>
           </div>
         </div>
 
         {/* Required Skills & Importance */}
         <div>
-          <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
+          <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-2">
             Identified Technical Skills
           </h4>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {(requiredSkills || []).map((skill, idx) => {
               const imp = (skillImportance && skillImportance[skill]) || 'High';
               return (
-                <div key={idx} className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-200">
-                  <span className="text-sm font-semibold text-slate-800">{skill}</span>
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
-                    imp === 'High' ? 'bg-rose-50 text-rose-700 border border-rose-200' : 'bg-brand-50 text-brand-700 border border-brand-200'
+                <div key={idx} className="flex items-center justify-between p-2.5 rounded-xl bg-[#111113] border border-[#27272A]">
+                  <span className="text-sm font-semibold text-zinc-200">{skill}</span>
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
+                    imp === 'High' ? 'bg-rose-950/60 text-rose-300 border-rose-500/30' : 'bg-indigo-950/60 text-indigo-300 border-indigo-500/30'
                   }`}>
                     {imp} Priority
                   </span>
@@ -58,7 +58,7 @@ export const AIAnalysisModal = ({ isOpen, onClose, analysisData, onApply }) => {
 
         {/* Suggested Roles */}
         <div>
-          <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
+          <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-2">
             Suggested Team Roles
           </h4>
           <div className="flex flex-wrap gap-2">
@@ -72,13 +72,13 @@ export const AIAnalysisModal = ({ isOpen, onClose, analysisData, onApply }) => {
 
         {/* Potential Challenges */}
         <div>
-          <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
+          <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-2">
             Potential Architectural Challenges
           </h4>
-          <ul className="space-y-1.5 bg-amber-50/60 rounded-xl p-3.5 border border-amber-200/80">
+          <ul className="space-y-1.5 bg-amber-950/20 rounded-xl p-3.5 border border-amber-500/30">
             {(potentialChallenges || []).map((ch, idx) => (
-              <li key={idx} className="text-xs text-amber-900 flex items-start gap-2">
-                <AlertCircle className="w-3.5 h-3.5 text-amber-600 flex-shrink-0 mt-0.5" />
+              <li key={idx} className="text-xs text-amber-300 flex items-start gap-2">
+                <AlertCircle className="w-3.5 h-3.5 text-amber-400 flex-shrink-0 mt-0.5" />
                 <span>{ch}</span>
               </li>
             ))}
@@ -86,7 +86,7 @@ export const AIAnalysisModal = ({ isOpen, onClose, analysisData, onApply }) => {
         </div>
 
         {/* Footer Actions */}
-        <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+        <div className="pt-4 border-t border-[#27272A] flex items-center justify-end gap-3">
           <Button variant="outline" onClick={onClose}>
             Edit Manually
           </Button>

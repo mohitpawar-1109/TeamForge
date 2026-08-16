@@ -80,20 +80,20 @@ export const ProjectMatchesPage = () => {
       {/* Top Breadcrumb & Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <Link to={`/projects/${id}`} className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-600 hover:underline mb-2">
+          <Link to={`/projects/${id}`} className="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-400 hover:underline mb-2">
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Back to Project Overview</span>
           </Link>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-[#FAFAFA] tracking-tight">
               Recommended Teammates
             </h1>
-            <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-brand-50 text-brand-600 border border-brand-200">
+            <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-indigo-950/60 text-indigo-300 border border-indigo-500/30">
               SMART MATCH
             </span>
           </div>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            Ranked candidates for <span className="font-bold text-slate-700">"{projectTitle}"</span> calculated from skill coverage, interests, and schedule compatibility.
+          <p className="text-xs sm:text-sm text-zinc-400 mt-1">
+            Ranked candidates for <span className="font-bold text-zinc-200">"{projectTitle}"</span> calculated from skill coverage, interests, and schedule compatibility.
           </p>
         </div>
 
@@ -150,29 +150,29 @@ export const ProjectMatchesPage = () => {
       >
         <form onSubmit={handleSendInvite} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Assigned Role in Project</label>
+            <label className="block text-xs font-semibold text-zinc-300 mb-1">Assigned Role in Project</label>
             <input
               type="text"
               required
               value={inviteRole}
               onChange={(e) => setInviteRole(e.target.value)}
               placeholder="e.g. ML Engineer, UI/UX Lead, Backend Developer"
-              className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-brand-500 focus:outline-none"
+              className="w-full px-3 py-2 text-sm bg-[#111113] border border-[#27272A] text-[#FAFAFA] rounded-xl focus:bg-[#09090B] focus:border-indigo-500 focus:outline-none placeholder:text-zinc-500"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Personalized Message</label>
+            <label className="block text-xs font-semibold text-zinc-300 mb-1">Personalized Message</label>
             <textarea
               rows={3}
               required
               value={inviteMessage}
               onChange={(e) => setInviteMessage(e.target.value)}
-              className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-brand-500 focus:outline-none"
+              className="w-full px-3 py-2 text-sm bg-[#111113] border border-[#27272A] text-[#FAFAFA] rounded-xl focus:bg-[#09090B] focus:border-indigo-500 focus:outline-none placeholder:text-zinc-500"
             />
           </div>
 
-          <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+          <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#27272A]">
             <Button variant="outline" size="md" onClick={() => setSelectedCandidate(null)}>
               Cancel
             </Button>
