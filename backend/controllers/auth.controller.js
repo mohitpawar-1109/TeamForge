@@ -15,7 +15,9 @@ export const registerUser = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Please provide name, email, and password' });
     }
 
-    const userExists = await User.findOne({ email });
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const userExists = await User.findOne({ email: normalizedEmail });
     if (userExists) {
       return res.status(400).json({ success: false, message: 'User already exists with this email' });
     }
@@ -27,8 +29,8 @@ export const registerUser = async (req, res, next) => {
     }
 
     const user = await User.create({
-      name,
-      email,
+      name: name.trim(),
+      email: normalizedEmail,
       password,
       college: college || 'Institute of Technology',
       course: course || 'Computer Science',
@@ -70,8 +72,21 @@ export const loginUser = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Please provide email and password' });
     }
 
-    const user = await User.findOne({ email });
-    if (user && (await user.matchPassword(password))) {
+    const normalizedEmail = email.trim().toLowerCase();
+
+    // Safe diagnostic logs
+    console.log(`[Auth Login] Searching normalized email: ${normalizedEmail}`);
+
+    const user = await User.findOne({ email: normalizedEmail });
+    console.log(`[Auth Login] User found: ${user ? 'true' : 'false'}`);
+
+    let isPasswordMatch = false;
+    if (user) {
+      isPasswordMatch = await user.matchPassword(password);
+    }
+    console.log(`[Auth Login] Password match: ${isPasswordMatch ? 'true' : 'false'}`);
+
+    if (user && isPasswordMatch) {
       res.json({
         success: true,
         data: {
