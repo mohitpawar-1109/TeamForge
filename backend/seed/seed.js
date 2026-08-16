@@ -462,6 +462,11 @@ const seedDB = async () => {
 
     const createdProjects = [];
     for (const p of projectsData) {
+      if (p.aiAnalysis && p.aiAnalysis.skillImportance) {
+        p.aiAnalysis.skillImportance = p.aiAnalysis.skillImportance instanceof Map
+          ? p.aiAnalysis.skillImportance
+          : new Map(Object.entries(p.aiAnalysis.skillImportance || {}));
+      }
       const newProj = await Project.create(p);
       createdProjects.push(newProj);
     }

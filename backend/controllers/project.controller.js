@@ -3,12 +3,46 @@ import User from '../models/User.js';
 import Task from '../models/Task.js';
 import { calculateCandidateMatch } from '../services/match.service.js';
 
+export const sanitizeSkillImportance = (skillImportance) => {
+  const sanitizeKey = (k) => String(k).replace(/\./g, '․').replace(/^\$/, '＄');
+  const map = new Map();
+  if (!skillImportance) return map;
+
+  if (skillImportance instanceof Map) {
+    for (const [k, v] of skillImportance.entries()) {
+      map.set(sanitizeKey(k), String(v));
+    }
+    return map;
+  }
+
+  if (typeof skillImportance === 'object' && !Array.isArray(skillImportance)) {
+    for (const [k, v] of Object.entries(skillImportance)) {
+      map.set(sanitizeKey(k), String(v));
+    }
+    return map;
+  }
+
+  return map;
+};
+
 export const createProject = async (req, res, next) => {
   try {
     const { title, description, category, difficulty, duration, teamSize, requiredSkills, suggestedRoles, availabilityNeeded, aiAnalysis } = req.body;
 
     if (!title || !description) {
       return res.status(400).json({ success: false, message: 'Please provide project title and description' });
+    }
+
+    let processedAiAnalysis = { analyzed: false, skillImportance: new Map() };
+    if (aiAnalysis) {
+      const rawImportance = aiAnalysis.skillImportance;
+      const skillImportanceMap = sanitizeSkillImportance(rawImportance);
+
+      processedAiAnalysis = {
+        ...aiAnalysis,
+        analyzed: aiAnalysis.analyzed !== undefined ? aiAnalysis.analyzed : true,
+        skillImportance: skillImportanceMap
+      };
     }
 
     const project = await Project.create({
@@ -23,7 +57,7 @@ export const createProject = async (req, res, next) => {
       availabilityNeeded: availabilityNeeded || ['Weekdays', 'Weekends'],
       owner: req.user._id,
       members: [{ user: req.user._id, role: 'Project Lead', joinedAt: new Date() }],
-      aiAnalysis: aiAnalysis || { analyzed: false },
+      aiAnalysis: processedAiAnalysis,
       status: 'Recruiting',
       progress: 0
     });
@@ -139,7 +173,12 @@ export const updateProject = async (req, res, next) => {
       return res.status(403).json({ success: false, message: 'Only the project owner can update settings' });
     }
 
-    const updated = await Project.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true })
+    const updateData = { ...req.body };
+    if (updateData.aiAnalysis && updateData.aiAnalysis.skillImportance !== undefined) {
+      updateData.aiAnalysis.skillImportance = sanitizeSkillImportance(updateData.aiAnalysis.skillImportance);
+    }
+
+    const updated = await Project.findByIdAndUpdate(req.params.id, updateData, { new: true, runValidators: true })
       .populate('owner', 'name email headline avatar')
       .populate('members.user', 'name email headline avatar skills');
 
