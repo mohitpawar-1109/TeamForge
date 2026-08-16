@@ -96,7 +96,7 @@ export const EditProfilePage = () => {
               required
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none"
+              className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition-all"
             />
           </div>
 
@@ -106,50 +106,50 @@ export const EditProfilePage = () => {
               type="text"
               value={formData.headline}
               onChange={(e) => setFormData({ ...formData, headline: e.target.value })}
-              className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none"
+              className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition-all"
             />
           </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">College</label>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">College / University</label>
             <input
               type="text"
               value={formData.college}
               onChange={(e) => setFormData({ ...formData, college: e.target.value })}
-              className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none"
+              className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition-all"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Course</label>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">Course / Major</label>
             <input
               type="text"
               value={formData.course}
               onChange={(e) => setFormData({ ...formData, course: e.target.value })}
-              className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none"
+              className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition-all"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Year</label>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">Year of Study</label>
             <input
               type="text"
               value={formData.year}
               onChange={(e) => setFormData({ ...formData, year: e.target.value })}
-              className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none"
+              className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition-all"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1">Bio</label>
+          <label className="block text-xs font-semibold text-slate-700 mb-1">Bio / Collaboration Goals</label>
           <textarea
             rows={3}
             value={formData.bio}
             onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-            className="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none"
+            className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition-all leading-relaxed"
           />
         </div>
 
@@ -170,15 +170,15 @@ export const EditProfilePage = () => {
           <div className="flex gap-2">
             <input
               type="text"
-              placeholder="Add skill..."
+              placeholder="Add skill (e.g. React, Python)..."
               value={newSkillName}
               onChange={(e) => setNewSkillName(e.target.value)}
-              className="flex-1 px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl"
+              className="flex-1 px-3.5 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none transition-all"
             />
             <select
               value={newSkillProf}
               onChange={(e) => setNewSkillProf(e.target.value)}
-              className="px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl"
+              className="px-3 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-brand-500 focus:outline-none"
             >
               <option value="Beginner">Beginner</option>
               <option value="Intermediate">Intermediate</option>

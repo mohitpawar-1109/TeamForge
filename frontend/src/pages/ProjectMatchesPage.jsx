@@ -6,6 +6,8 @@ import { useToast } from '../context/ToastContext';
 import { CandidateCard } from '../components/cards/CandidateCard';
 import { Modal } from '../components/common/Modal';
 import { Button } from '../components/common/Button';
+import { CardSkeleton } from '../components/common/Skeleton';
+import { EmptyState } from '../components/common/EmptyState';
 import { AiMatchVisualizer3D } from '../components/matching/AiMatchVisualizer3D';
 
 export const ProjectMatchesPage = () => {
@@ -117,16 +119,15 @@ export const ProjectMatchesPage = () => {
 
       {/* Match Results Grid */}
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[1, 2, 3, 4, 5, 6].map(i => (
-            <div key={i} className="h-80 rounded-2xl bg-slate-100 animate-pulse" />
-          ))}
-        </div>
+        <CardSkeleton count={6} />
       ) : matches.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center">
-          <p className="text-sm text-slate-600">No candidate matches found at the moment.</p>
-          <p className="text-xs text-slate-400 mt-1">Try updating required project skills to broaden match criteria.</p>
-        </div>
+        <EmptyState
+          icon={Users}
+          title="No candidate matches found yet"
+          description="Try updating your required project skills or team roles to expand the AI matching criteria."
+          actionLabel="Edit Project Roles"
+          actionLink={`/projects/${id}`}
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {matches.map((item) => (

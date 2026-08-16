@@ -5,6 +5,7 @@ import { inviteAPI } from '../services/api';
 import { useToast } from '../context/ToastContext';
 import { Button } from '../components/common/Button';
 import { Badge } from '../components/common/Badge';
+import { EmptyState } from '../components/common/EmptyState';
 
 export const InvitationsPage = () => {
   const [received, setReceived] = useState([]);
@@ -85,17 +86,19 @@ export const InvitationsPage = () => {
         </div>
       ) : activeTab === 'received' ? (
         received.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center">
-            <Mail className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-            <h3 className="font-bold text-slate-800 text-base">No invitations received</h3>
-            <p className="text-xs text-slate-500 mt-1">When team leads discover your profile, invites will appear here.</p>
-          </div>
+          <EmptyState
+            icon={Mail}
+            title="No invitations received yet"
+            description="When project creators discover your skills and match criteria, team invitations will appear here."
+            actionLabel="Explore Active Projects"
+            actionLink="/projects"
+          />
         ) : (
           <div className="space-y-4">
             {received.map((inv) => (
               <div
                 key={inv._id}
-                className="bg-white rounded-2xl border border-slate-200 p-5 shadow-soft flex flex-col sm:flex-row sm:items-center justify-between gap-5"
+                className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-soft flex flex-col sm:flex-row sm:items-center justify-between gap-5"
               >
                 <div className="flex items-start gap-4">
                   <img
@@ -161,16 +164,19 @@ export const InvitationsPage = () => {
       ) : (
         /* Sent Tab */
         sent.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center">
-            <h3 className="font-bold text-slate-800 text-base">No invitations dispatched</h3>
-            <p className="text-xs text-slate-500 mt-1">Navigate to your project matches to recruit candidate students.</p>
-          </div>
+          <EmptyState
+            icon={Sparkles}
+            title="No invitations dispatched yet"
+            description="Navigate to your project recommended teammates to invite matched students to collaborate."
+            actionLabel="View My Projects"
+            actionLink="/my-projects"
+          />
         ) : (
           <div className="space-y-4">
             {sent.map((inv) => (
               <div
                 key={inv._id}
-                className="bg-white rounded-2xl border border-slate-200 p-5 shadow-soft flex items-center justify-between gap-4"
+                className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-soft flex items-center justify-between gap-4"
               >
                 <div className="flex items-center gap-4">
                   <img

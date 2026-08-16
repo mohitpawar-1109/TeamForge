@@ -4,6 +4,8 @@ import { Search, Filter, Sparkles, SlidersHorizontal, Network } from 'lucide-rea
 import { projectAPI } from '../services/api';
 import { ProjectCard } from '../components/cards/ProjectCard';
 import { Button } from '../components/common/Button';
+import { CardSkeleton } from '../components/common/Skeleton';
+import { EmptyState } from '../components/common/EmptyState';
 
 export const ExploreProjectsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -140,19 +142,19 @@ export const ExploreProjectsPage = () => {
 
       {/* Projects Grid */}
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[1, 2, 3, 4, 5, 6].map(i => (
-            <div key={i} className="h-72 rounded-2xl bg-slate-100 animate-pulse" />
-          ))}
-        </div>
+        <CardSkeleton count={6} />
       ) : projects.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center">
-          <p className="text-base font-bold text-slate-800">No projects found matching your criteria</p>
-          <p className="text-xs text-slate-500 mt-1 mb-4">Try clearing filters or searching for different technical terms.</p>
-          <Button variant="outline" size="sm" onClick={() => { setSearch(''); setSelectedCategory('All'); setSelectedDifficulty('All'); }}>
-            Reset Filters
-          </Button>
-        </div>
+        <EmptyState
+          icon={Search}
+          title="No projects found matching your criteria"
+          description="Try adjusting your keywords, switching categories, or resetting filters to discover more teams."
+          actionLabel="Reset Filters"
+          onAction={() => {
+            setSearch('');
+            setSelectedCategory('All');
+            setSelectedDifficulty('All');
+          }}
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {projects.map(project => (

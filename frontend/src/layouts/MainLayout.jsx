@@ -16,7 +16,8 @@ import {
   Layers,
   CheckCircle2,
   MessageSquare,
-  Network
+  Network,
+  Search
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/common/Button';

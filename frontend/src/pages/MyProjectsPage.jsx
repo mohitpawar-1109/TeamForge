@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { FolderGit2, PlusCircle, Sparkles } from 'lucide-react';
+import { FolderGit2, PlusCircle, Sparkles, Users } from 'lucide-react';
 import { projectAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { ProjectCard } from '../components/cards/ProjectCard';
 import { Button } from '../components/common/Button';
+import { CardSkeleton } from '../components/common/Skeleton';
+import { EmptyState } from '../components/common/EmptyState';
 
 export const MyProjectsPage = () => {
   const { user } = useAuth();
@@ -86,21 +88,16 @@ export const MyProjectsPage = () => {
 
       {/* Projects Grid */}
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[1, 2, 3].map(i => <div key={i} className="h-72 rounded-2xl bg-slate-100 animate-pulse" />)}
-        </div>
+        <CardSkeleton count={3} />
       ) : tab === 'created' ? (
         createdProjects.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center">
-            <FolderGit2 className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-            <h3 className="font-bold text-slate-800 text-base">No projects created yet</h3>
-            <p className="text-xs text-slate-500 mt-1 mb-4">Start by publishing your hackathon or capstone project idea.</p>
-            <Link to="/projects/create">
-              <Button variant="primary" size="sm" icon={PlusCircle}>
-                Create First Project
-              </Button>
-            </Link>
-          </div>
+          <EmptyState
+            icon={FolderGit2}
+            title="No projects created yet"
+            description="Start by publishing your hackathon or engineering project idea to assemble your dream team."
+            actionLabel="Create First Project"
+            actionLink="/projects/create"
+          />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {createdProjects.map(p => (
@@ -110,13 +107,13 @@ export const MyProjectsPage = () => {
         )
       ) : (
         joinedProjects.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center">
-            <h3 className="font-bold text-slate-800 text-base">No teams joined yet</h3>
-            <p className="text-xs text-slate-500 mt-1 mb-4">Explore recruiting projects or respond to incoming invitations.</p>
-            <Link to="/projects">
-              <Button variant="outline" size="sm">Explore Projects</Button>
-            </Link>
-          </div>
+          <EmptyState
+            icon={Users}
+            title="No teams joined yet"
+            description="Explore recruiting projects across university tracks or respond to incoming team invitations."
+            actionLabel="Explore Projects"
+            actionLink="/projects"
+          />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {joinedProjects.map(p => (
