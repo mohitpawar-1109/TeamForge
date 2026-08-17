@@ -1,0 +1,67 @@
+{
+  "name": "TeamForge | AI Team & Hackathon Collaboration",
+  "short_name": "TeamForge",
+  "description": "AI-powered student team formation, project collaboration, and hackathon discovery platform.",
+  "start_url": "/",
+  "id": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#09090B",
+  "theme_color": "#4f46e5",
+  "orientation": "portrait-primary",
+  "categories": [
+    "education",
+    "productivity",
+    "social"
+  ],
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512x512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512x512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Explore Projects",
+      "short_name": "Projects",
+      "description": "Discover engineering projects and team openings",
+      "url": "/projects",
+      "icons": [{ "src": "/icons/icon-192x192.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "Explore Hackathons",
+      "short_name": "Hackathons",
+      "description": "Discover upcoming hackathons and match scores",
+      "url": "/hackathons",
+      "icons": [{ "src": "/icons/icon-192x192.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "Collaboration Hub",
+      "short_name": "Groups & Chat",
+      "description": "Open your teams, channels and direct messages",
+      "url": "/groups",
+      "icons": [{ "src": "/icons/icon-192x192.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "Notifications",
+      "short_name": "Alerts",
+      "description": "Check invitations, messages, and updates",
+      "url": "/notifications",
+      "icons": [{ "src": "/icons/icon-192x192.svg", "sizes": "192x192" }]
+    }
+  ]
+}

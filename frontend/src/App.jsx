@@ -34,6 +34,9 @@ import { NotificationsPage } from './pages/NotificationsPage';
 import { ExploreHackathonsPage } from './pages/ExploreHackathonsPage';
 import { HackathonDetailsPage } from './pages/HackathonDetailsPage';
 import { MeetingPage } from './pages/MeetingPage';
+import { PwaProvider } from './context/PwaContext';
+import { PwaInstallPrompt } from './components/pwa/PwaInstallPrompt';
+import { OfflineBanner } from './components/pwa/OfflineBanner';
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
@@ -49,50 +52,54 @@ const ProtectedRoute = ({ children }) => {
 
 export default function App() {
   return (
-    <ToastProvider>
-      <AuthProvider>
-        <SocketProvider>
-          <BrowserRouter>
-            <Routes>
-              {/* Public Layout */}
-              <Route element={<PublicLayout />}>
-                <Route path="/" element={<LandingPage />} />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/register" element={<RegisterPage />} />
-              </Route>
+    <PwaProvider>
+      <ToastProvider>
+        <AuthProvider>
+          <SocketProvider>
+            <BrowserRouter>
+              <OfflineBanner />
+              <Routes>
+                {/* Public Layout */}
+                <Route element={<PublicLayout />}>
+                  <Route path="/" element={<LandingPage />} />
+                  <Route path="/login" element={<LoginPage />} />
+                  <Route path="/register" element={<RegisterPage />} />
+                </Route>
 
-              {/* Authenticated Dashboard Layout */}
-              <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
-                <Route path="/dashboard" element={<DashboardPage />} />
-                <Route path="/notifications" element={<NotificationsPage />} />
-                <Route path="/hackathons" element={<ExploreHackathonsPage />} />
-                <Route path="/hackathons/:id" element={<HackathonDetailsPage />} />
-                <Route path="/meetings/:roomId" element={<MeetingPage />} />
-                <Route path="/groups" element={<GroupsChatPage />} />
-                <Route path="/groups/:groupId" element={<GroupsChatPage />} />
-                <Route path="/chat" element={<GroupsChatPage />} />
-                <Route path="/community" element={<CommunityPage />} />
-                <Route path="/projects" element={<ExploreProjectsPage />} />
-                <Route path="/network" element={<SkillNetworkPage />} />
-                <Route path="/projects/create" element={<CreateProjectPage />} />
-                <Route path="/projects/:id" element={<ProjectDetailsPage />} />
-                <Route path="/projects/:id/mentor" element={<ProjectMentorPage />} />
-                <Route path="/projects/:id/matches" element={<ProjectMatchesPage />} />
-                <Route path="/projects/:id/team" element={<ProjectTeamPage />} />
-                <Route path="/projects/:id/tasks" element={<ProjectTasksPage />} />
-                <Route path="/invitations" element={<InvitationsPage />} />
-                <Route path="/my-projects" element={<MyProjectsPage />} />
-                <Route path="/profile" element={<ProfilePage />} />
-                <Route path="/profile/edit" element={<EditProfilePage />} />
-                <Route path="/settings" element={<SettingsPage />} />
-              </Route>
+                {/* Authenticated Dashboard Layout */}
+                <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
+                  <Route path="/dashboard" element={<DashboardPage />} />
+                  <Route path="/notifications" element={<NotificationsPage />} />
+                  <Route path="/hackathons" element={<ExploreHackathonsPage />} />
+                  <Route path="/hackathons/:id" element={<HackathonDetailsPage />} />
+                  <Route path="/meetings/:roomId" element={<MeetingPage />} />
+                  <Route path="/groups" element={<GroupsChatPage />} />
+                  <Route path="/groups/:groupId" element={<GroupsChatPage />} />
+                  <Route path="/chat" element={<GroupsChatPage />} />
+                  <Route path="/community" element={<CommunityPage />} />
+                  <Route path="/projects" element={<ExploreProjectsPage />} />
+                  <Route path="/network" element={<SkillNetworkPage />} />
+                  <Route path="/projects/create" element={<CreateProjectPage />} />
+                  <Route path="/projects/:id" element={<ProjectDetailsPage />} />
+                  <Route path="/projects/:id/mentor" element={<ProjectMentorPage />} />
+                  <Route path="/projects/:id/matches" element={<ProjectMatchesPage />} />
+                  <Route path="/projects/:id/team" element={<ProjectTeamPage />} />
+                  <Route path="/projects/:id/tasks" element={<ProjectTasksPage />} />
+                  <Route path="/invitations" element={<InvitationsPage />} />
+                  <Route path="/my-projects" element={<MyProjectsPage />} />
+                  <Route path="/profile" element={<ProfilePage />} />
+                  <Route path="/profile/edit" element={<EditProfilePage />} />
+                  <Route path="/settings" element={<SettingsPage />} />
+                </Route>
 
-              {/* Fallback */}
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </BrowserRouter>
-        </SocketProvider>
-      </AuthProvider>
-    </ToastProvider>
+                {/* Fallback */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+              <PwaInstallPrompt />
+            </BrowserRouter>
+          </SocketProvider>
+        </AuthProvider>
+      </ToastProvider>
+    </PwaProvider>
   );
 }

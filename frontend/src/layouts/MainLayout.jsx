@@ -18,14 +18,17 @@ import {
   MessageSquare,
   Network,
   Search,
-  Trophy
+  Trophy,
+  Download
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { usePwa } from '../context/PwaContext';
 import { Button } from '../components/common/Button';
 import { NotificationDropdown } from '../components/navigation/NotificationDropdown';
 
 export const MainLayout = () => {
   const { user, logout, quickSwitchDemoUser } = useAuth();
+  const { isInstallable, isInstalled, promptInstall } = usePwa();
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -107,6 +110,23 @@ export const MainLayout = () => {
                 </Link>
               );
             })}
+
+            {/* PWA Install Button in Nav */}
+            {isInstallable && !isInstalled && (
+              <button
+                type="button"
+                onClick={promptInstall}
+                className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-emerald-300 bg-emerald-950/40 border border-emerald-500/30 hover:bg-emerald-950/70 transition-all cursor-pointer mt-2 shadow-xs"
+              >
+                <div className="flex items-center gap-2.5">
+                  <Download className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Install Web App</span>
+                </div>
+                <span className="text-[9px] uppercase tracking-wider bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded-full">
+                  PWA
+                </span>
+              </button>
+            )}
           </nav>
         </div>
 
@@ -249,6 +269,25 @@ export const MainLayout = () => {
                       </Link>
                     );
                   })}
+
+                  {isInstallable && !isInstalled && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        promptInstall();
+                      }}
+                      className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-bold text-emerald-300 bg-emerald-950/40 border border-emerald-500/30 hover:bg-emerald-950/70 transition-all cursor-pointer mt-2"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Download className="w-4 h-4 text-emerald-400" />
+                        <span>Install TeamForge App</span>
+                      </div>
+                      <span className="text-[9px] uppercase tracking-wider bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded-full">
+                        PWA
+                      </span>
+                    </button>
+                  )}
                 </nav>
               </div>
 
