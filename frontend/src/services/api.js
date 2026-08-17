@@ -45,7 +45,9 @@ export const userAPI = {
   getUsers: (params) => API.get('/users', { params }),
   getUserById: (id) => API.get(`/users/${id}`),
   updateProfile: (data) => API.put('/users/profile', data),
-  getSkillNetwork: (params) => API.get('/users/skill-network', { params })
+  getSkillNetwork: (params) => API.get('/users/skill-network', { params }),
+  getSkillScores: (id) => API.get(`/users/${id}/skill-scores`),
+  endorseSkill: (id, skillName) => API.post(`/users/${id}/skills/${encodeURIComponent(skillName)}/endorse`)
 };
 
 export const projectAPI = {

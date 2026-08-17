@@ -117,48 +117,92 @@ export const calculateCandidateMatch = (project, candidateUser) => {
 
 export const calculateTeamSkillGap = (project, teamMembersUsers = []) => {
   const reqSkills = project.requiredSkills || [];
-  
-  // Aggregate all skills possessed by any member in the team
-  const allTeamSkills = new Set();
-  teamMembersUsers.forEach(member => {
-    (member.skills || []).forEach(skill => {
-      allTeamSkills.add(skill.name.trim().toLowerCase());
-    });
-  });
 
   const coverageDetails = reqSkills.map(req => {
     const reqLower = req.trim().toLowerCase();
-    const isCovered = Array.from(allTeamSkills).some(tSkill => 
-      tSkill === reqLower || 
-      tSkill.includes(reqLower) || 
-      reqLower.includes(tSkill) ||
-      (reqLower.includes('ml') && tSkill.includes('machine learning')) ||
-      (reqLower.includes('ui') && tSkill.includes('ux')) ||
-      (reqLower.includes('ux') && tSkill.includes('figma'))
-    );
+    const coveringMembers = [];
+    let bestProficiency = 'None';
+    let proficiencyScore = 0;
+
+    teamMembersUsers.forEach(member => {
+      const userSkills = member.skills || [];
+      userSkills.forEach(uSkill => {
+        const uName = (uSkill.name || '').trim().toLowerCase();
+        const matches = (
+          uName === reqLower ||
+          uName.includes(reqLower) ||
+          reqLower.includes(uName) ||
+          (reqLower.includes('ml') && uName.includes('machine learning')) ||
+          (reqLower.includes('machine learning') && uName.includes('ml')) ||
+          (reqLower.includes('ui') && uName.includes('ux')) ||
+          (reqLower.includes('ux') && uName.includes('figma')) ||
+          (reqLower.includes('node') && uName.includes('express'))
+        );
+
+        if (matches) {
+          const prof = uSkill.proficiency || 'Intermediate';
+          let score = 2; // Intermediate
+          if (prof === 'Expert') score = 4;
+          else if (prof === 'Advanced') score = 3;
+          else if (prof === 'Beginner') score = 1;
+
+          if (score > proficiencyScore) {
+            proficiencyScore = score;
+            bestProficiency = prof;
+          }
+
+          coveringMembers.push({
+            name: member.name,
+            avatar: member.avatar,
+            proficiency: prof,
+            matchedSkill: uSkill.name
+          });
+        }
+      });
+    });
+
+    let status = 'Missing';
+    if (coveringMembers.length > 0) {
+      if (bestProficiency === 'Expert' || bestProficiency === 'Advanced' || coveringMembers.length >= 2) {
+        status = 'Covered';
+      } else {
+        status = 'Partial';
+      }
+    }
 
     return {
       skill: req,
-      status: isCovered ? 'Covered' : 'Missing',
-      covered: isCovered
+      status, // 'Covered' | 'Partial' | 'Missing'
+      covered: status === 'Covered',
+      isPartial: status === 'Partial',
+      isMissing: status === 'Missing',
+      coveringMembers,
+      bestProficiency
     };
   });
 
-  const coveredCount = coverageDetails.filter(c => c.covered).length;
-  const overallCoverage = reqSkills.length > 0 
-    ? Math.round((coveredCount / reqSkills.length) * 100) 
-    : 100;
+  const coveredList = coverageDetails.filter(c => c.status === 'Covered').map(c => c.skill);
+  const partialList = coverageDetails.filter(c => c.status === 'Partial').map(c => c.skill);
+  const missingList = coverageDetails.filter(c => c.status === 'Missing').map(c => c.skill);
 
-  const missingSkills = coverageDetails.filter(c => !c.covered).map(c => c.skill);
+  const coveredCount = coveredList.length;
+  const partialCount = partialList.length;
+  const missingCount = missingList.length;
+
+  const totalReq = reqSkills.length || 1;
+  const overallCoverage = Math.min(100, Math.round(((coveredCount * 1.0 + partialCount * 0.5) / totalReq) * 100));
 
   return {
     overallCoverage,
     totalRequired: reqSkills.length,
     coveredCount,
-    missingCount: missingSkills.length,
+    partialCount,
+    missingCount,
     details: coverageDetails,
-    missingSkills,
-    teamHealth: Math.min(100, Math.round(overallCoverage * 0.8 + (teamMembersUsers.length >= 2 ? 20 : 10)))
+    coveredSkills: coveredList,
+    partialSkills: partialList,
+    missingSkills: missingList,
+    teamHealth: Math.min(100, Math.round(overallCoverage * 0.75 + (teamMembersUsers.length >= 2 ? 25 : 15)))
   };
 };
 

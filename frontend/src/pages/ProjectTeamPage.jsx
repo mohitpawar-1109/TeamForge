@@ -213,7 +213,12 @@ export const ProjectTeamPage = () => {
       {/* Tab 2: Full Skill Gap Visualizer & Member Roster Cards */}
       {activeTab === 'roster' && (
         <div className="space-y-8">
-          <SkillGapVisualizer gapData={skillGap} projectId={project._id} />
+          <SkillGapVisualizer
+            gapData={skillGap}
+            projectId={project._id}
+            projectTitle={project.title}
+            onInviteSent={() => fetchTeamData()}
+          />
 
           <div>
             <h3 className="text-sm font-bold uppercase tracking-wider text-zinc-400 mb-4">Current Team Roster</h3>

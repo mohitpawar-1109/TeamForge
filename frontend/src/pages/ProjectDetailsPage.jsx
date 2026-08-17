@@ -187,7 +187,12 @@ export const ProjectDetailsPage = () => {
       </div>
 
       {/* Real-time Team Skill Gap Visualizer */}
-      <SkillGapVisualizer gapData={skillGap} projectId={project._id} />
+      <SkillGapVisualizer
+        gapData={skillGap}
+        projectId={project._id}
+        projectTitle={project.title}
+        onInviteSent={() => fetchProject()}
+      />
 
       {/* AI Insights Card if analyzed */}
       {project.aiAnalysis?.analyzed && (

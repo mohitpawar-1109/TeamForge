@@ -18,6 +18,7 @@ import { userAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/common/Button';
 import { Badge } from '../components/common/Badge';
+import { StudentSkillAnalyticsCard } from '../components/profile/StudentSkillAnalyticsCard';
 
 export const ProfilePage = () => {
   const { user: currentUser } = useAuth();
@@ -116,12 +117,18 @@ export const ProfilePage = () => {
         </div>
       </div>
 
+      {/* Verified Student Skill Scoring & Analytics */}
+      <StudentSkillAnalyticsCard
+        userId={targetId || profile._id}
+        initialUser={profile}
+      />
+
       {/* Skills & Experience Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Skills */}
         <div className="bg-[#18181B] rounded-3xl border border-[#27272A] p-6 shadow-soft">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-base font-bold text-[#FAFAFA]">Technical Skills</h3>
+            <h3 className="text-base font-bold text-[#FAFAFA]">Technical Portfolio Skills</h3>
             <span className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider">Proficiency</span>
           </div>
 
@@ -169,3 +176,4 @@ export const ProfilePage = () => {
     </div>
   );
 };
+

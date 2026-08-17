@@ -5,7 +5,11 @@ const skillSchema = new mongoose.Schema({
   name: { type: String, required: true },
   proficiency: { type: String, enum: ['Beginner', 'Intermediate', 'Advanced', 'Expert'], default: 'Intermediate' },
   category: { type: String, default: 'General' },
-  verified: { type: Boolean, default: false }
+  verified: { type: Boolean, default: false },
+  endorsements: [{
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    createdAt: { type: Date, default: Date.now }
+  }]
 }, { _id: false });
 
 const userSchema = new mongoose.Schema({

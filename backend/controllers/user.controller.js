@@ -1,4 +1,5 @@
 import User from '../models/User.js';
+import { calculateStudentSkillScore } from '../services/skillScore.service.js';
 
 export const getUsers = async (req, res, next) => {
   try {
@@ -155,3 +156,76 @@ export const getSkillNetwork = async (req, res, next) => {
     next(error);
   }
 };
+
+// @desc    Get complete student skill score and analytics
+// @route   GET /api/users/:id/skill-scores
+// @access  Public / Protected
+export const getUserSkillAnalytics = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Student profile not found' });
+    }
+
+    const analytics = await calculateStudentSkillScore(user);
+
+    res.json({
+      success: true,
+      data: analytics
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Endorse a student's skill
+// @route   POST /api/users/:id/skills/:skillName/endorse
+// @access  Private
+export const endorseUserSkill = async (req, res, next) => {
+  try {
+    const targetUserId = req.params.id;
+    const skillName = decodeURIComponent(req.params.skillName || '').trim().toLowerCase();
+    const endorserId = req.user._id;
+
+    if (targetUserId.toString() === endorserId.toString()) {
+      return res.status(400).json({ success: false, message: 'You cannot endorse your own skills.' });
+    }
+
+    const user = await User.findById(targetUserId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Student profile not found' });
+    }
+
+    const skillObj = (user.skills || []).find(s => (s.name || '').trim().toLowerCase() === skillName);
+    if (!skillObj) {
+      return res.status(404).json({ success: false, message: `Skill "${skillName}" not found on student profile.` });
+    }
+
+    if (!Array.isArray(skillObj.endorsements)) {
+      skillObj.endorsements = [];
+    }
+
+    const alreadyEndorsed = skillObj.endorsements.some(e => (e.user?._id || e.user)?.toString() === endorserId.toString());
+    if (alreadyEndorsed) {
+      return res.status(400).json({ success: false, message: 'You have already endorsed this skill.' });
+    }
+
+    skillObj.endorsements.push({
+      user: endorserId,
+      createdAt: new Date()
+    });
+
+    await user.save();
+
+    const updatedAnalytics = await calculateStudentSkillScore(user);
+
+    res.json({
+      success: true,
+      message: `Successfully endorsed ${user.name}'s ${skillObj.name} skill! ⭐`,
+      data: updatedAnalytics
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
