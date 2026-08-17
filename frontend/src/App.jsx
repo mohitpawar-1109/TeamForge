@@ -28,6 +28,7 @@ import { ProfilePage } from './pages/ProfilePage';
 import { EditProfilePage } from './pages/EditProfilePage';
 import { SettingsPage } from './pages/SettingsPage';
 import { SkillNetworkPage } from './pages/SkillNetworkPage';
+import { GroupsChatPage } from './pages/GroupsChatPage';
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
@@ -58,6 +59,9 @@ export default function App() {
               {/* Authenticated Dashboard Layout */}
               <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
                 <Route path="/dashboard" element={<DashboardPage />} />
+                <Route path="/groups" element={<GroupsChatPage />} />
+                <Route path="/groups/:groupId" element={<GroupsChatPage />} />
+                <Route path="/chat" element={<GroupsChatPage />} />
                 <Route path="/community" element={<CommunityPage />} />
                 <Route path="/projects" element={<ExploreProjectsPage />} />
                 <Route path="/network" element={<SkillNetworkPage />} />

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Send,
   MessageSquare,
@@ -9,12 +9,16 @@ import {
   Clock,
   Sparkles,
   Wifi,
-  WifiOff
+  WifiOff,
+  Reply,
+  Trash2,
+  CornerDownRight
 } from 'lucide-react';
 import { messageAPI } from '../../services/api';
 import { useSocket } from '../../context/SocketContext';
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../common/Button';
+import { useToast } from '../../context/ToastContext';
 
 export const TeamChatRoom = ({
   projectId,
@@ -23,6 +27,7 @@ export const TeamChatRoom = ({
   className = ''
 }) => {
   const { user } = useAuth();
+  const { success, error } = useToast();
   const {
     socket,
     isConnected,
@@ -39,6 +44,9 @@ export const TeamChatRoom = ({
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
   const [loadingHistory, setLoadingHistory] = useState(true);
+  const [loadingOlder, setLoadingOlder] = useState(false);
+  const [hasMoreMessages, setHasMoreMessages] = useState(false);
+  const [replyTarget, setReplyTarget] = useState(null);
   const [typingUsers, setTypingUsers] = useState(new Map()); // userId -> name
   const [sending, setSending] = useState(false);
 
@@ -56,9 +64,10 @@ export const TeamChatRoom = ({
     const fetchHistory = async () => {
       try {
         setLoadingHistory(true);
-        const res = await messageAPI.getMessages(roomId);
+        const res = await messageAPI.getMessages(roomId, { limit: 50 });
         if (res.data.success && isMounted) {
           setMessages(res.data.data || []);
+          setHasMoreMessages(res.data.hasMore || false);
           setTimeout(() => scrollToBottom('auto'), 100);
         }
       } catch (err) {
@@ -77,6 +86,30 @@ export const TeamChatRoom = ({
     };
   }, [projectId, roomId]);
 
+  // Load older messages (pagination)
+  const handleLoadOlder = async () => {
+    if (loadingOlder || !hasMoreMessages || messages.length === 0) return;
+    try {
+      setLoadingOlder(true);
+      const oldest = messages[0];
+      const res = await messageAPI.getMessages(roomId, { limit: 40, before: oldest.createdAt });
+      if (res.data.success) {
+        const older = res.data.data || [];
+        setHasMoreMessages(res.data.hasMore || false);
+        const container = chatContainerRef.current;
+        const prevScrollHeight = container ? container.scrollHeight : 0;
+        setMessages(prev => [...older, ...prev]);
+        setTimeout(() => {
+          if (container) container.scrollTop = container.scrollHeight - prevScrollHeight;
+        }, 50);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoadingOlder(false);
+    }
+  };
+
   // 2. Join Socket Room & Register Real-time Listeners
   useEffect(() => {
     if (!socket || !isConnected || !projectId) return;
@@ -86,14 +119,12 @@ export const TeamChatRoom = ({
 
     // Incoming new message handler
     const handleNewMessage = (newMsg) => {
-      if (newMsg.roomId === roomId) {
+      if (newMsg.roomId === roomId || newMsg.project === projectId) {
         setMessages((prev) => {
-          // Avoid duplicate messages if already added
           if (prev.some((m) => m._id === newMsg._id)) return prev;
           return [...prev, newMsg];
         });
 
-        // Clear typing indicator for sender
         if (newMsg.sender?._id) {
           setTypingUsers((prev) => {
             const next = new Map(prev);
@@ -102,7 +133,6 @@ export const TeamChatRoom = ({
           });
         }
 
-        // Mark as read if user is viewing chat
         if (newMsg.sender?._id !== user?._id) {
           markMessagesRead(roomId);
         }
@@ -111,7 +141,14 @@ export const TeamChatRoom = ({
       }
     };
 
-    // Typing handlers
+    const handleMessageDeleted = ({ messageId }) => {
+      setMessages((prev) =>
+        prev.map((m) =>
+          m._id === messageId ? { ...m, isDeleted: true, content: 'This message was deleted' } : m
+        )
+      );
+    };
+
     const handleUserTyping = ({ roomId: rId, userId: uId, name }) => {
       if (rId === roomId && uId !== user?._id) {
         setTypingUsers((prev) => new Map(prev).set(uId, name || 'Teammate'));
@@ -128,7 +165,6 @@ export const TeamChatRoom = ({
       }
     };
 
-    // Read receipts handler
     const handleMessagesRead = ({ roomId: rId, userId: uId, readAt }) => {
       if (rId === roomId) {
         setMessages((prev) =>
@@ -149,6 +185,7 @@ export const TeamChatRoom = ({
     };
 
     socket.on('new_message', handleNewMessage);
+    socket.on('message_deleted', handleMessageDeleted);
     socket.on('user_typing', handleUserTyping);
     socket.on('user_stop_typing', handleUserStopTyping);
     socket.on('messages_read', handleMessagesRead);
@@ -156,6 +193,7 @@ export const TeamChatRoom = ({
     return () => {
       leaveRoom(roomId);
       socket.off('new_message', handleNewMessage);
+      socket.off('message_deleted', handleMessageDeleted);
       socket.off('user_typing', handleUserTyping);
       socket.off('user_stop_typing', handleUserStopTyping);
       socket.off('messages_read', handleMessagesRead);
@@ -165,7 +203,6 @@ export const TeamChatRoom = ({
   // Handle Input Changes & Debounced Typing Indicators
   const handleInputChange = (e) => {
     setInputText(e.target.value);
-
     sendTyping(roomId, true);
 
     if (typingTimeoutRef.current) {
@@ -196,10 +233,12 @@ export const TeamChatRoom = ({
         roomId,
         project: projectId,
         content: trimmed,
-        type: 'text'
+        type: 'text',
+        replyTo: replyTarget?._id || undefined
       },
       (response) => {
         setSending(false);
+        setReplyTarget(null);
         if (response?.success && response?.data) {
           setMessages((prev) => {
             if (prev.some((m) => m._id === response.data._id)) return prev;
@@ -211,6 +250,26 @@ export const TeamChatRoom = ({
     );
   };
 
+  const handleDeleteMessage = async (msgId) => {
+    if (!window.confirm('Delete this message?')) return;
+    try {
+      if (socket && isConnected) {
+        socket.emit('delete_message', { messageId: msgId }, (res) => {
+          if (res?.success) {
+            setMessages(prev => prev.map(m => m._id === msgId ? { ...m, isDeleted: true, content: 'This message was deleted' } : m));
+            success('Message deleted.');
+          }
+        });
+      } else {
+        await messageAPI.deleteMessage(msgId);
+        setMessages(prev => prev.map(m => m._id === msgId ? { ...m, isDeleted: true, content: 'This message was deleted' } : m));
+        success('Message deleted.');
+      }
+    } catch (err) {
+      error(err.response?.data?.message || 'Failed to delete message.');
+    }
+  };
+
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -218,7 +277,6 @@ export const TeamChatRoom = ({
     }
   };
 
-  // Format time
   const formatMsgTime = (timestamp) => {
     if (!timestamp) return '';
     const date = new Date(timestamp);
@@ -269,8 +327,20 @@ export const TeamChatRoom = ({
       {/* Messages Scroll Area */}
       <div
         ref={chatContainerRef}
-        className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 overscroll-contain divide-y divide-transparent"
+        className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 overscroll-contain"
       >
+        {hasMoreMessages && (
+          <div className="flex justify-center pb-2">
+            <button
+              onClick={handleLoadOlder}
+              disabled={loadingOlder}
+              className="text-xs font-semibold text-indigo-400 hover:text-indigo-300 bg-[#111113] hover:bg-[#27272A] border border-[#27272A] px-3.5 py-1 rounded-full transition-all flex items-center gap-1.5"
+            >
+              {loadingOlder ? 'Loading...' : '↑ Load Earlier Messages'}
+            </button>
+          </div>
+        )}
+
         {loadingHistory ? (
           <div className="flex flex-col items-center justify-center h-full gap-2 text-zinc-400">
             <div className="w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
@@ -283,7 +353,7 @@ export const TeamChatRoom = ({
             </div>
             <h4 className="text-sm font-bold text-[#FAFAFA]">Welcome to your Team Workspace!</h4>
             <p className="text-xs text-zinc-400 max-w-sm mt-1">
-              Start the conversation, align on tasks, share technical links, or coordinate hackathon milestones in real time.
+              Start the conversation, align on tasks, share technical links, or coordinate milestones in real time.
             </p>
           </div>
         ) : (
@@ -298,7 +368,7 @@ export const TeamChatRoom = ({
             return (
               <div
                 key={msg._id || index}
-                className={`flex items-end gap-2.5 ${isMe ? 'justify-end' : 'justify-start'}`}
+                className={`group flex items-end gap-2.5 ${isMe ? 'justify-end' : 'justify-start'}`}
               >
                 {/* Avatar for other members */}
                 {!isMe && (
@@ -331,9 +401,20 @@ export const TeamChatRoom = ({
                     </div>
                   )}
 
+                  {/* Quoted reply */}
+                  {msg.replyTo && (
+                    <div className="mb-1 p-2 rounded-xl text-[11px] border border-indigo-500/20 bg-indigo-950/30 text-zinc-300 max-w-full flex items-center gap-1.5">
+                      <CornerDownRight className="w-3 h-3 text-indigo-400 flex-shrink-0" />
+                      <span className="font-bold text-indigo-300">{msg.replyTo.sender?.name || 'User'}:</span>
+                      <span className="italic text-zinc-400 truncate">{msg.replyTo.content}</span>
+                    </div>
+                  )}
+
                   <div
                     className={`p-3.5 rounded-2xl text-xs sm:text-sm leading-relaxed break-words shadow-xs ${
-                      isMe
+                      msg.isDeleted
+                        ? 'italic text-zinc-500 bg-[#111113] border border-[#27272A]'
+                        : isMe
                         ? 'bg-gradient-to-tr from-indigo-600 to-indigo-500 text-white rounded-br-xs'
                         : 'bg-[#111113] border border-[#27272A] text-zinc-200 rounded-bl-xs'
                     }`}
@@ -344,7 +425,7 @@ export const TeamChatRoom = ({
                   {/* Message Meta / Timestamp */}
                   <div className="flex items-center gap-1 mt-1 px-1 text-[10px] text-zinc-500 font-medium">
                     <span>{formatMsgTime(msg.createdAt)}</span>
-                    {isMe && (
+                    {isMe && !msg.isDeleted && (
                       <span title={isReadByOthers ? 'Read by team' : 'Delivered'}>
                         {isReadByOthers ? (
                           <CheckCheck className="w-3 h-3 text-indigo-400 inline" />
@@ -355,6 +436,28 @@ export const TeamChatRoom = ({
                     )}
                   </div>
                 </div>
+
+                {/* Actions */}
+                {!msg.isDeleted && (
+                  <div className={`opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 bg-[#111113] border border-[#27272A] rounded-xl p-1 mb-2 ${isMe ? 'order-first' : 'order-last'}`}>
+                    <button
+                      onClick={() => setReplyTarget(msg)}
+                      title="Reply"
+                      className="p-1 rounded text-zinc-400 hover:text-indigo-400"
+                    >
+                      <Reply className="w-3 h-3" />
+                    </button>
+                    {isMe && (
+                      <button
+                        onClick={() => handleDeleteMessage(msg._id)}
+                        title="Delete"
+                        className="p-1 rounded text-zinc-400 hover:text-rose-400"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
             );
           })
@@ -376,6 +479,18 @@ export const TeamChatRoom = ({
 
         <div ref={messagesEndRef} />
       </div>
+
+      {/* Reply Banner */}
+      {replyTarget && (
+        <div className="px-4 py-2 bg-indigo-950/40 border-t border-indigo-500/30 flex items-center justify-between text-xs">
+          <div className="flex items-center gap-2 text-zinc-300">
+            <Reply className="w-3.5 h-3.5 text-indigo-400" />
+            <span className="font-bold text-indigo-300">Replying to {replyTarget.sender?.name || 'message'}:</span>
+            <span className="italic text-zinc-400 truncate max-w-xs">{replyTarget.content}</span>
+          </div>
+          <button onClick={() => setReplyTarget(null)} className="text-zinc-400 hover:text-white">✕</button>
+        </div>
+      )}
 
       {/* Input Box Footer */}
       <form

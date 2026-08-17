@@ -3,6 +3,7 @@ import { protect } from '../middleware/auth.middleware.js';
 import {
   getRoomMessages,
   sendRoomMessage,
+  deleteMessage,
   markRoomMessagesRead
 } from '../controllers/message.controller.js';
 
@@ -10,6 +11,7 @@ const router = express.Router();
 
 router.use(protect);
 
+router.delete('/:messageId', deleteMessage);
 router.get('/:roomId', getRoomMessages);
 router.post('/:roomId', sendRoomMessage);
 router.patch('/:roomId/read', markRoomMessagesRead);

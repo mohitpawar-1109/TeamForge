@@ -19,6 +19,7 @@ import postRoutes from './routes/post.routes.js';
 import commentRoutes from './routes/comment.routes.js';
 import teamRequestRoutes from './routes/teamRequest.routes.js';
 import messageRoutes from './routes/message.routes.js';
+import groupRoutes from './routes/group.routes.js';
 
 dotenv.config();
 
@@ -80,6 +81,7 @@ app.use('/api/posts', postRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/team-requests', teamRequestRoutes);
 app.use('/api/messages', messageRoutes);
+app.use('/api/groups', groupRoutes);
 
 // Centralized Error Handler
 app.use(errorHandler);

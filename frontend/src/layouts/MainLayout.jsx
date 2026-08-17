@@ -39,6 +39,7 @@ export const MainLayout = () => {
 
   const navItems = [
     { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+    { label: 'Groups & Chat', path: '/groups', icon: Users, badge: 'Live' },
     { label: 'Community', path: '/community', icon: MessageSquare },
     { label: 'Explore', path: '/projects', icon: Compass },
     { label: 'Skill Network', path: '/network', icon: Network },
@@ -271,9 +272,9 @@ export const MainLayout = () => {
           <LayoutDashboard className="w-5 h-5" />
           <span>Home</span>
         </Link>
-        <Link to="/projects" className={`flex flex-col items-center gap-1 text-[10px] font-medium ${location.pathname === '/projects' ? 'text-indigo-400 font-bold' : 'text-zinc-400 hover:text-indigo-400'}`}>
-          <Compass className="w-5 h-5" />
-          <span>Explore</span>
+        <Link to="/groups" className={`flex flex-col items-center gap-1 text-[10px] font-medium ${location.pathname.startsWith('/groups') ? 'text-indigo-400 font-bold' : 'text-zinc-400 hover:text-indigo-400'}`}>
+          <Users className="w-5 h-5" />
+          <span>Chat</span>
         </Link>
         <Link to="/projects/create" className="flex flex-col items-center gap-1 text-[10px] font-medium text-indigo-400">
           <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 text-white flex items-center justify-center shadow-md shadow-indigo-500/20">
@@ -281,9 +282,9 @@ export const MainLayout = () => {
           </div>
           <span>Create</span>
         </Link>
-        <Link to="/invitations" className={`flex flex-col items-center gap-1 text-[10px] font-medium ${location.pathname === '/invitations' ? 'text-indigo-400 font-bold' : 'text-zinc-400 hover:text-indigo-400'}`}>
-          <Mail className="w-5 h-5" />
-          <span>Invites</span>
+        <Link to="/projects" className={`flex flex-col items-center gap-1 text-[10px] font-medium ${location.pathname === '/projects' ? 'text-indigo-400 font-bold' : 'text-zinc-400 hover:text-indigo-400'}`}>
+          <Compass className="w-5 h-5" />
+          <span>Explore</span>
         </Link>
         <Link to="/profile" className={`flex flex-col items-center gap-1 text-[10px] font-medium ${location.pathname === '/profile' ? 'text-indigo-400 font-bold' : 'text-zinc-400 hover:text-indigo-400'}`}>
           <User className="w-5 h-5" />

@@ -47,6 +47,22 @@ const messageSchema = new mongoose.Schema({
     url: { type: String },
     type: { type: String }
   }],
+  group: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Group',
+    index: true
+  },
+  replyTo: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Message'
+  },
+  isDeleted: {
+    type: Boolean,
+    default: false
+  },
+  deletedAt: {
+    type: Date
+  },
   readBy: [readReceiptSchema],
   createdAt: {
     type: Date,
@@ -56,5 +72,7 @@ const messageSchema = new mongoose.Schema({
 });
 
 messageSchema.index({ roomId: 1, createdAt: -1 });
+messageSchema.index({ group: 1, createdAt: -1 });
 
 export default mongoose.model('Message', messageSchema);
+

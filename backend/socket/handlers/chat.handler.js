@@ -1,12 +1,12 @@
 import mongoose from 'mongoose';
 import Message from '../../models/Message.js';
-import Project from '../../models/Project.js';
+import Group from '../../models/Group.js';
 
 export const registerChatHandlers = (io, socket) => {
   const user = socket.user;
   const userId = socket.userId;
 
-  // 1. Join Room (e.g. project:66bf... or direct:user1_user2)
+  // 1. Join Room (e.g. group:66bf..., project:66bf..., direct:user1_user2)
   socket.on('join_room', async (data, callback) => {
     try {
       const roomId = typeof data === 'string' ? data : data?.roomId;
@@ -19,7 +19,7 @@ export const registerChatHandlers = (io, socket) => {
         callback({ success: true, roomId });
       }
 
-      // Notify others in room if appropriate
+      // Notify others in room
       socket.to(roomId).emit('user_joined_room', {
         roomId,
         user: {
@@ -63,7 +63,7 @@ export const registerChatHandlers = (io, socket) => {
   // 3. Send Message
   socket.on('send_message', async (data, callback) => {
     try {
-      const { roomId, content, type = 'text', attachments = [], project, recipient } = data;
+      const { roomId, content, type = 'text', attachments = [], project, recipient, replyTo, group } = data;
 
       if (!roomId || !content || !content.trim()) {
         if (typeof callback === 'function') {
@@ -82,9 +82,24 @@ export const registerChatHandlers = (io, socket) => {
         }
       }
 
+      let validGroupId = undefined;
+      if (group && mongoose.Types.ObjectId.isValid(group)) {
+        validGroupId = group;
+      } else if (roomId.startsWith('group:')) {
+        const potentialId = roomId.replace('group:', '');
+        if (mongoose.Types.ObjectId.isValid(potentialId)) {
+          validGroupId = potentialId;
+        }
+      }
+
       let validRecipientId = undefined;
       if (recipient && mongoose.Types.ObjectId.isValid(recipient)) {
         validRecipientId = recipient;
+      }
+
+      let validReplyTo = undefined;
+      if (replyTo && mongoose.Types.ObjectId.isValid(replyTo)) {
+        validReplyTo = replyTo;
       }
 
       // Create and persist message in MongoDB
@@ -95,12 +110,33 @@ export const registerChatHandlers = (io, socket) => {
         type,
         attachments,
         project: validProjectId,
+        group: validGroupId,
         recipient: validRecipientId,
+        replyTo: validReplyTo,
         readBy: [{ user: user._id, readAt: new Date() }]
       });
 
+      // Update group's lastMessage if applicable
+      if (validGroupId) {
+        await Group.findByIdAndUpdate(validGroupId, {
+          lastMessage: {
+            content: content.trim().substring(0, 100),
+            sender: user._id,
+            createdAt: new Date()
+          }
+        });
+      }
+
       const populatedMessage = await Message.findById(messageDoc._id)
-        .populate('sender', 'name avatar headline college email');
+        .populate('sender', 'name avatar headline college email')
+        .populate({
+          path: 'replyTo',
+          select: 'content sender createdAt type isDeleted attachments',
+          populate: {
+            path: 'sender',
+            select: 'name avatar'
+          }
+        });
 
       // Emit to room (all members in this room receive it)
       io.to(roomId).emit('new_message', populatedMessage);
@@ -122,7 +158,57 @@ export const registerChatHandlers = (io, socket) => {
     }
   });
 
-  // 4. Typing Indicators
+  // 4. Delete Message
+  socket.on('delete_message', async (data, callback) => {
+    try {
+      const { messageId } = data;
+      if (!messageId || !mongoose.Types.ObjectId.isValid(messageId)) {
+        if (typeof callback === 'function') callback({ success: false, message: 'Invalid message ID.' });
+        return;
+      }
+
+      const msg = await Message.findById(messageId);
+      if (!msg) {
+        if (typeof callback === 'function') callback({ success: false, message: 'Message not found.' });
+        return;
+      }
+
+      const isSender = msg.sender.toString() === userId.toString();
+      let isAuthorized = isSender;
+
+      if (!isAuthorized && msg.group) {
+        const groupDoc = await Group.findById(msg.group);
+        if (groupDoc) {
+          const mem = groupDoc.members.find(m => m.user.toString() === userId.toString());
+          if (mem && (mem.role === 'admin' || mem.role === 'lead')) {
+            isAuthorized = true;
+          }
+        }
+      }
+
+      if (!isAuthorized) {
+        if (typeof callback === 'function') callback({ success: false, message: 'Unauthorized to delete message.' });
+        return;
+      }
+
+      msg.isDeleted = true;
+      msg.content = 'This message was deleted';
+      msg.deletedAt = new Date();
+      await msg.save();
+
+      io.to(msg.roomId).emit('message_deleted', {
+        messageId: msg._id.toString(),
+        roomId: msg.roomId
+      });
+
+      if (typeof callback === 'function') callback({ success: true, messageId: msg._id });
+    } catch (err) {
+      console.error('[Socket Chat Error] delete_message failed:', err.message);
+      if (typeof callback === 'function') callback({ success: false, message: err.message });
+    }
+  });
+
+  // 5. Typing Indicators
   socket.on('typing_start', (data) => {
     const roomId = typeof data === 'string' ? data : data?.roomId;
     if (!roomId) return;
@@ -145,7 +231,7 @@ export const registerChatHandlers = (io, socket) => {
     });
   });
 
-  // 5. Read Receipts
+  // 6. Read Receipts
   socket.on('mark_messages_read', async (data, callback) => {
     try {
       const roomId = typeof data === 'string' ? data : data?.roomId;

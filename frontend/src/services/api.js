@@ -111,7 +111,23 @@ export const teamRequestAPI = {
 export const messageAPI = {
   getMessages: (roomId, params) => API.get(`/messages/${encodeURIComponent(roomId)}`, { params }),
   sendMessage: (roomId, data) => API.post(`/messages/${encodeURIComponent(roomId)}`, data),
+  deleteMessage: (messageId) => API.delete(`/messages/${encodeURIComponent(messageId)}`),
   markRead: (roomId) => API.patch(`/messages/${encodeURIComponent(roomId)}/read`)
+};
+
+export const groupAPI = {
+  getGroups: (params) => API.get('/groups', { params }),
+  getGroupById: (id) => API.get(`/groups/${id}`),
+  createGroup: (data) => API.post('/groups', data),
+  updateGroup: (id, data) => API.put(`/groups/${id}`, data),
+  deleteGroup: (id) => API.delete(`/groups/${id}`),
+  joinGroup: (id) => API.post(`/groups/${id}/join`),
+  leaveGroup: (id) => API.post(`/groups/${id}/leave`),
+  inviteMembers: (id, data) => API.post(`/groups/${id}/invite`, data),
+  removeMember: (id, userId) => API.delete(`/groups/${id}/members/${userId}`),
+  updateMemberRole: (id, userId, role) => API.patch(`/groups/${id}/members/${userId}/role`, { role }),
+  getOrCreateDM: (recipientId) => API.post('/groups/dm', { recipientId }),
+  getProjectGroup: (projectId) => API.get(`/groups/project/${projectId}`)
 };
 
 export default API;

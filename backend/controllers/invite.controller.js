@@ -1,5 +1,6 @@
 import Invitation from '../models/Invitation.js';
 import Project from '../models/Project.js';
+import Group from '../models/Group.js';
 import Notification from '../models/Notification.js';
 import { emitNotificationToUser } from '../socket/socket.js';
 
@@ -126,6 +127,16 @@ export const updateInvitationStatus = async (req, res, next) => {
             project.status = 'In Progress';
           }
           await project.save();
+
+          // Sync into project group
+          try {
+            await Group.updateOne(
+              { project: project._id, 'members.user': { $ne: req.user._id } },
+              { $push: { members: { user: req.user._id, role: 'member', joinedAt: new Date() } } }
+            );
+          } catch (gErr) {
+            console.warn('Failed to sync group member on invite accept:', gErr.message);
+          }
         }
 
         // Notify the project owner

@@ -518,3 +518,6 @@ export const getPostMatches = async (req, res, next) => {
     next(error);
   }
 };
+
+export const joinTeamPost = requestJoinTeam;
+

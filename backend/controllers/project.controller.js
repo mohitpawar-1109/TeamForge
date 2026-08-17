@@ -1,6 +1,7 @@
 import Project from '../models/Project.js';
 import User from '../models/User.js';
 import Task from '../models/Task.js';
+import Group from '../models/Group.js';
 import { calculateCandidateMatch } from '../services/match.service.js';
 
 export const sanitizeSkillImportance = (skillImportance) => {
@@ -61,6 +62,22 @@ export const createProject = async (req, res, next) => {
       status: 'Recruiting',
       progress: 0
     });
+
+    // Auto-create Project Team Group for real-time collaboration
+    try {
+      await Group.create({
+        name: `${project.title} (Team)`,
+        description: project.description || `Official team collaboration group for ${project.title}`,
+        type: 'project',
+        project: project._id,
+        category: project.category || 'Web Development',
+        tags: project.requiredSkills || [],
+        createdBy: req.user._id,
+        members: [{ user: req.user._id, role: 'lead', joinedAt: new Date() }]
+      });
+    } catch (groupErr) {
+      console.warn('Failed to auto-create project team group:', groupErr.message);
+    }
 
     const populated = await Project.findById(project._id)
       .populate('owner', 'name email headline avatar college')
@@ -201,6 +218,7 @@ export const deleteProject = async (req, res, next) => {
 
     await Project.findByIdAndDelete(req.params.id);
     await Task.deleteMany({ project: req.params.id });
+    await Group.deleteMany({ project: req.params.id });
 
     res.json({ success: true, message: 'Project and associated tasks removed successfully' });
   } catch (error) {
@@ -221,6 +239,12 @@ export const leaveTeam = async (req, res, next) => {
 
     project.members = project.members.filter(m => m.user.toString() !== req.user._id.toString());
     await project.save();
+
+    // Also remove from project group
+    await Group.updateMany(
+      { project: project._id },
+      { $pull: { members: { user: req.user._id } } }
+    );
 
     res.json({ success: true, message: 'You have left the team successfully', data: project });
   } catch (error) {
