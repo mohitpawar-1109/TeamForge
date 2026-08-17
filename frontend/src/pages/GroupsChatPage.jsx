@@ -31,7 +31,8 @@ import {
   Code,
   ArrowRight,
   ExternalLink,
-  ChevronDown
+  ChevronDown,
+  Video
 } from 'lucide-react';
 import { groupAPI, messageAPI, projectAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -924,6 +925,18 @@ export const GroupsChatPage = () => {
                       </>
                     )}
                   </span>
+
+                  {/* Start Video Meeting Button */}
+                  <button
+                    onClick={() => {
+                      navigate(`/meetings/group-${activeGroup._id}`);
+                    }}
+                    title="Start Team Video Meeting"
+                    className="flex items-center gap-1.5 text-xs font-bold px-2.5 py-1.5 rounded-xl bg-emerald-600/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-600/30 transition-all cursor-pointer"
+                  >
+                    <Video className="w-3.5 h-3.5" />
+                    <span className="hidden md:inline">Video Call</span>
+                  </button>
 
                   {/* Invite Shortcut Button (if not DM) */}
                   {activeGroup.type !== 'dm' && (

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Users, Shield, ArrowLeft, LogOut, Sparkles, CheckCircle2, Mail, MessageSquare, Network, Bot } from 'lucide-react';
+import { Users, Shield, ArrowLeft, LogOut, Sparkles, CheckCircle2, Mail, MessageSquare, Network, Bot, Video } from 'lucide-react';
 import { projectAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
@@ -10,6 +10,7 @@ import { TeamChatRoom } from '../components/chat/TeamChatRoom';
 import { AiTeamRecommendationPanel } from '../components/matching/AiTeamRecommendationPanel';
 import { AiProjectMentorView } from '../components/ai/AiProjectMentorView';
 import { TeamTopology3D } from '../components/team/TeamTopology3D';
+import { TeamVideoMeeting } from '../components/video/TeamVideoMeeting';
 import { Button } from '../components/common/Button';
 import { Badge } from '../components/common/Badge';
 
@@ -22,7 +23,7 @@ export const ProjectTeamPage = () => {
   const [project, setProject] = useState(null);
   const [skillGap, setSkillGap] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('chat'); // 'chat' | 'topology' | 'mentor' | 'roster' | 'recommendations'
+  const [activeTab, setActiveTab] = useState('chat'); // 'chat' | 'video' | 'topology' | 'mentor' | 'roster' | 'recommendations'
 
   const fetchTeamData = async () => {
     try {
@@ -75,15 +76,24 @@ export const ProjectTeamPage = () => {
             Team Workspace & Collaboration
           </h1>
           <p className="text-xs sm:text-sm text-zinc-400 mt-1">
-            Real-time chat, 3D topology, roster management, and AI mentoring for <span className="text-zinc-200 font-bold">{project.title}</span>
+            Real-time chat, video collaboration, 3D topology, and AI mentoring for <span className="text-zinc-200 font-bold">{project.title}</span>
           </p>
         </div>
 
         <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setActiveTab('video')}
+            className="px-3.5 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-1.5 cursor-pointer"
+          >
+            <Video className="w-4 h-4" />
+            <span>Join Video Sync</span>
+          </button>
+
           {isOwner ? (
             <Link to={`/projects/${id}/matches`}>
               <Button variant="gradient" size="md" icon={Sparkles}>
-                Find More Teammates
+                Find Teammates
               </Button>
             </Link>
           ) : (
@@ -106,6 +116,18 @@ export const ProjectTeamPage = () => {
         >
           <MessageSquare className="w-4 h-4" />
           <span>Real-time Team Chat</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('video')}
+          className={`flex items-center gap-2 pb-3 px-1 text-sm font-bold border-b-2 transition-all whitespace-nowrap ${
+            activeTab === 'video'
+              ? 'border-emerald-500 text-emerald-400'
+              : 'border-transparent text-zinc-400 hover:text-zinc-200'
+          }`}
+        >
+          <Video className="w-4 h-4 text-emerald-400" />
+          <span>📹 Video Meeting</span>
         </button>
 
         <button
@@ -156,6 +178,15 @@ export const ProjectTeamPage = () => {
           <span>✨ AI Squad Recommendations</span>
         </button>
       </div>
+
+      {/* Tab: Video Meeting */}
+      {activeTab === 'video' && (
+        <TeamVideoMeeting
+          roomId={`project-${project._id}`}
+          projectId={project._id}
+          onLeave={() => setActiveTab('chat')}
+        />
+      )}
 
       {/* Tab: 3D Team Topology */}
       {activeTab === 'topology' && (

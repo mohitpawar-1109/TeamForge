@@ -33,6 +33,7 @@ import { GroupsChatPage } from './pages/GroupsChatPage';
 import { NotificationsPage } from './pages/NotificationsPage';
 import { ExploreHackathonsPage } from './pages/ExploreHackathonsPage';
 import { HackathonDetailsPage } from './pages/HackathonDetailsPage';
+import { MeetingPage } from './pages/MeetingPage';
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
@@ -66,6 +67,7 @@ export default function App() {
                 <Route path="/notifications" element={<NotificationsPage />} />
                 <Route path="/hackathons" element={<ExploreHackathonsPage />} />
                 <Route path="/hackathons/:id" element={<HackathonDetailsPage />} />
+                <Route path="/meetings/:roomId" element={<MeetingPage />} />
                 <Route path="/groups" element={<GroupsChatPage />} />
                 <Route path="/groups/:groupId" element={<GroupsChatPage />} />
                 <Route path="/chat" element={<GroupsChatPage />} />

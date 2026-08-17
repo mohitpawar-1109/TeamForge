@@ -3,6 +3,7 @@ import { authenticateSocket } from './middleware/auth.socket.middleware.js';
 import { registerStatusHandlers } from './handlers/status.handler.js';
 import { registerChatHandlers } from './handlers/chat.handler.js';
 import { registerNotificationHandlers } from './handlers/notification.handler.js';
+import { registerWebRTCHandlers } from './handlers/webrtc.handler.js';
 
 let io = null;
 
@@ -39,6 +40,7 @@ export const initSocket = (httpServer) => {
     registerStatusHandlers(io, socket);
     registerChatHandlers(io, socket);
     registerNotificationHandlers(io, socket);
+    registerWebRTCHandlers(io, socket);
 
     socket.on('error', (err) => {
       console.warn(`[Socket Error - ${socket.id}]:`, err.message);

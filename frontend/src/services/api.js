@@ -152,5 +152,10 @@ export const hackathonAPI = {
   createHackathon: (data) => API.post('/hackathons', data)
 };
 
+export const meetingAPI = {
+  getMeetingConfig: (data) => API.post('/meetings/config', data),
+  getMeetingStatus: (roomId) => API.get(`/meetings/${roomId}/status`)
+};
 
 export default API;
+
