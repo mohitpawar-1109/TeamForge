@@ -1,5 +1,11 @@
 import express from 'express';
 import { createProject, getProjects, getProjectById, updateProject, deleteProject, leaveTeam } from '../controllers/project.controller.js';
+import {
+  sendMentorMessage,
+  getMentorHistory,
+  clearMentorHistory,
+  getPrompts
+} from '../controllers/mentor.controller.js';
 import { protect } from '../middleware/auth.middleware.js';
 
 const router = express.Router();
@@ -25,4 +31,11 @@ router.put('/:id', protect, updateProject);
 router.delete('/:id', protect, deleteProject);
 router.post('/:id/team/leave', protect, leaveTeam);
 
+// AI Project Mentor Endpoints
+router.post('/:id/ai-mentor/chat', protect, sendMentorMessage);
+router.get('/:id/ai-mentor/history', protect, getMentorHistory);
+router.delete('/:id/ai-mentor/history', protect, clearMentorHistory);
+router.get('/:id/ai-mentor/prompts', protect, getPrompts);
+
 export default router;
+

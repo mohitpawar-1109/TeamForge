@@ -11,12 +11,14 @@ import {
   Layers,
   ArrowRight,
   Trash2,
-  Brain
+  Brain,
+  Bot
 } from 'lucide-react';
 import { projectAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { SkillGapVisualizer } from '../components/matching/SkillGapVisualizer';
+import { AiProjectMentorView } from '../components/ai/AiProjectMentorView';
 import { Button } from '../components/common/Button';
 import { Badge } from '../components/common/Badge';
 
@@ -112,6 +114,12 @@ export const ProjectDetailsPage = () => {
 
           {/* Quick Actions */}
           <div className="flex flex-wrap items-center gap-3">
+            <Link to={`/projects/${project._id}/mentor`}>
+              <Button variant="gradient" size="md" icon={Bot} className="shadow-md shadow-indigo-500/20">
+                AI Mentor
+              </Button>
+            </Link>
+
             {isMember && (
               <Link to={`/projects/${project._id}/tasks`}>
                 <Button variant="primary" size="md" icon={FolderKanban}>
@@ -122,7 +130,7 @@ export const ProjectDetailsPage = () => {
 
             {isOwner && (
               <Link to={`/projects/${project._id}/matches`}>
-                <Button variant="gradient" size="md" icon={UserPlus}>
+                <Button variant="secondary" size="md" icon={UserPlus}>
                   Find Teammates
                 </Button>
               </Link>
@@ -158,12 +166,9 @@ export const ProjectDetailsPage = () => {
         <div className="pt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-2">Required Skills</h4>
-            <div className="flex flex-wrap gap-1.5">
-              {(project.requiredSkills || []).map((skill, idx) => (
-                <span
-                  key={idx}
-                  className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-[#111113] text-zinc-300 border border-[#27272A]"
-                >
+            <div className="flex flex-wrap gap-2">
+              {project.requiredSkills?.map((skill, idx) => (
+                <span key={idx} className="px-3 py-1 rounded-xl bg-[#27272A] border border-[#3F3F46] text-xs font-semibold text-zinc-200">
                   {skill}
                 </span>
               ))}
@@ -171,27 +176,42 @@ export const ProjectDetailsPage = () => {
           </div>
 
           <div>
-            <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-2">Team Capacity</h4>
-            <div className="flex items-center gap-3 text-sm text-zinc-300">
-              <Users className="w-5 h-5 text-zinc-500" />
-              <span className="font-bold">{project.members?.length || 1} / {project.teamSize} Formed</span>
-              <div className="flex-1 bg-[#111113] h-2 rounded-full overflow-hidden max-w-[150px] border border-[#27272A]">
-                <div
-                  className="bg-indigo-500 h-full rounded-full"
-                  style={{ width: `${((project.members?.length || 1) / project.teamSize) * 100}%` }}
-                />
-              </div>
+            <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-2">Target Roles</h4>
+            <div className="flex flex-wrap gap-2">
+              {project.suggestedRoles?.map((role, idx) => (
+                <span key={idx} className="px-3 py-1 rounded-xl bg-purple-950/40 border border-purple-500/30 text-xs font-semibold text-purple-300">
+                  {role}
+                </span>
+              ))}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Real-time Team Skill Gap Visualizer */}
+      {/* Embedded AI Project Mentor Chat Section */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Bot className="w-5 h-5 text-indigo-400" />
+            <h2 className="text-lg font-bold text-[#FAFAFA]">Project AI Mentor</h2>
+          </div>
+          <Link
+            to={`/projects/${project._id}/mentor`}
+            className="text-xs font-bold text-indigo-400 hover:text-indigo-300 transition-colors flex items-center gap-1"
+          >
+            <span>Open Fullscreen</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+        <AiProjectMentorView projectId={project._id} projectData={project} />
+      </div>
+
+      {/* Skill Gap Analysis & Gap-Filling Student Recommendations */}
       <SkillGapVisualizer
         gapData={skillGap}
         projectId={project._id}
         projectTitle={project.title}
-        onInviteSent={() => fetchProject()}
+        onInviteSent={() => fetchProjectData()}
       />
 
       {/* AI Insights Card if analyzed */}

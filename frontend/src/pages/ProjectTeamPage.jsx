@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Users, Shield, ArrowLeft, LogOut, Sparkles, CheckCircle2, Mail, MessageSquare, Network } from 'lucide-react';
+import { Users, Shield, ArrowLeft, LogOut, Sparkles, CheckCircle2, Mail, MessageSquare, Network, Bot } from 'lucide-react';
 import { projectAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
@@ -8,6 +8,7 @@ import { useSocket } from '../context/SocketContext';
 import { SkillGapVisualizer } from '../components/matching/SkillGapVisualizer';
 import { TeamChatRoom } from '../components/chat/TeamChatRoom';
 import { AiTeamRecommendationPanel } from '../components/matching/AiTeamRecommendationPanel';
+import { AiProjectMentorView } from '../components/ai/AiProjectMentorView';
 import { Button } from '../components/common/Button';
 import { Badge } from '../components/common/Badge';
 
@@ -20,7 +21,7 @@ export const ProjectTeamPage = () => {
   const [project, setProject] = useState(null);
   const [skillGap, setSkillGap] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('chat'); // 'chat' | 'roster' | 'recommendations'
+  const [activeTab, setActiveTab] = useState('chat'); // 'chat' | 'roster' | 'recommendations' | 'mentor'
 
   const fetchTeamData = async () => {
     try {
@@ -73,7 +74,7 @@ export const ProjectTeamPage = () => {
             Team Workspace & Collaboration
           </h1>
           <p className="text-xs sm:text-sm text-zinc-400 mt-1">
-            Project: <span className="font-bold text-zinc-200">{project.title}</span> • {project.members?.length || 1} / {project.teamSize} Formed
+            Real-time chat, roster management, AI mentoring, and squad matching for <span className="text-zinc-200 font-bold">{project.title}</span>
           </p>
         </div>
 
@@ -93,10 +94,10 @@ export const ProjectTeamPage = () => {
       </div>
 
       {/* Navigation Tabs */}
-      <div className="flex border-b border-[#27272A] gap-4">
+      <div className="flex border-b border-[#27272A] gap-4 overflow-x-auto no-scrollbar">
         <button
           onClick={() => setActiveTab('chat')}
-          className={`flex items-center gap-2 pb-3 px-1 text-sm font-bold border-b-2 transition-all ${
+          className={`flex items-center gap-2 pb-3 px-1 text-sm font-bold border-b-2 transition-all whitespace-nowrap ${
             activeTab === 'chat'
               ? 'border-indigo-500 text-indigo-400'
               : 'border-transparent text-zinc-400 hover:text-zinc-200'
@@ -107,8 +108,20 @@ export const ProjectTeamPage = () => {
         </button>
 
         <button
+          onClick={() => setActiveTab('mentor')}
+          className={`flex items-center gap-2 pb-3 px-1 text-sm font-bold border-b-2 transition-all whitespace-nowrap ${
+            activeTab === 'mentor'
+              ? 'border-indigo-500 text-indigo-400'
+              : 'border-transparent text-zinc-400 hover:text-zinc-200'
+          }`}
+        >
+          <Bot className="w-4 h-4 text-indigo-400" />
+          <span>⚡ AI Project Mentor</span>
+        </button>
+
+        <button
           onClick={() => setActiveTab('roster')}
-          className={`flex items-center gap-2 pb-3 px-1 text-sm font-bold border-b-2 transition-all ${
+          className={`flex items-center gap-2 pb-3 px-1 text-sm font-bold border-b-2 transition-all whitespace-nowrap ${
             activeTab === 'roster'
               ? 'border-indigo-500 text-indigo-400'
               : 'border-transparent text-zinc-400 hover:text-zinc-200'
@@ -120,7 +133,7 @@ export const ProjectTeamPage = () => {
 
         <button
           onClick={() => setActiveTab('recommendations')}
-          className={`flex items-center gap-2 pb-3 px-1 text-sm font-bold border-b-2 transition-all ${
+          className={`flex items-center gap-2 pb-3 px-1 text-sm font-bold border-b-2 transition-all whitespace-nowrap ${
             activeTab === 'recommendations'
               ? 'border-indigo-500 text-indigo-400'
               : 'border-transparent text-zinc-400 hover:text-zinc-200'
@@ -130,6 +143,14 @@ export const ProjectTeamPage = () => {
           <span>✨ AI Squad Recommendations</span>
         </button>
       </div>
+
+      {/* Tab: AI Project Mentor */}
+      {activeTab === 'mentor' && (
+        <AiProjectMentorView
+          projectId={project._id}
+          projectData={project}
+        />
+      )}
 
       {/* Tab 3: AI Squad Recommendations Panel */}
       {activeTab === 'recommendations' && (

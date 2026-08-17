@@ -22,6 +22,7 @@ import { ProjectDetailsPage } from './pages/ProjectDetailsPage';
 import { ProjectMatchesPage } from './pages/ProjectMatchesPage';
 import { ProjectTeamPage } from './pages/ProjectTeamPage';
 import { ProjectTasksPage } from './pages/ProjectTasksPage';
+import { ProjectMentorPage } from './pages/ProjectMentorPage';
 import { InvitationsPage } from './pages/InvitationsPage';
 import { MyProjectsPage } from './pages/MyProjectsPage';
 import { ProfilePage } from './pages/ProfilePage';
@@ -69,6 +70,7 @@ export default function App() {
                 <Route path="/network" element={<SkillNetworkPage />} />
                 <Route path="/projects/create" element={<CreateProjectPage />} />
                 <Route path="/projects/:id" element={<ProjectDetailsPage />} />
+                <Route path="/projects/:id/mentor" element={<ProjectMentorPage />} />
                 <Route path="/projects/:id/matches" element={<ProjectMatchesPage />} />
                 <Route path="/projects/:id/team" element={<ProjectTeamPage />} />
                 <Route path="/projects/:id/tasks" element={<ProjectTasksPage />} />

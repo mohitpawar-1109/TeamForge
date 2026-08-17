@@ -59,12 +59,20 @@ export const projectAPI = {
   leaveTeam: (id) => API.post(`/projects/${id}/team/leave`),
   getMatches: (id) => API.get(`/projects/${id}/matches`),
   getSkillGap: (id) => API.get(`/projects/${id}/skill-gap`),
-  getTeamRecommendations: (id) => API.get(`/projects/${id}/ai-team-recommendations`)
+  getTeamRecommendations: (id) => API.get(`/projects/${id}/ai-team-recommendations`),
+  askMentor: (id, data) => API.post(`/projects/${id}/ai-mentor/chat`, data),
+  getMentorHistory: (id) => API.get(`/projects/${id}/ai-mentor/history`),
+  clearMentorHistory: (id) => API.delete(`/projects/${id}/ai-mentor/history`),
+  getMentorPrompts: (id) => API.get(`/projects/${id}/ai-mentor/prompts`)
 };
 
 export const aiAPI = {
   analyzeProject: (data) => API.post('/ai/analyze-project', data),
-  getTeamRecommendations: (projectId) => API.get(`/projects/${projectId}/ai-team-recommendations`)
+  getTeamRecommendations: (projectId) => API.get(`/projects/${projectId}/ai-team-recommendations`),
+  askMentor: (projectId, data) => API.post(`/projects/${projectId}/ai-mentor/chat`, data),
+  getMentorHistory: (projectId) => API.get(`/projects/${projectId}/ai-mentor/history`),
+  clearMentorHistory: (projectId) => API.delete(`/projects/${projectId}/ai-mentor/history`),
+  getMentorPrompts: (projectId) => API.get(`/projects/${projectId}/ai-mentor/prompts`)
 };
 
 export const inviteAPI = {
