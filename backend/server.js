@@ -1,9 +1,11 @@
+import http from 'http';
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import morgan from 'morgan';
 import { connectDB } from './config/db.js';
 import { errorHandler } from './middleware/error.middleware.js';
+import { initSocket } from './socket/socket.js';
 
 import authRoutes from './routes/auth.routes.js';
 import userRoutes from './routes/user.routes.js';
@@ -16,10 +18,15 @@ import notifRoutes from './routes/notif.routes.js';
 import postRoutes from './routes/post.routes.js';
 import commentRoutes from './routes/comment.routes.js';
 import teamRequestRoutes from './routes/teamRequest.routes.js';
+import messageRoutes from './routes/message.routes.js';
 
 dotenv.config();
 
 const app = express();
+const server = http.createServer(app);
+
+// Initialize Socket.IO Server
+initSocket(server);
 
 // Database Connection
 connectDB();
@@ -72,13 +79,14 @@ app.use('/api/notifications', notifRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/team-requests', teamRequestRoutes);
+app.use('/api/messages', messageRoutes);
 
 // Centralized Error Handler
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log(`\n🚀 TeamForge API Server running on port ${PORT}`);
+server.listen(PORT, () => {
+  console.log(`\n🚀 TeamForge API & Real-time Server running on port ${PORT}`);
   console.log(`   Health check: http://localhost:${PORT}/api/health\n`);
 });

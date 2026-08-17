@@ -108,4 +108,10 @@ export const teamRequestAPI = {
   updateRequestStatus: (id, status) => API.patch(`/team-requests/${id}`, { status })
 };
 
+export const messageAPI = {
+  getMessages: (roomId, params) => API.get(`/messages/${encodeURIComponent(roomId)}`, { params }),
+  sendMessage: (roomId, data) => API.post(`/messages/${encodeURIComponent(roomId)}`, data),
+  markRead: (roomId) => API.patch(`/messages/${encodeURIComponent(roomId)}/read`)
+};
+
 export default API;

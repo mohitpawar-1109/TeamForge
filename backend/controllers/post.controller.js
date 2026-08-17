@@ -3,6 +3,7 @@ import TeamRequest from '../models/TeamRequest.js';
 import Notification from '../models/Notification.js';
 import User from '../models/User.js';
 import { calculatePostMatch } from '../services/match.service.js';
+import { emitNotificationToUser } from '../socket/socket.js';
 
 // @desc    Create a new post
 // @route   POST /api/posts
@@ -333,7 +334,7 @@ export const likePost = async (req, res, next) => {
       // Create LIKE notification for post author if not liking own post
       if (post.author.toString() !== req.user._id.toString()) {
         try {
-          await Notification.create({
+          const notif = await Notification.create({
             recipient: post.author,
             sender: req.user._id,
             type: 'LIKE',
@@ -341,6 +342,7 @@ export const likePost = async (req, res, next) => {
             message: `${req.user.name} liked your post`,
             relatedPost: post._id
           });
+          emitNotificationToUser(post.author, notif);
         } catch (notifErr) {
           console.warn('Failed to create like notification:', notifErr.message);
         }
@@ -372,12 +374,8 @@ export const unlikePost = async (req, res, next) => {
     }
 
     const userIdStr = req.user._id.toString();
-    const initialCount = post.likes.length;
     post.likes = post.likes.filter(id => (id?._id || id)?.toString() !== userIdStr);
-
-    if (post.likes.length !== initialCount) {
-      await post.save();
-    }
+    await post.save();
 
     res.json({
       success: true,
@@ -389,10 +387,10 @@ export const unlikePost = async (req, res, next) => {
   }
 };
 
-// @desc    Request to join a team post (LOOKING_FOR_TEAMMATES)
+// @desc    Request to join a team from a Team Post
 // @route   POST /api/posts/:id/join
 // @access  Private
-export const joinTeamPost = async (req, res, next) => {
+export const requestJoinTeam = async (req, res, next) => {
   try {
     const postId = req.params.id;
     const post = await Post.findById(postId);
@@ -404,14 +402,6 @@ export const joinTeamPost = async (req, res, next) => {
       });
     }
 
-    if (post.type !== 'LOOKING_FOR_TEAMMATES') {
-      return res.status(400).json({
-        success: false,
-        message: 'This post is not open for team join requests'
-      });
-    }
-
-    // Cannot join own post
     if (post.author.toString() === req.user._id.toString()) {
       return res.status(400).json({
         success: false,
@@ -419,33 +409,17 @@ export const joinTeamPost = async (req, res, next) => {
       });
     }
 
-    // Check if team is full
-    if (post.teamSize && post.currentMembers >= post.teamSize) {
-      return res.status(400).json({
-        success: false,
-        message: 'Team is already full'
-      });
-    }
-
-    // Check existing request
-    const existing = await TeamRequest.findOne({
+    // Check if a request already exists
+    const existingRequest = await TeamRequest.findOne({
       post: postId,
       requester: req.user._id
     });
 
-    if (existing) {
-      if (existing.status === 'pending') {
-        return res.status(400).json({
-          success: false,
-          message: 'You have already sent a join request for this team'
-        });
-      }
-      if (existing.status === 'accepted') {
-        return res.status(400).json({
-          success: false,
-          message: 'You are already a member of this team'
-        });
-      }
+    if (existingRequest) {
+      return res.status(400).json({
+        success: false,
+        message: 'You have already sent a request to join this team'
+      });
     }
 
     const { message } = req.body;
@@ -460,7 +434,7 @@ export const joinTeamPost = async (req, res, next) => {
 
     // Create TEAM_REQUEST notification for post author
     try {
-      await Notification.create({
+      const notif = await Notification.create({
         recipient: post.author,
         sender: req.user._id,
         type: 'TEAM_REQUEST',
@@ -469,6 +443,7 @@ export const joinTeamPost = async (req, res, next) => {
         relatedPost: post._id,
         relatedTeamRequest: teamRequest._id
       });
+      emitNotificationToUser(post.author, notif);
     } catch (notifErr) {
       console.warn('Failed to create team request notification:', notifErr.message);
     }

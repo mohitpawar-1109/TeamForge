@@ -1,6 +1,7 @@
 import Invitation from '../models/Invitation.js';
 import Project from '../models/Project.js';
 import Notification from '../models/Notification.js';
+import { emitNotificationToUser } from '../socket/socket.js';
 
 export const createInvitation = async (req, res, next) => {
   try {
@@ -37,15 +38,20 @@ export const createInvitation = async (req, res, next) => {
     });
 
     // Create a notification for the receiver
-    await Notification.create({
-      recipient: receiverId,
-      user: receiverId,
-      sender: req.user._id,
-      type: 'invite',
-      title: 'New Team Invitation',
-      message: `${req.user.name} invited you to join "${project.title}" as ${role || 'Team Member'}.`,
-      relatedProject: project._id
-    });
+    try {
+      const notif = await Notification.create({
+        recipient: receiverId,
+        user: receiverId,
+        sender: req.user._id,
+        type: 'invite',
+        title: 'New Team Invitation',
+        message: `${req.user.name} invited you to join "${project.title}" as ${role || 'Team Member'}.`,
+        relatedProject: project._id
+      });
+      emitNotificationToUser(receiverId, notif);
+    } catch (notifErr) {
+      console.warn('Failed to create invite notification:', notifErr.message);
+    }
 
     const populated = await Invitation.findById(invitation._id)
       .populate('sender', 'name email headline avatar')
@@ -123,13 +129,20 @@ export const updateInvitationStatus = async (req, res, next) => {
         }
 
         // Notify the project owner
-        await Notification.create({
-          user: project.owner,
-          type: 'team_join',
-          title: 'Invitation Accepted! 🎉',
-          message: `${req.user.name} accepted your invitation to join "${project.title}"!`,
-          relatedProject: project._id
-        });
+        try {
+          const notif = await Notification.create({
+            recipient: project.owner,
+            user: project.owner,
+            sender: req.user._id,
+            type: 'team_join',
+            title: 'Invitation Accepted! 🎉',
+            message: `${req.user.name} accepted your invitation to join "${project.title}"!`,
+            relatedProject: project._id
+          });
+          emitNotificationToUser(project.owner, notif);
+        } catch (notifErr) {
+          console.warn('Failed to create invitation accept notification:', notifErr.message);
+        }
       }
     }
 

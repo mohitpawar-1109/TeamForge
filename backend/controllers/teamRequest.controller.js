@@ -1,6 +1,7 @@
 import TeamRequest from '../models/TeamRequest.js';
 import Post from '../models/Post.js';
 import Notification from '../models/Notification.js';
+import { emitNotificationToUser } from '../socket/socket.js';
 
 // @desc    Get team join requests (incoming & outgoing)
 // @route   GET /api/team-requests
@@ -110,7 +111,7 @@ export const updateTeamRequestStatus = async (req, res, next) => {
     // Create Notification for requester
     try {
       if (status === 'accepted') {
-        await Notification.create({
+        const notif = await Notification.create({
           recipient: teamRequest.requester,
           sender: req.user._id,
           type: 'TEAM_REQUEST_ACCEPTED',
@@ -119,8 +120,9 @@ export const updateTeamRequestStatus = async (req, res, next) => {
           relatedPost: teamRequest.post,
           relatedTeamRequest: teamRequest._id
         });
+        emitNotificationToUser(teamRequest.requester, notif);
       } else {
-        await Notification.create({
+        const notif = await Notification.create({
           recipient: teamRequest.requester,
           sender: req.user._id,
           type: 'TEAM_REQUEST_REJECTED',
@@ -129,6 +131,7 @@ export const updateTeamRequestStatus = async (req, res, next) => {
           relatedPost: teamRequest.post,
           relatedTeamRequest: teamRequest._id
         });
+        emitNotificationToUser(teamRequest.requester, notif);
       }
     } catch (notifErr) {
       console.warn('Failed to create team request status notification:', notifErr.message);

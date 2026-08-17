@@ -15,6 +15,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { notifAPI } from '../../services/api';
+import { useSocket } from '../../context/SocketContext';
 
 // Format relative time helper
 const formatTimeAgo = (dateStr) => {
@@ -35,6 +36,7 @@ const formatTimeAgo = (dateStr) => {
 
 export const NotificationDropdown = ({ isMobile = false, onCloseMobile }) => {
   const navigate = useNavigate();
+  const { socket, isConnected } = useSocket();
   const [isOpen, setIsOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -54,9 +56,27 @@ export const NotificationDropdown = ({ isMobile = false, onCloseMobile }) => {
 
   useEffect(() => {
     fetchNotifications();
-    const interval = setInterval(fetchNotifications, 15000);
+    const interval = setInterval(fetchNotifications, 30000);
     return () => clearInterval(interval);
   }, []);
+
+  // Real-time socket notification listener
+  useEffect(() => {
+    if (!socket || !isConnected) return;
+
+    const handleRealtimeNotification = (newNotif) => {
+      if (newNotif) {
+        setNotifications((prev) => [newNotif, ...prev.filter((n) => n._id !== newNotif._id)]);
+        setUnreadCount((prev) => prev + 1);
+      }
+    };
+
+    socket.on('new_notification', handleRealtimeNotification);
+
+    return () => {
+      socket.off('new_notification', handleRealtimeNotification);
+    };
+  }, [socket, isConnected]);
 
   // Close dropdown on outside click
   useEffect(() => {

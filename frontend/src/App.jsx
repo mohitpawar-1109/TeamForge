@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
+import { SocketProvider } from './context/SocketContext';
 
 // Layouts
 import { PublicLayout } from './layouts/PublicLayout';
@@ -44,37 +45,39 @@ export default function App() {
   return (
     <ToastProvider>
       <AuthProvider>
-        <BrowserRouter>
-          <Routes>
-            {/* Public Layout */}
-            <Route element={<PublicLayout />}>
-              <Route path="/" element={<LandingPage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
-            </Route>
+        <SocketProvider>
+          <BrowserRouter>
+            <Routes>
+              {/* Public Layout */}
+              <Route element={<PublicLayout />}>
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
+              </Route>
 
-            {/* Authenticated Dashboard Layout */}
-            <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
-              <Route path="/dashboard" element={<DashboardPage />} />
-              <Route path="/community" element={<CommunityPage />} />
-              <Route path="/projects" element={<ExploreProjectsPage />} />
-              <Route path="/network" element={<SkillNetworkPage />} />
-              <Route path="/projects/create" element={<CreateProjectPage />} />
-              <Route path="/projects/:id" element={<ProjectDetailsPage />} />
-              <Route path="/projects/:id/matches" element={<ProjectMatchesPage />} />
-              <Route path="/projects/:id/team" element={<ProjectTeamPage />} />
-              <Route path="/projects/:id/tasks" element={<ProjectTasksPage />} />
-              <Route path="/invitations" element={<InvitationsPage />} />
-              <Route path="/my-projects" element={<MyProjectsPage />} />
-              <Route path="/profile" element={<ProfilePage />} />
-              <Route path="/profile/edit" element={<EditProfilePage />} />
-              <Route path="/settings" element={<SettingsPage />} />
-            </Route>
+              {/* Authenticated Dashboard Layout */}
+              <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
+                <Route path="/dashboard" element={<DashboardPage />} />
+                <Route path="/community" element={<CommunityPage />} />
+                <Route path="/projects" element={<ExploreProjectsPage />} />
+                <Route path="/network" element={<SkillNetworkPage />} />
+                <Route path="/projects/create" element={<CreateProjectPage />} />
+                <Route path="/projects/:id" element={<ProjectDetailsPage />} />
+                <Route path="/projects/:id/matches" element={<ProjectMatchesPage />} />
+                <Route path="/projects/:id/team" element={<ProjectTeamPage />} />
+                <Route path="/projects/:id/tasks" element={<ProjectTasksPage />} />
+                <Route path="/invitations" element={<InvitationsPage />} />
+                <Route path="/my-projects" element={<MyProjectsPage />} />
+                <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/profile/edit" element={<EditProfilePage />} />
+                <Route path="/settings" element={<SettingsPage />} />
+              </Route>
 
-            {/* Fallback */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </BrowserRouter>
+              {/* Fallback */}
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </BrowserRouter>
+        </SocketProvider>
       </AuthProvider>
     </ToastProvider>
   );
