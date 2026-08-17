@@ -7,6 +7,7 @@ import { useToast } from '../context/ToastContext';
 import { useSocket } from '../context/SocketContext';
 import { SkillGapVisualizer } from '../components/matching/SkillGapVisualizer';
 import { TeamChatRoom } from '../components/chat/TeamChatRoom';
+import { AiTeamRecommendationPanel } from '../components/matching/AiTeamRecommendationPanel';
 import { Button } from '../components/common/Button';
 import { Badge } from '../components/common/Badge';
 
@@ -19,7 +20,7 @@ export const ProjectTeamPage = () => {
   const [project, setProject] = useState(null);
   const [skillGap, setSkillGap] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('chat'); // 'chat' | 'roster'
+  const [activeTab, setActiveTab] = useState('chat'); // 'chat' | 'roster' | 'recommendations'
 
   const fetchTeamData = async () => {
     try {
@@ -116,7 +117,27 @@ export const ProjectTeamPage = () => {
           <Users className="w-4 h-4" />
           <span>Team Roster & Skill Gap ({project.members?.length || 1})</span>
         </button>
+
+        <button
+          onClick={() => setActiveTab('recommendations')}
+          className={`flex items-center gap-2 pb-3 px-1 text-sm font-bold border-b-2 transition-all ${
+            activeTab === 'recommendations'
+              ? 'border-indigo-500 text-indigo-400'
+              : 'border-transparent text-zinc-400 hover:text-zinc-200'
+          }`}
+        >
+          <Sparkles className="w-4 h-4" />
+          <span>✨ AI Squad Recommendations</span>
+        </button>
       </div>
+
+      {/* Tab 3: AI Squad Recommendations Panel */}
+      {activeTab === 'recommendations' && (
+        <AiTeamRecommendationPanel
+          projectId={project._id}
+          onInviteSent={() => fetchTeamData()}
+        />
+      )}
 
       {/* Tab 1: Real-time Team Chatroom */}
       {activeTab === 'chat' && (

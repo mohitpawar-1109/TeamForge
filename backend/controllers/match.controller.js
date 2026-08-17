@@ -2,6 +2,7 @@ import Project from '../models/Project.js';
 import User from '../models/User.js';
 import Invitation from '../models/Invitation.js';
 import { calculateCandidateMatch, calculateTeamSkillGap } from '../services/match.service.js';
+import { generateAITeamRecommendations } from '../services/recommendation.service.js';
 
 export const getProjectMatches = async (req, res, next) => {
   try {
@@ -72,3 +73,46 @@ export const getProjectSkillGap = async (req, res, next) => {
     next(error);
   }
 };
+
+// @desc    Get Advanced AI Team Recommendations for a project
+// @route   GET /api/projects/:id/ai-team-recommendations
+// @access  Private
+export const getAITeamRecommendations = async (req, res, next) => {
+  try {
+    const project = await Project.findById(req.params.id)
+      .populate('members.user', 'name headline skills avatar experienceLevel pastProjectsCount');
+
+    if (!project) {
+      return res.status(404).json({ success: false, message: 'Project not found' });
+    }
+
+    // Exclude existing members
+    const memberIds = project.members.map(m => (m.user?._id || m.user).toString());
+
+    // Fetch existing pending invites
+    const pendingInvites = await Invitation.find({ project: project._id, status: 'pending' }).select('receiver');
+    const pendingReceiverIds = new Set(pendingInvites.map(inv => inv.receiver.toString()));
+
+    const candidateUsers = await User.find({ _id: { $nin: memberIds } }).select('-password');
+
+    const recommendationData = await generateAITeamRecommendations(project, candidateUsers);
+
+    // Attach invitationStatus to each recommended member
+    if (Array.isArray(recommendationData.recommendedTeam)) {
+      recommendationData.recommendedTeam.forEach(item => {
+        const uId = item.student?._id?.toString();
+        item.invitationStatus = pendingReceiverIds.has(uId) ? 'pending' : 'none';
+      });
+    }
+
+    res.json({
+      success: true,
+      projectId: project._id,
+      projectTitle: project.title,
+      data: recommendationData
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+

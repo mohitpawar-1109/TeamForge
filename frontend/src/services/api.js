@@ -56,11 +56,13 @@ export const projectAPI = {
   deleteProject: (id) => API.delete(`/projects/${id}`),
   leaveTeam: (id) => API.post(`/projects/${id}/team/leave`),
   getMatches: (id) => API.get(`/projects/${id}/matches`),
-  getSkillGap: (id) => API.get(`/projects/${id}/skill-gap`)
+  getSkillGap: (id) => API.get(`/projects/${id}/skill-gap`),
+  getTeamRecommendations: (id) => API.get(`/projects/${id}/ai-team-recommendations`)
 };
 
 export const aiAPI = {
-  analyzeProject: (data) => API.post('/ai/analyze-project', data)
+  analyzeProject: (data) => API.post('/ai/analyze-project', data),
+  getTeamRecommendations: (projectId) => API.get(`/projects/${projectId}/ai-team-recommendations`)
 };
 
 export const inviteAPI = {

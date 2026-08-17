@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Sparkles, ArrowLeft, Users, Mail, CheckCircle2, Brain } from 'lucide-react';
+import { Sparkles, ArrowLeft, Users, Mail, CheckCircle2, Brain, Zap } from 'lucide-react';
 import { projectAPI, inviteAPI } from '../services/api';
 import { useToast } from '../context/ToastContext';
 import { CandidateCard } from '../components/cards/CandidateCard';
@@ -9,6 +9,7 @@ import { Button } from '../components/common/Button';
 import { CardSkeleton } from '../components/common/Skeleton';
 import { EmptyState } from '../components/common/EmptyState';
 import { AiMatchVisualizer3D } from '../components/matching/AiMatchVisualizer3D';
+import { AiTeamRecommendationPanel } from '../components/matching/AiTeamRecommendationPanel';
 
 export const ProjectMatchesPage = () => {
   const { id } = useParams();
@@ -17,6 +18,7 @@ export const ProjectMatchesPage = () => {
   const [matches, setMatches] = useState([]);
   const [projectTitle, setProjectTitle] = useState('');
   const [loading, setLoading] = useState(true);
+  const [activeView, setActiveView] = useState('squad'); // 'squad' | 'candidates'
   const [show3DVisualizer, setShow3DVisualizer] = useState(false);
 
   // Invite Modal state
@@ -86,26 +88,28 @@ export const ProjectMatchesPage = () => {
           </Link>
           <div className="flex items-center gap-2">
             <h1 className="text-2xl sm:text-3xl font-extrabold text-[#FAFAFA] tracking-tight">
-              Recommended Teammates
+              AI Talent & Team Matching
             </h1>
             <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-indigo-950/60 text-indigo-300 border border-indigo-500/30">
-              SMART MATCH
+              GEMINI POWERED
             </span>
           </div>
           <p className="text-xs sm:text-sm text-zinc-400 mt-1">
-            Ranked candidates for <span className="font-bold text-zinc-200">"{projectTitle}"</span> calculated from skill coverage, interests, and schedule compatibility.
+            Optimized squad recommendations & candidate rankings for <span className="font-bold text-zinc-200">"{projectTitle}"</span>.
           </p>
         </div>
 
-        <Button
-          variant={show3DVisualizer ? 'secondary' : 'gradient'}
-          size="md"
-          icon={Brain}
-          onClick={() => setShow3DVisualizer(!show3DVisualizer)}
-          className={!show3DVisualizer ? 'bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 text-white font-extrabold shadow-md' : ''}
-        >
-          {show3DVisualizer ? 'Close 3D Match' : '✨ 3D AI Match Flow'}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant={show3DVisualizer ? 'secondary' : 'gradient'}
+            size="md"
+            icon={Brain}
+            onClick={() => setShow3DVisualizer(!show3DVisualizer)}
+            className={!show3DVisualizer ? 'bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 text-white font-extrabold shadow-md' : ''}
+          >
+            {show3DVisualizer ? 'Close 3D Match' : '✨ 3D Graph Match'}
+          </Button>
+        </div>
       </div>
 
       {/* 3D AI Match Visualizer Section */}
@@ -117,28 +121,67 @@ export const ProjectMatchesPage = () => {
         />
       )}
 
-      {/* Match Results Grid */}
-      {loading ? (
-        <CardSkeleton count={6} />
-      ) : matches.length === 0 ? (
-        <EmptyState
-          icon={Users}
-          title="No candidate matches found yet"
-          description="Try updating your required project skills or team roles to expand the AI matching criteria."
-          actionLabel="Edit Project Roles"
-          actionLink={`/projects/${id}`}
+      {/* View Switcher Tabs */}
+      <div className="flex border-b border-[#27272A] gap-4">
+        <button
+          onClick={() => setActiveView('squad')}
+          className={`flex items-center gap-2 pb-3 px-1 text-sm font-bold border-b-2 transition-all ${
+            activeView === 'squad'
+              ? 'border-indigo-500 text-indigo-400'
+              : 'border-transparent text-zinc-400 hover:text-zinc-200'
+          }`}
+        >
+          <Sparkles className="w-4 h-4" />
+          <span>✨ Optimal AI Squad Recommendation</span>
+        </button>
+
+        <button
+          onClick={() => setActiveView('candidates')}
+          className={`flex items-center gap-2 pb-3 px-1 text-sm font-bold border-b-2 transition-all ${
+            activeView === 'candidates'
+              ? 'border-indigo-500 text-indigo-400'
+              : 'border-transparent text-zinc-400 hover:text-zinc-200'
+          }`}
+        >
+          <Users className="w-4 h-4" />
+          <span>All Candidate Matches ({matches.length})</span>
+        </button>
+      </div>
+
+      {/* Tab 1: AI Squad Recommendation Panel */}
+      {activeView === 'squad' && (
+        <AiTeamRecommendationPanel
+          projectId={id}
+          onInviteSent={() => fetchMatches()}
         />
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {matches.map((item) => (
-            <CandidateCard
-              key={item.student._id}
-              candidateData={item}
-              onInvite={handleOpenInvite}
-              onViewProfile={(sid) => window.open(`/profile?id=${sid}`, '_blank')}
+      )}
+
+      {/* Tab 2: Individual Candidate Explorer Grid */}
+      {activeView === 'candidates' && (
+        <>
+          {loading ? (
+            <CardSkeleton count={6} />
+          ) : matches.length === 0 ? (
+            <EmptyState
+              icon={Users}
+              title="No candidate matches found yet"
+              description="Try updating your required project skills or team roles to expand the AI matching criteria."
+              actionLabel="Edit Project Roles"
+              actionLink={`/projects/${id}`}
             />
-          ))}
-        </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {matches.map((item) => (
+                <CandidateCard
+                  key={item.student._id}
+                  candidateData={item}
+                  onInvite={handleOpenInvite}
+                  onViewProfile={(sid) => window.open(`/profile?id=${sid}`, '_blank')}
+                />
+              ))}
+            </div>
+          )}
+        </>
       )}
 
       {/* Invite Modal */}
