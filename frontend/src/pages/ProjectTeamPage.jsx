@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Users, Shield, ArrowLeft, LogOut, Sparkles, CheckCircle2, Mail, MessageSquare, Network, Bot, Video } from 'lucide-react';
+import { Users, Shield, ArrowLeft, LogOut, Sparkles, CheckCircle2, Mail, MessageSquare, Network, Bot, Video, BarChart3 } from 'lucide-react';
 import { projectAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
@@ -11,6 +11,7 @@ import { AiTeamRecommendationPanel } from '../components/matching/AiTeamRecommen
 import { AiProjectMentorView } from '../components/ai/AiProjectMentorView';
 import { TeamTopology3D } from '../components/team/TeamTopology3D';
 import { TeamVideoMeeting } from '../components/video/TeamVideoMeeting';
+import { TeamPerformanceAnalytics } from '../components/analytics/TeamPerformanceAnalytics';
 import { Button } from '../components/common/Button';
 import { Badge } from '../components/common/Badge';
 
@@ -23,7 +24,7 @@ export const ProjectTeamPage = () => {
   const [project, setProject] = useState(null);
   const [skillGap, setSkillGap] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('chat'); // 'chat' | 'video' | 'topology' | 'mentor' | 'roster' | 'recommendations'
+  const [activeTab, setActiveTab] = useState('analytics'); // 'analytics' | 'chat' | 'video' | 'topology' | 'mentor' | 'roster' | 'recommendations'
 
   const fetchTeamData = async () => {
     try {
@@ -107,6 +108,18 @@ export const ProjectTeamPage = () => {
       {/* Navigation Tabs */}
       <div className="flex border-b border-[#27272A] gap-4 overflow-x-auto no-scrollbar">
         <button
+          onClick={() => setActiveTab('analytics')}
+          className={`flex items-center gap-2 pb-3 px-1 text-sm font-bold border-b-2 transition-all whitespace-nowrap ${
+            activeTab === 'analytics'
+              ? 'border-indigo-500 text-indigo-400'
+              : 'border-transparent text-zinc-400 hover:text-zinc-200'
+          }`}
+        >
+          <BarChart3 className="w-4 h-4 text-indigo-400" />
+          <span>📊 Team Analytics</span>
+        </button>
+
+        <button
           onClick={() => setActiveTab('chat')}
           className={`flex items-center gap-2 pb-3 px-1 text-sm font-bold border-b-2 transition-all whitespace-nowrap ${
             activeTab === 'chat'
@@ -178,6 +191,11 @@ export const ProjectTeamPage = () => {
           <span>✨ AI Squad Recommendations</span>
         </button>
       </div>
+
+      {/* Tab: Team Performance Analytics */}
+      {activeTab === 'analytics' && (
+        <TeamPerformanceAnalytics projectId={project._id} />
+      )}
 
       {/* Tab: Video Meeting */}
       {activeTab === 'video' && (

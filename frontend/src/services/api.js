@@ -63,7 +63,8 @@ export const projectAPI = {
   askMentor: (id, data) => API.post(`/projects/${id}/ai-mentor/chat`, data),
   getMentorHistory: (id) => API.get(`/projects/${id}/ai-mentor/history`),
   clearMentorHistory: (id) => API.delete(`/projects/${id}/ai-mentor/history`),
-  getMentorPrompts: (id) => API.get(`/projects/${id}/ai-mentor/prompts`)
+  getMentorPrompts: (id) => API.get(`/projects/${id}/ai-mentor/prompts`),
+  getAnalytics: (id) => API.get(`/projects/${id}/analytics`)
 };
 
 export const aiAPI = {
