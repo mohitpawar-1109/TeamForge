@@ -31,6 +31,8 @@ import { SettingsPage } from './pages/SettingsPage';
 import { SkillNetworkPage } from './pages/SkillNetworkPage';
 import { GroupsChatPage } from './pages/GroupsChatPage';
 import { NotificationsPage } from './pages/NotificationsPage';
+import { ExploreHackathonsPage } from './pages/ExploreHackathonsPage';
+import { HackathonDetailsPage } from './pages/HackathonDetailsPage';
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
@@ -62,6 +64,8 @@ export default function App() {
               <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/notifications" element={<NotificationsPage />} />
+                <Route path="/hackathons" element={<ExploreHackathonsPage />} />
+                <Route path="/hackathons/:id" element={<HackathonDetailsPage />} />
                 <Route path="/groups" element={<GroupsChatPage />} />
                 <Route path="/groups/:groupId" element={<GroupsChatPage />} />
                 <Route path="/chat" element={<GroupsChatPage />} />

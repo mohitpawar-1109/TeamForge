@@ -144,4 +144,13 @@ export const groupAPI = {
   getProjectGroup: (projectId) => API.get(`/groups/project/${projectId}`)
 };
 
+export const hackathonAPI = {
+  getHackathons: (params) => API.get('/hackathons', { params }),
+  getHackathonById: (id) => API.get(`/hackathons/${id}`),
+  toggleSave: (id) => API.post(`/hackathons/${id}/save`),
+  toggleInterest: (id) => API.post(`/hackathons/${id}/interested`),
+  createHackathon: (data) => API.post('/hackathons', data)
+};
+
+
 export default API;

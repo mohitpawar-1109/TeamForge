@@ -20,6 +20,7 @@ import commentRoutes from './routes/comment.routes.js';
 import teamRequestRoutes from './routes/teamRequest.routes.js';
 import messageRoutes from './routes/message.routes.js';
 import groupRoutes from './routes/group.routes.js';
+import hackathonRoutes from './routes/hackathon.routes.js';
 
 dotenv.config();
 
@@ -82,6 +83,7 @@ app.use('/api/comments', commentRoutes);
 app.use('/api/team-requests', teamRequestRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/groups', groupRoutes);
+app.use('/api/hackathons', hackathonRoutes);
 
 // Centralized Error Handler
 app.use(errorHandler);

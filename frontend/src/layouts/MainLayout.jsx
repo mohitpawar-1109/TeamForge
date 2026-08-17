@@ -17,7 +17,8 @@ import {
   CheckCircle2,
   MessageSquare,
   Network,
-  Search
+  Search,
+  Trophy
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/common/Button';
@@ -40,6 +41,7 @@ export const MainLayout = () => {
   const navItems = [
     { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
     { label: 'Notifications', path: '/notifications', icon: Bell },
+    { label: 'Hackathons', path: '/hackathons', icon: Trophy, badge: 'Prizes' },
     { label: 'Groups & Chat', path: '/groups', icon: Users, badge: 'Live' },
     { label: 'Community', path: '/community', icon: MessageSquare },
     { label: 'Explore', path: '/projects', icon: Compass },
