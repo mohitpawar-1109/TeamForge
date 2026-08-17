@@ -3,6 +3,7 @@ import Project from '../models/Project.js';
 import Group from '../models/Group.js';
 import Notification from '../models/Notification.js';
 import { emitNotificationToUser } from '../socket/socket.js';
+import { notifyProjectInvitation, notifyTeamUpdate } from '../services/notification.service.js';
 
 export const createInvitation = async (req, res, next) => {
   try {
@@ -38,18 +39,14 @@ export const createInvitation = async (req, res, next) => {
       status: 'pending'
     });
 
-    // Create a notification for the receiver
+    // Create a real-time notification for the receiver
     try {
-      const notif = await Notification.create({
-        recipient: receiverId,
-        user: receiverId,
-        sender: req.user._id,
-        type: 'invite',
-        title: 'New Team Invitation',
-        message: `${req.user.name} invited you to join "${project.title}" as ${role || 'Team Member'}.`,
-        relatedProject: project._id
+      await notifyProjectInvitation({
+        recipientId: receiverId,
+        senderId: req.user._id,
+        project,
+        role: role || 'Team Member'
       });
-      emitNotificationToUser(receiverId, notif);
     } catch (notifErr) {
       console.warn('Failed to create invite notification:', notifErr.message);
     }

@@ -4,6 +4,7 @@ import Notification from '../models/Notification.js';
 import User from '../models/User.js';
 import { calculatePostMatch } from '../services/match.service.js';
 import { emitNotificationToUser } from '../socket/socket.js';
+import { notifyPostLike } from '../services/notification.service.js';
 
 // @desc    Create a new post
 // @route   POST /api/posts
@@ -334,15 +335,11 @@ export const likePost = async (req, res, next) => {
       // Create LIKE notification for post author if not liking own post
       if (post.author.toString() !== req.user._id.toString()) {
         try {
-          const notif = await Notification.create({
-            recipient: post.author,
-            sender: req.user._id,
-            type: 'LIKE',
-            title: 'New Like',
-            message: `${req.user.name} liked your post`,
-            relatedPost: post._id
+          await notifyPostLike({
+            recipientId: post.author,
+            liker: req.user,
+            post
           });
-          emitNotificationToUser(post.author, notif);
         } catch (notifErr) {
           console.warn('Failed to create like notification:', notifErr.message);
         }

@@ -28,6 +28,18 @@ const notificationSchema = new mongoose.Schema({
       'team_join',
       'task',
       'match',
+      'team_invite',
+      'group_invite',
+      'group_member_joined',
+      'new_message',
+      'post_like',
+      'post_comment',
+      'project_invite',
+      'task_assigned',
+      'task_completed',
+      'team_update',
+      'ai_recommendation',
+      'hackathon_deadline',
       'general'
     ],
     default: 'general'
@@ -40,6 +52,14 @@ const notificationSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  link: {
+    type: String,
+    default: ''
+  },
+  metadata: {
+    type: mongoose.Schema.Types.Mixed,
+    default: {}
+  },
   relatedPost: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Post'
@@ -47,6 +67,14 @@ const notificationSchema = new mongoose.Schema({
   relatedProject: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Project'
+  },
+  relatedGroup: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Group'
+  },
+  relatedTask: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Task'
   },
   relatedTeamRequest: {
     type: mongoose.Schema.Types.ObjectId,

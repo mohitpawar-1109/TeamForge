@@ -1,5 +1,6 @@
 import Task from '../models/Task.js';
 import Project from '../models/Project.js';
+import { notifyTaskAssignment, notifyTaskCompletion } from '../services/notification.service.js';
 
 export const getProjectTasks = async (req, res, next) => {
   try {
@@ -39,11 +40,13 @@ export const createTask = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'Project not found' });
     }
 
+    const targetAssignee = assignedTo || req.user._id;
+
     const task = await Task.create({
       project: projectId,
       title,
       description: description || '',
-      assignedTo: assignedTo || req.user._id,
+      assignedTo: targetAssignee,
       priority: priority || 'Medium',
       status: status || 'TODO',
       dueDate: dueDate || null
@@ -53,6 +56,20 @@ export const createTask = async (req, res, next) => {
     await updateProjectProgress(projectId);
 
     const populated = await Task.findById(task._id).populate('assignedTo', 'name email headline avatar');
+
+    // Trigger Task Assignment notification if assigned to another user
+    if (targetAssignee && targetAssignee.toString() !== req.user._id.toString()) {
+      try {
+        await notifyTaskAssignment({
+          recipientId: targetAssignee,
+          assigner: req.user,
+          task: populated,
+          project
+        });
+      } catch (notifErr) {
+        console.warn('Failed to send task assign notification:', notifErr.message);
+      }
+    }
 
     res.status(201).json({ success: true, data: populated });
   } catch (error) {
@@ -67,10 +84,44 @@ export const updateTask = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'Task not found' });
     }
 
+    const previousStatus = task.status;
+    const previousAssignee = task.assignedTo?.toString();
+
     const updated = await Task.findByIdAndUpdate(req.params.id, req.body, { new: true })
       .populate('assignedTo', 'name email headline avatar');
 
     await updateProjectProgress(task.project);
+
+    const project = await Project.findById(task.project);
+
+    // Notify on new assignment
+    if (req.body.assignedTo && req.body.assignedTo.toString() !== previousAssignee && req.body.assignedTo.toString() !== req.user._id.toString()) {
+      try {
+        await notifyTaskAssignment({
+          recipientId: req.body.assignedTo,
+          assigner: req.user,
+          task: updated,
+          project
+        });
+      } catch (err) {
+        console.warn('Task reassign notif failed:', err.message);
+      }
+    }
+
+    // Notify team on task completion
+    if (req.body.status === 'DONE' && previousStatus !== 'DONE' && project) {
+      try {
+        const teamMemberIds = (project.members || []).map(m => m.user.toString());
+        await notifyTaskCompletion({
+          recipientIds: teamMemberIds,
+          completer: req.user,
+          task: updated,
+          project
+        });
+      } catch (err) {
+        console.warn('Task completion notif failed:', err.message);
+      }
+    }
 
     res.json({ success: true, data: updated });
   } catch (error) {

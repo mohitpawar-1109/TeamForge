@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import Message from '../../models/Message.js';
 import Group from '../../models/Group.js';
+import { notifyNewMessage } from '../../services/notification.service.js';
 
 export const registerChatHandlers = (io, socket) => {
   const user = socket.user;
@@ -144,6 +145,16 @@ export const registerChatHandlers = (io, socket) => {
       // If direct message and recipient is online in their personal room, deliver it there too
       if (recipient) {
         io.to(`user:${recipient}`).emit('new_message', populatedMessage);
+        try {
+          await notifyNewMessage({
+            recipientId: recipient,
+            sender: user,
+            group: validGroupId ? { _id: validGroupId } : { _id: roomId },
+            messageContent: content
+          });
+        } catch (notifErr) {
+          console.warn('DM notification dispatch failed:', notifErr.message);
+        }
       }
 
       // Delivery acknowledgment to sender

@@ -4,6 +4,7 @@ import User from '../models/User.js';
 import Project from '../models/Project.js';
 import Message from '../models/Message.js';
 import { emitToRoom, emitToUser } from '../socket/socket.js';
+import { notifyGroupInvitation, notifyNewGroupMember } from '../services/notification.service.js';
 
 // Helper to format/populate a group
 const populateGroupQuery = (query) => {
@@ -299,6 +300,21 @@ export const joinGroup = async (req, res, next) => {
 
     const populated = await populateGroupQuery(Group.findById(group._id));
 
+    // Notify other members of new joiner
+    try {
+      const existingMemberIds = (group.members || [])
+        .map(m => m.user.toString())
+        .filter(id => id !== req.user._id.toString());
+
+      await notifyNewGroupMember({
+        recipientIds: existingMemberIds,
+        newMember: req.user,
+        group: populated
+      });
+    } catch (notifErr) {
+      console.warn('Group member join notif failed:', notifErr.message);
+    }
+
     emitToRoom(`group:${group._id}`, 'member_joined', {
       groupId: group._id,
       user: {
@@ -406,13 +422,24 @@ export const inviteMembers = async (req, res, next) => {
 
     const populated = await populateGroupQuery(Group.findById(group._id));
 
-    // Notify newly added members
-    targetUserIds.forEach(targetId => {
+    // Notify newly added members with real-time notification
+    for (const targetId of targetUserIds) {
+      try {
+        await notifyGroupInvitation({
+          recipientId: targetId,
+          senderId: req.user._id,
+          group: populated,
+          role: role || 'member'
+        });
+      } catch (notifErr) {
+        console.warn('Group invite notif failed:', notifErr.message);
+      }
+
       emitToUser(targetId, 'group_joined', {
         group: populated,
         addedBy: req.user.name
       });
-    });
+    }
 
     emitToRoom(`group:${group._id}`, 'group_updated', populated);
 

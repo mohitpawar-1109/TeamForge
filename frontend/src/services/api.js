@@ -84,7 +84,9 @@ export const notifAPI = {
   getNotifications: () => API.get('/notifications'),
   markRead: (id) => API.patch(`/notifications/${id}/read`),
   markAllRead: () => API.patch('/notifications/read-all'),
-  markAllNotificationsRead: () => API.patch('/notifications/read-all')
+  markAllNotificationsRead: () => API.patch('/notifications/read-all'),
+  deleteNotification: (id) => API.delete(`/notifications/${id}`),
+  sendNotification: (data) => API.post('/notifications', data)
 };
 
 export const postAPI = {

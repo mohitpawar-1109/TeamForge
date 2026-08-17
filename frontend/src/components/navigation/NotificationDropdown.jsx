@@ -135,6 +135,7 @@ export const NotificationDropdown = ({ isMobile = false, onCloseMobile }) => {
   const getNotificationIcon = (type) => {
     switch (type) {
       case 'LIKE':
+      case 'post_like':
         return {
           icon: Heart,
           emoji: '❤️',
@@ -143,6 +144,7 @@ export const NotificationDropdown = ({ isMobile = false, onCloseMobile }) => {
           border: 'border-rose-500/30'
         };
       case 'COMMENT':
+      case 'post_comment':
         return {
           icon: MessageSquare,
           emoji: '💬',
@@ -150,14 +152,35 @@ export const NotificationDropdown = ({ isMobile = false, onCloseMobile }) => {
           text: 'text-blue-400',
           border: 'border-blue-500/30'
         };
+      case 'new_message':
+        return {
+          icon: MessageSquare,
+          emoji: '✉️',
+          bg: 'bg-sky-950/50',
+          text: 'text-sky-400',
+          border: 'border-sky-500/30'
+        };
       case 'TEAM_REQUEST':
+      case 'team_invite':
+      case 'project_invite':
+      case 'invite':
         return {
           icon: Users,
           emoji: '🤝',
+          bg: 'bg-purple-950/50',
+          text: 'text-purple-400',
+          border: 'border-purple-500/30'
+        };
+      case 'group_invite':
+        return {
+          icon: Users,
+          emoji: '👥',
           bg: 'bg-indigo-950/50',
           text: 'text-indigo-400',
           border: 'border-indigo-500/30'
         };
+      case 'group_member_joined':
+      case 'team_join':
       case 'TEAM_REQUEST_ACCEPTED':
         return {
           icon: CheckCircle2,
@@ -166,29 +189,47 @@ export const NotificationDropdown = ({ isMobile = false, onCloseMobile }) => {
           text: 'text-emerald-400',
           border: 'border-emerald-500/30'
         };
-      case 'TEAM_REQUEST_REJECTED':
+      case 'task_assigned':
+      case 'task':
         return {
-          icon: XCircle,
-          emoji: '✕',
-          bg: 'bg-[#27272A]',
-          text: 'text-zinc-400',
-          border: 'border-[#3F3F46]'
-        };
-      case 'MATCH_FOUND':
-        return {
-          icon: Sparkles,
-          emoji: '🎯',
+          icon: CheckCircle2,
+          emoji: '📋',
           bg: 'bg-amber-950/50',
           text: 'text-amber-400',
           border: 'border-amber-500/30'
         };
-      case 'invite':
+      case 'task_completed':
         return {
-          icon: Mail,
-          emoji: '✉️',
-          bg: 'bg-purple-950/50',
-          text: 'text-purple-400',
-          border: 'border-purple-500/30'
+          icon: CheckCircle2,
+          emoji: '✅',
+          bg: 'bg-emerald-950/50',
+          text: 'text-emerald-400',
+          border: 'border-emerald-500/30'
+        };
+      case 'team_update':
+        return {
+          icon: Users,
+          emoji: '🛡️',
+          bg: 'bg-cyan-950/50',
+          text: 'text-cyan-400',
+          border: 'border-cyan-500/30'
+        };
+      case 'ai_recommendation':
+      case 'MATCH_FOUND':
+        return {
+          icon: Sparkles,
+          emoji: '✨',
+          bg: 'bg-violet-950/50',
+          text: 'text-violet-400',
+          border: 'border-violet-500/30'
+        };
+      case 'hackathon_deadline':
+        return {
+          icon: Clock,
+          emoji: '⏰',
+          bg: 'bg-orange-950/50',
+          text: 'text-orange-400',
+          border: 'border-orange-500/30'
         };
       default:
         return {
@@ -200,6 +241,41 @@ export const NotificationDropdown = ({ isMobile = false, onCloseMobile }) => {
         };
     }
   };
+
+  // Socket event listeners
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleUnreadCount = ({ unreadCount }) => {
+      if (typeof unreadCount === 'number') {
+        setUnreadCount(unreadCount);
+      }
+    };
+
+    const handleNotifRead = ({ notificationId, unreadCount }) => {
+      setNotifications((prev) =>
+        prev.map((n) => (n._id === notificationId ? { ...n, read: true } : n))
+      );
+      if (typeof unreadCount === 'number') {
+        setUnreadCount(unreadCount);
+      }
+    };
+
+    const handleAllRead = () => {
+      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+      setUnreadCount(0);
+    };
+
+    socket.on('notification_unread_count', handleUnreadCount);
+    socket.on('notification_read', handleNotifRead);
+    socket.on('all_notifications_read', handleAllRead);
+
+    return () => {
+      socket.off('notification_unread_count', handleUnreadCount);
+      socket.off('notification_read', handleNotifRead);
+      socket.off('all_notifications_read', handleAllRead);
+    };
+  }, [socket]);
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -316,13 +392,23 @@ export const NotificationDropdown = ({ isMobile = false, onCloseMobile }) => {
           </div>
 
           {/* Footer */}
-          {notifications.length > 0 && (
-            <div className="p-2.5 bg-[#111113] border-t border-[#27272A] text-center">
-              <span className="text-[11px] text-zinc-500 font-medium">
-                Showing latest notifications
-              </span>
-            </div>
-          )}
+          <div className="p-2.5 bg-[#111113] border-t border-[#27272A] flex items-center justify-between px-4">
+            <span className="text-[11px] text-zinc-500 font-medium">
+              {notifications.length} recent
+            </span>
+            <button
+              type="button"
+              onClick={() => {
+                setIsOpen(false);
+                if (onCloseMobile) onCloseMobile();
+                navigate('/notifications');
+              }}
+              className="text-xs font-bold text-indigo-400 hover:text-indigo-300 transition-colors flex items-center gap-1 cursor-pointer"
+            >
+              <span>View all</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
       )}
     </div>
