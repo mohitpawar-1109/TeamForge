@@ -1,6 +1,7 @@
 import React, { useRef, useMemo, useState, useEffect, Suspense } from 'react';
 import { Link } from 'react-router-dom';
 import { Canvas, useFrame } from '@react-three/fiber';
+import { OrbitControls, Html } from '@react-three/drei';
 import * as THREE from 'three';
 import {
   Sparkles,
@@ -11,156 +12,171 @@ import {
   Code2,
   Layers,
   Zap,
-  CheckCircle2
+  CheckCircle2,
+  Trophy,
+  ExternalLink
 } from 'lucide-react';
 import { Button } from '../common/Button';
 
-// 3D Network Graph Scene (Floating Nodes & Interconnected Lines)
-const NetworkScene = ({ prefersReducedMotion }) => {
+// Pre-defined interactive sample entities in the 3D network
+const SAMPLE_HERO_NODES = [
+  { id: 'n1', label: 'Mohit (Lead Dev)', type: 'student', color: '#06b6d4', size: 0.35, role: 'Full Stack & ML' },
+  { id: 'n2', label: 'Priya (UI/UX)', type: 'student', color: '#ec4899', size: 0.32, role: 'Design Lead' },
+  { id: 'n3', label: 'Aarav (Backend)', type: 'student', color: '#3b82f6', size: 0.32, role: 'Cloud & Node.js' },
+  { id: 'n4', label: 'AI Resume Scanner', type: 'project', color: '#f59e0b', size: 0.42, category: 'AI / ML Project' },
+  { id: 'n5', label: 'Campus Eco-Forge', type: 'project', color: '#10b981', size: 0.38, category: 'Sustainability' },
+  { id: 'n6', label: 'React.js', type: 'skill', color: '#6366f1', size: 0.28, category: 'Frontend' },
+  { id: 'n7', label: 'Python & FastAPI', type: 'skill', color: '#8b5cf6', size: 0.28, category: 'Backend' },
+  { id: 'n8', label: 'Machine Learning', type: 'skill', color: '#a855f7', size: 0.3, category: 'AI' },
+  { id: 'n9', label: 'Cloud Squad Alpha', type: 'team', color: '#10b981', size: 0.4, members: '4 Formed' },
+  { id: 'n10', label: 'Global AI Hackathon', type: 'hackathon', color: '#f43f5e', size: 0.42, prize: '$45,000' },
+  { id: 'n11', label: 'DevOps & Docker', type: 'skill', color: '#06b6d4', size: 0.26, category: 'Cloud' },
+  { id: 'n12', label: 'Ananya (Frontend)', type: 'student', color: '#06b6d4', size: 0.3, role: 'React Engineer' }
+];
+
+// Interactive 3D Node Mesh with Hover & Click
+const HeroNodeMesh = ({ node, isHovered, onHover, onClick }) => {
+  return (
+    <group position={[node.x, node.y, node.z]}>
+      <mesh
+        onClick={(e) => {
+          e.stopPropagation();
+          onClick(node);
+        }}
+        onPointerOver={(e) => {
+          e.stopPropagation();
+          onHover(node);
+          document.body.style.cursor = 'pointer';
+        }}
+        onPointerOut={() => {
+          onHover(null);
+          document.body.style.cursor = 'auto';
+        }}
+        scale={isHovered ? 1.45 : 1}
+      >
+        <sphereGeometry args={[node.size, 20, 20]} />
+        <meshStandardMaterial
+          color={node.color}
+          emissive={node.color}
+          emissiveIntensity={isHovered ? 0.9 : 0.35}
+          roughness={0.25}
+          metalness={0.4}
+        />
+      </mesh>
+
+      {/* Floating Tag over hovered or featured nodes */}
+      {isHovered && (
+        <Html distanceFactor={14} center position={[0, node.size + 0.4, 0]}>
+          <div className="bg-[#18181B]/95 backdrop-blur-md border border-indigo-500/60 px-3 py-1.5 rounded-xl shadow-2xl pointer-events-none text-center whitespace-nowrap animate-in fade-in zoom-in-95 duration-150">
+            <p className="text-xs font-black text-white">{node.label}</p>
+            <p className="text-[10px] font-bold text-indigo-300 uppercase tracking-wider">
+              {node.role || node.category || node.prize || node.type}
+            </p>
+          </div>
+        </Html>
+      )}
+    </group>
+  );
+};
+
+// 3D Network Graph Scene (Floating Interactive Nodes & Connection Lines)
+const NetworkScene = ({ prefersReducedMotion, hoveredNode, setHoveredNode, setSelectedNode }) => {
   const groupRef = useRef();
-  const linesMeshRef = useRef();
+  const linesRef = useRef();
 
-  // Generate 32 nodes representing students, skills, and hackathon teams
-  const { initialPositions, velocities, colors } = useMemo(() => {
-    const count = 32;
-    const pos = new Float32Array(count * 3);
-    const vels = [];
-    const cols = [];
+  // Generate initial node distribution
+  const nodes = useMemo(() => {
+    return SAMPLE_HERO_NODES.map((n, i) => {
+      const radius = THREE.MathUtils.randFloat(3.2, 7.5);
+      const theta = (i / SAMPLE_HERO_NODES.length) * Math.PI * 2 + THREE.MathUtils.randFloat(-0.2, 0.2);
+      const phi = THREE.MathUtils.randFloat(-0.4, 0.5);
 
-    const palette = [
-      new THREE.Color('#6366f1'), // Brand Indigo
-      new THREE.Color('#8b5cf6'), // Violet
-      new THREE.Color('#38bdf8'), // Sky Blue
-      new THREE.Color('#10b981'), // Emerald
-      new THREE.Color('#f43f5e'), // Rose Accent
-      new THREE.Color('#a855f7')  // Purple
-    ];
-
-    for (let i = 0; i < count; i++) {
-      // Spread nodes in a rounded 3D volume
-      const radius = THREE.MathUtils.randFloat(3, 8.5);
-      const theta = THREE.MathUtils.randFloat(0, Math.PI * 2);
-      const phi = THREE.MathUtils.randFloat(-Math.PI / 3, Math.PI / 3);
-
-      pos[i * 3] = radius * Math.cos(phi) * Math.sin(theta);
-      pos[i * 3 + 1] = radius * Math.sin(phi);
-      pos[i * 3 + 2] = radius * Math.cos(phi) * Math.cos(theta);
-
-      vels.push({
-        x: THREE.MathUtils.randFloatSpread(0.004),
-        y: THREE.MathUtils.randFloatSpread(0.003),
-        z: THREE.MathUtils.randFloatSpread(0.004)
-      });
-
-      const chosenColor = palette[i % palette.length];
-      cols.push(chosenColor.r, chosenColor.g, chosenColor.b);
-    }
-
-    return { initialPositions: pos, velocities: vels, colors: cols };
+      return {
+        ...n,
+        x: radius * Math.cos(phi) * Math.sin(theta),
+        y: radius * Math.sin(phi),
+        z: radius * Math.cos(phi) * Math.cos(theta) - 1,
+        vx: THREE.MathUtils.randFloatSpread(0.003),
+        vy: THREE.MathUtils.randFloatSpread(0.002),
+        vz: THREE.MathUtils.randFloatSpread(0.003)
+      };
+    });
   }, []);
 
-  const nodePositions = useRef(new Float32Array(initialPositions));
+  const nodePositions = useRef(nodes);
 
-  // Update positions & connection lines on each frame
-  useFrame((state, delta) => {
+  useFrame((state) => {
     if (prefersReducedMotion || document.hidden) return;
 
     const time = state.clock.getElapsedTime();
-    const count = velocities.length;
-    const positions = nodePositions.current;
+    const curNodes = nodePositions.current;
 
-    // Gentle floating motion for each node
-    for (let i = 0; i < count; i++) {
-      const idx = i * 3;
-      positions[idx] += velocities[i].x;
-      positions[idx + 1] += Math.sin(time * 0.8 + i) * 0.003;
-      positions[idx + 2] += velocities[i].z;
+    // Gentle floating motion
+    curNodes.forEach((node, i) => {
+      node.x += node.vx;
+      node.y += Math.sin(time * 0.7 + i) * 0.0025;
+      node.z += node.vz;
 
-      // Bound within sphere
-      const dist = Math.sqrt(
-        positions[idx] ** 2 + positions[idx + 1] ** 2 + positions[idx + 2] ** 2
-      );
-      if (dist > 9.5) {
-        velocities[i].x *= -1;
-        velocities[i].z *= -1;
+      const dist = Math.sqrt(node.x ** 2 + node.y ** 2 + node.z ** 2);
+      if (dist > 8.5) {
+        node.vx *= -1;
+        node.vz *= -1;
       }
-    }
+    });
 
-    // Connect nodes within proximity threshold
-    const linePositions = [];
-    const maxDistance = 3.6;
+    // Dynamic proximity connection lines
+    const linePos = [];
+    const maxDist = 4.2;
 
-    for (let i = 0; i < count; i++) {
-      for (let j = i + 1; j < count; j++) {
-        const iIdx = i * 3;
-        const jIdx = j * 3;
+    for (let i = 0; i < curNodes.length; i++) {
+      for (let j = i + 1; j < curNodes.length; j++) {
+        const ni = curNodes[i];
+        const nj = curNodes[j];
 
-        const dx = positions[iIdx] - positions[jIdx];
-        const dy = positions[iIdx + 1] - positions[jIdx + 1];
-        const dz = positions[iIdx + 2] - positions[jIdx + 2];
+        const dx = ni.x - nj.x;
+        const dy = ni.y - nj.y;
+        const dz = ni.z - nj.z;
         const d = Math.sqrt(dx * dx + dy * dy + dz * dz);
 
-        if (d < maxDistance) {
-          linePositions.push(
-            positions[iIdx],
-            positions[iIdx + 1],
-            positions[iIdx + 2],
-            positions[jIdx],
-            positions[jIdx + 1],
-            positions[jIdx + 2]
-          );
+        if (d < maxDist) {
+          linePos.push(ni.x, ni.y, ni.z, nj.x, nj.y, nj.z);
         }
       }
     }
 
-    if (linesMeshRef.current) {
-      linesMeshRef.current.geometry.setAttribute(
+    if (linesRef.current) {
+      linesRef.current.geometry.setAttribute(
         'position',
-        new THREE.Float32BufferAttribute(linePositions, 3)
+        new THREE.Float32BufferAttribute(linePos, 3)
       );
     }
 
-    // Subtle group rotation for cinematic depth
-    if (groupRef.current) {
-      groupRef.current.rotation.y = time * 0.05;
-      groupRef.current.rotation.x = Math.sin(time * 0.03) * 0.05;
+    if (groupRef.current && !hoveredNode) {
+      groupRef.current.rotation.y = time * 0.04;
+      groupRef.current.rotation.x = Math.sin(time * 0.02) * 0.03;
     }
   });
 
   return (
-    <group ref={groupRef} position={[0, 0, -2]}>
-      {/* Node Spheres */}
-      <points>
-        <bufferGeometry>
-          <bufferAttribute
-            attach="attributes-position"
-            count={initialPositions.length / 3}
-            array={initialPositions}
-            itemSize={3}
-          />
-          <bufferAttribute
-            attach="attributes-color"
-            count={colors.length / 3}
-            array={new Float32Array(colors)}
-            itemSize={3}
-          />
-        </bufferGeometry>
-        <pointsMaterial
-          size={0.24}
-          vertexColors
-          transparent
-          opacity={0.85}
-          sizeAttenuation
+    <group ref={groupRef}>
+      {/* Interactive Node Spheres */}
+      {nodes.map((node) => (
+        <HeroNodeMesh
+          key={node.id}
+          node={node}
+          isHovered={hoveredNode?.id === node.id}
+          onHover={setHoveredNode}
+          onClick={setSelectedNode}
         />
-      </points>
+      ))}
 
       {/* Dynamic Network Connection Lines */}
-      <lineSegments ref={linesMeshRef}>
+      <lineSegments ref={linesRef}>
         <bufferGeometry />
         <lineBasicMaterial
           color="#6366f1"
           transparent
-          opacity={0.22}
+          opacity={0.35}
           blending={THREE.AdditiveBlending}
         />
       </lineSegments>
@@ -168,10 +184,10 @@ const NetworkScene = ({ prefersReducedMotion }) => {
   );
 };
 
-// Fallback background for devices without WebGL or with reduced motion
+// Fallback background for devices without WebGL
 const FallbackNetworkBackground = () => (
   <div className="absolute inset-0 pointer-events-none overflow-hidden">
-    <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-gradient-to-tr from-brand-600/15 via-indigo-500/15 to-violet-600/15 rounded-full blur-3xl" />
+    <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-gradient-to-tr from-indigo-600/15 via-purple-500/15 to-pink-600/15 rounded-full blur-3xl" />
     <svg className="w-full h-full opacity-20" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <pattern id="grid-pattern" width="40" height="40" patternUnits="userSpaceOnUse">
@@ -186,6 +202,8 @@ const FallbackNetworkBackground = () => (
 export const TeamForge3DHero = () => {
   const [hasWebGL, setHasWebGL] = useState(true);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const [hoveredNode, setHoveredNode] = useState(null);
+  const [selectedNode, setSelectedNode] = useState(null);
 
   useEffect(() => {
     // Check prefers-reduced-motion
@@ -206,30 +224,33 @@ export const TeamForge3DHero = () => {
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
-  const floatingBadges = [
-    { label: '🟣 ML Developer', delay: '0s', pos: 'top-12 left-4 sm:left-10' },
-    { label: '🔵 UI/UX Designer', delay: '1s', pos: 'top-20 right-4 sm:right-12' },
-    { label: '🟢 Backend Architect', delay: '2s', pos: 'bottom-24 left-6 sm:left-16' },
-    { label: '🎯 94% Skill Match', delay: '1.5s', pos: 'bottom-20 right-6 sm:right-20' },
-    { label: '⚡ Smart India Hackathon', delay: '0.5s', pos: 'top-1/2 left-2 sm:left-6' }
-  ];
-
   return (
-    <section className="relative min-h-[640px] md:min-h-[720px] flex items-center justify-center overflow-hidden bg-gradient-to-b from-slate-950 via-[#0B0F19] to-slate-900 text-white pt-20 pb-24 px-4 sm:px-6 lg:px-8">
+    <section className="relative min-h-[660px] md:min-h-[740px] flex items-center justify-center overflow-hidden bg-gradient-to-b from-[#09090B] via-[#0D0F18] to-[#09090B] text-white pt-20 pb-24 px-4 sm:px-6 lg:px-8">
       {/* 3D WebGL Canvas Layer */}
       {hasWebGL && !prefersReducedMotion ? (
-        <div className="absolute inset-0 z-0 pointer-events-none">
+        <div className="absolute inset-0 z-0">
           <Canvas
-            camera={{ position: [0, 0, 9], fov: 50 }}
+            camera={{ position: [0, 0, 9.5], fov: 48 }}
             dpr={[1, 1.5]}
-            gl={{ antialias: true, alpha: true }}
+            gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
             frameloop="always"
           >
-            <ambientLight intensity={0.6} />
-            <pointLight position={[10, 10, 10]} intensity={1.2} color="#818cf8" />
-            <pointLight position={[-10, -10, -10]} intensity={0.8} color="#c084fc" />
+            <ambientLight intensity={0.7} />
+            <pointLight position={[10, 10, 10]} intensity={1.4} color="#818cf8" />
+            <pointLight position={[-10, -10, -10]} intensity={0.9} color="#c084fc" />
             <Suspense fallback={null}>
-              <NetworkScene prefersReducedMotion={prefersReducedMotion} />
+              <NetworkScene
+                prefersReducedMotion={prefersReducedMotion}
+                hoveredNode={hoveredNode}
+                setHoveredNode={setHoveredNode}
+                setSelectedNode={setSelectedNode}
+              />
+              <OrbitControls
+                enableZoom={false}
+                enablePan={false}
+                rotateSpeed={0.5}
+                dampingFactor={0.05}
+              />
             </Suspense>
           </Canvas>
         </div>
@@ -238,25 +259,14 @@ export const TeamForge3DHero = () => {
       )}
 
       {/* Ambient Radial Gradient Glow Overlay */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_35%,rgba(99,102,241,0.22),transparent_70%)] pointer-events-none -z-0" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_35%,rgba(99,102,241,0.2),transparent_75%)] pointer-events-none -z-0" />
 
-      {/* Floating Semantic Micro-Badges */}
-      {floatingBadges.map((badge, idx) => (
-        <div
-          key={idx}
-          className={`hidden lg:inline-flex absolute ${badge.pos} items-center gap-1.5 px-3.5 py-1.5 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 text-xs font-bold text-slate-200 shadow-xl pointer-events-none animate-float-slow select-none`}
-          style={{ animationDelay: badge.delay }}
-        >
-          <span>{badge.label}</span>
-        </div>
-      ))}
-
-      {/* Hero Content (Clean, Accessible, SEO-Friendly HTML) */}
-      <div className="relative z-10 max-w-4xl mx-auto text-center space-y-6">
+      {/* Hero Content */}
+      <div className="relative z-10 max-w-4xl mx-auto text-center space-y-6 pointer-events-auto">
         {/* Top Tagline Pill */}
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-indigo-400/30 text-indigo-200 text-xs font-bold tracking-wider uppercase shadow-inner">
           <Sparkles className="w-4 h-4 text-indigo-400 animate-pulse" />
-          <span>AI-Powered Student Teammate & Project Network</span>
+          <span>Interactive 3D Student & Skill Network</span>
         </div>
 
         {/* Main Headline */}
@@ -268,8 +278,8 @@ export const TeamForge3DHero = () => {
         </h1>
 
         {/* Supporting Text */}
-        <p className="text-base sm:text-xl text-slate-300 max-w-2xl mx-auto font-normal leading-relaxed">
-          AI-powered collaboration for students, developers and builders. Connect through verified skills, hackathon goals, and shared project vision.
+        <p className="text-base sm:text-xl text-zinc-300 max-w-2xl mx-auto font-normal leading-relaxed">
+          AI-powered collaboration for students, developers and builders. Connect through verified skills, hackathon goals, and shared project vision in an interactive graph.
         </p>
 
         {/* Action Buttons */}
@@ -281,38 +291,59 @@ export const TeamForge3DHero = () => {
               icon={ArrowRight}
               className="bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 hover:from-indigo-600 hover:to-pink-600 text-white font-extrabold shadow-lg shadow-indigo-500/25 px-8 py-3.5 rounded-2xl border-0"
             >
-              Find Teammates
+              Explore Projects
             </Button>
           </Link>
 
-          <Link to="/community">
+          <Link to="/network">
             <Button
               variant="outline"
               size="lg"
               icon={Compass}
               className="text-white border-white/25 hover:bg-white/10 backdrop-blur-sm px-7 py-3.5 rounded-2xl font-bold"
             >
-              Explore Community
+              Explore 3D Network
             </Button>
           </Link>
         </div>
 
-        {/* Trust Signals */}
-        <div className="pt-8 flex flex-wrap items-center justify-center gap-6 sm:gap-10 text-xs font-semibold text-slate-400">
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-            <span>AI Resume & Skill Gap Analysis</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-indigo-400" />
-            <span>Transparent Compatibility Scores</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-teal-400" />
-            <span>Integrated Project Workspaces</span>
-          </div>
-        </div>
+        {/* Live Interaction Hint */}
+        <p className="text-[11px] font-semibold text-zinc-400 pt-2 flex items-center justify-center gap-1.5">
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+          <span>Click and drag on the background to rotate the live 3D student network</span>
+        </p>
       </div>
+
+      {/* Selected Node Modal / Slideup if user clicks on a node in hero */}
+      {selectedNode && (
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 bg-[#18181B]/95 backdrop-blur-md border border-indigo-500/60 p-4 rounded-3xl shadow-2xl flex items-center gap-4 max-w-md w-full animate-in slide-in-from-bottom-4">
+          <div
+            className="w-10 h-10 rounded-2xl flex items-center justify-center text-white font-bold shadow-md"
+            style={{ backgroundColor: selectedNode.color }}
+          >
+            <Sparkles className="w-5 h-5" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h4 className="text-sm font-extrabold text-white truncate">{selectedNode.label}</h4>
+            <p className="text-xs text-zinc-400 capitalize">{selectedNode.role || selectedNode.category || selectedNode.type}</p>
+          </div>
+          <Link to={selectedNode.type === 'project' ? '/projects' : '/network'}>
+            <button
+              type="button"
+              className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition-all"
+            >
+              View
+            </button>
+          </Link>
+          <button
+            type="button"
+            onClick={() => setSelectedNode(null)}
+            className="p-1 text-zinc-400 hover:text-white"
+          >
+            ✕
+          </button>
+        </div>
+      )}
     </section>
   );
 };

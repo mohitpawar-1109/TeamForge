@@ -9,6 +9,7 @@ import { SkillGapVisualizer } from '../components/matching/SkillGapVisualizer';
 import { TeamChatRoom } from '../components/chat/TeamChatRoom';
 import { AiTeamRecommendationPanel } from '../components/matching/AiTeamRecommendationPanel';
 import { AiProjectMentorView } from '../components/ai/AiProjectMentorView';
+import { TeamTopology3D } from '../components/team/TeamTopology3D';
 import { Button } from '../components/common/Button';
 import { Badge } from '../components/common/Badge';
 
@@ -21,7 +22,7 @@ export const ProjectTeamPage = () => {
   const [project, setProject] = useState(null);
   const [skillGap, setSkillGap] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('chat'); // 'chat' | 'roster' | 'recommendations' | 'mentor'
+  const [activeTab, setActiveTab] = useState('chat'); // 'chat' | 'topology' | 'mentor' | 'roster' | 'recommendations'
 
   const fetchTeamData = async () => {
     try {
@@ -74,7 +75,7 @@ export const ProjectTeamPage = () => {
             Team Workspace & Collaboration
           </h1>
           <p className="text-xs sm:text-sm text-zinc-400 mt-1">
-            Real-time chat, roster management, AI mentoring, and squad matching for <span className="text-zinc-200 font-bold">{project.title}</span>
+            Real-time chat, 3D topology, roster management, and AI mentoring for <span className="text-zinc-200 font-bold">{project.title}</span>
           </p>
         </div>
 
@@ -105,6 +106,18 @@ export const ProjectTeamPage = () => {
         >
           <MessageSquare className="w-4 h-4" />
           <span>Real-time Team Chat</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('topology')}
+          className={`flex items-center gap-2 pb-3 px-1 text-sm font-bold border-b-2 transition-all whitespace-nowrap ${
+            activeTab === 'topology'
+              ? 'border-indigo-500 text-indigo-400'
+              : 'border-transparent text-zinc-400 hover:text-zinc-200'
+          }`}
+        >
+          <Network className="w-4 h-4 text-cyan-400" />
+          <span>🌐 3D Team Topology</span>
         </button>
 
         <button
@@ -143,6 +156,11 @@ export const ProjectTeamPage = () => {
           <span>✨ AI Squad Recommendations</span>
         </button>
       </div>
+
+      {/* Tab: 3D Team Topology */}
+      {activeTab === 'topology' && (
+        <TeamTopology3D project={project} />
+      )}
 
       {/* Tab: AI Project Mentor */}
       {activeTab === 'mentor' && (
