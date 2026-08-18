@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Layers, Mail, Lock, ArrowRight, Sparkles, UserCheck } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/common/Button';
+import { GoogleAuthButton } from '../components/auth/GoogleAuthButton';
 
 export const LoginPage = () => {
   const [email, setEmail] = useState('');
@@ -90,7 +91,22 @@ export const LoginPage = () => {
         </div>
 
         {/* Standard Form */}
-        <div className="bg-[#18181B] rounded-2xl border border-[#27272A] p-6 sm:p-8 shadow-soft">
+        <div className="bg-[#18181B] rounded-2xl border border-[#27272A] p-6 sm:p-8 shadow-soft space-y-5">
+          {/* Google OAuth Button */}
+          <GoogleAuthButton text="Continue with Google" />
+
+          {/* Elegant Divider */}
+          <div className="relative my-4">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-[#27272A]" />
+            </div>
+            <div className="relative flex justify-center text-[10px] uppercase">
+              <span className="bg-[#18181B] px-3 text-zinc-500 font-bold tracking-wider">
+                Or continue with email
+              </span>
+            </div>
+          </div>
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-xs font-semibold text-zinc-300 mb-1">Email Address</label>

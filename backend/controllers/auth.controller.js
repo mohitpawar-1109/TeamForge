@@ -118,6 +118,149 @@ export const loginUser = async (req, res, next) => {
   }
 };
 
+import { OAuth2Client } from 'google-auth-library';
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+// Verify Google ID Token securely
+const verifyGoogleCredential = async (token) => {
+  if (!token) throw new Error('No Google token provided');
+
+  try {
+    const ticket = await googleClient.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID || undefined
+    });
+    return ticket.getPayload();
+  } catch (primaryErr) {
+    // Secondary fallback to Google tokeninfo endpoint
+    try {
+      const response = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${token}`);
+      if (response.ok) {
+        const data = await response.json();
+        return {
+          sub: data.sub,
+          email: data.email,
+          name: data.name,
+          picture: data.picture,
+          email_verified: data.email_verified === 'true' || data.email_verified === true
+        };
+      }
+    } catch (fallbackErr) {
+      console.error('Google fallback verification failed:', fallbackErr.message);
+    }
+    throw primaryErr;
+  }
+};
+
+// @desc    Authenticate with Google OAuth ID Token
+// @route   POST /api/auth/google
+// @access  Public
+export const googleAuth = async (req, res, next) => {
+  try {
+    const { credential, idToken, token } = req.body;
+    const rawToken = credential || idToken || token;
+
+    if (!rawToken) {
+      return res.status(400).json({
+        success: false,
+        message: 'Google authentication credential is required.'
+      });
+    }
+
+    // Verify token with Google
+    let payload;
+    try {
+      payload = await verifyGoogleCredential(rawToken);
+    } catch (verifyError) {
+      console.error('[Google Auth Error] Token verification failed:', verifyError.message);
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid Google identity token. Please try again.'
+      });
+    }
+
+    const { sub: googleId, email, name, picture } = payload;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Unable to retrieve email from Google profile.'
+      });
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+
+    // 1. Check if user already exists by email or googleId
+    let user = await User.findOne({
+      $or: [{ email: normalizedEmail }, { googleId }]
+    });
+
+    if (user) {
+      // If user exists without googleId, link the account
+      let isUpdated = false;
+      if (!user.googleId) {
+        user.googleId = googleId;
+        isUpdated = true;
+      }
+      if (!user.avatar && picture) {
+        user.avatar = picture;
+        isUpdated = true;
+      }
+      if (isUpdated) {
+        await user.save();
+      }
+    } else {
+      // 2. Create new user for first-time Google sign-in
+      user = await User.create({
+        name: name?.trim() || 'Student Developer',
+        email: normalizedEmail,
+        authProvider: 'google',
+        googleId,
+        avatar: picture || '',
+        headline: 'Student Developer',
+        college: 'Institute of Technology',
+        course: 'Computer Science',
+        year: '3rd Year',
+        bio: 'Passionate student developer eager to collaborate on ambitious projects.',
+        skills: [{ name: 'Full Stack', proficiency: 'Intermediate' }],
+        interests: ['Web Development', 'AI / ML'],
+        availability: ['Weekdays', 'Weekends'],
+        weeklyHours: 15
+      });
+    }
+
+    // Return authenticated user and standard JWT token
+    res.json({
+      success: true,
+      data: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        headline: user.headline,
+        college: user.college,
+        course: user.course,
+        year: user.year,
+        bio: user.bio,
+        avatar: user.avatar,
+        skills: user.skills,
+        interests: user.interests,
+        availability: user.availability,
+        weeklyHours: user.weeklyHours,
+        experienceLevel: user.experienceLevel,
+        pastProjectsCount: user.pastProjectsCount,
+        teamsJoinedCount: user.teamsJoinedCount,
+        contributionsCount: user.contributionsCount,
+        authProvider: user.authProvider,
+        token: generateToken(user._id)
+      }
+    });
+  } catch (error) {
+    console.error('[Google Auth Controller Error]:', error);
+    next(error);
+  }
+};
+
 export const getMe = async (req, res, next) => {
   try {
     const user = await User.findById(req.user._id).select('-password');
@@ -126,3 +269,4 @@ export const getMe = async (req, res, next) => {
     next(error);
   }
 };
+

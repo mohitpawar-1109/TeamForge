@@ -72,6 +72,25 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const loginWithGoogle = async (credentialData) => {
+    try {
+      const payload = typeof credentialData === 'string' ? { credential: credentialData } : credentialData;
+      const res = await authAPI.googleLogin(payload);
+      if (res.data.success) {
+        const userData = res.data.data;
+        setUser(userData);
+        localStorage.setItem('teamforge_token', userData.token);
+        localStorage.setItem('teamforge_user', JSON.stringify(userData));
+        success(`Signed in with Google as ${userData.name}! 🚀`);
+        return { success: true, data: userData };
+      }
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Google sign-in failed. Please try again.';
+      error(msg);
+      return { success: false, message: msg };
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem('teamforge_token');
     localStorage.removeItem('teamforge_user');
@@ -95,6 +114,7 @@ export const AuthProvider = ({ children }) => {
         user,
         loading,
         login,
+        loginWithGoogle,
         register,
         logout,
         updateUserState,

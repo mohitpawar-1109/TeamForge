@@ -15,7 +15,12 @@ const skillSchema = new mongoose.Schema({
 const userSchema = new mongoose.Schema({
   name: { type: String, required: true, trim: true },
   email: { type: String, required: true, unique: true, lowercase: true, trim: true },
-  password: { type: String, required: true },
+  password: { 
+    type: String, 
+    required: function() { return this.authProvider === 'local'; } 
+  },
+  authProvider: { type: String, enum: ['local', 'google', 'github'], default: 'local' },
+  googleId: { type: String, sparse: true, index: true },
   headline: { type: String, default: 'Student Developer' },
   college: { type: String, default: 'Institute of Technology' },
   course: { type: String, default: 'Computer Science & Engineering' },
@@ -38,14 +43,16 @@ const userSchema = new mongoose.Schema({
 });
 
 userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
+  if (!this.password || !this.isModified('password')) return next();
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
   next();
 });
 
 userSchema.methods.matchPassword = async function (enteredPassword) {
+  if (!this.password) return false;
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
 export default mongoose.model('User', userSchema);
+

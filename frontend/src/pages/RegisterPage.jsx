@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Layers, User, Mail, Lock, GraduationCap, Sparkles, Plus, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/common/Button';
+import { GoogleAuthButton } from '../components/auth/GoogleAuthButton';
 
 export const RegisterPage = () => {
   const [formData, setFormData] = useState({
@@ -78,6 +79,22 @@ export const RegisterPage = () => {
           </Link>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-[#FAFAFA] tracking-tight">Create Student Profile</h2>
           <p className="text-xs text-zinc-400 mt-1">Join TeamForge to form hackathon teams and collaborate</p>
+        </div>
+
+        {/* Google One-Click Registration */}
+        <div className="space-y-4 mb-6">
+          <GoogleAuthButton text="Sign up with Google" />
+
+          <div className="relative my-4">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-[#27272A]" />
+            </div>
+            <div className="relative flex justify-center text-[10px] uppercase">
+              <span className="bg-[#18181B] px-3 text-zinc-500 font-bold tracking-wider">
+                Or register with email
+              </span>
+            </div>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
