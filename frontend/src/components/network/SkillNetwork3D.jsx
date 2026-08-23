@@ -164,23 +164,31 @@ const GraphScene = ({
               </mesh>
             )}
 
-            {/* HTML Label on hover / selection */}
-            {(isHovered || isSelected) && (
-              <Html distanceFactor={13} center position={[0, nodeSize + 0.45, 0]}>
-                <div className="bg-[#18181B]/95 backdrop-blur-md border border-[#27272A] px-3 py-1.5 rounded-xl shadow-2xl pointer-events-none text-center whitespace-nowrap animate-in fade-in zoom-in-95">
-                  <span
-                    className="text-[9px] font-black uppercase tracking-wider block"
-                    style={{ color: baseColor }}
-                  >
-                    {node.type}
-                  </span>
-                  <p className="text-xs font-extrabold text-white">{node.name}</p>
-                  {node.subtitle && (
-                    <p className="text-[10px] text-zinc-400">{node.subtitle}</p>
-                  )}
-                </div>
-              </Html>
-            )}
+            {/* HTML Label - Always visible by default */}
+            <Html distanceFactor={13} center position={[0, nodeSize + 0.45, 0]}>
+              <div
+                className={`bg-[#18181B]/95 backdrop-blur-md px-3 py-1.5 rounded-xl shadow-2xl pointer-events-none text-center whitespace-nowrap transition-all duration-150 ${
+                  isSelected
+                    ? 'border-2 border-white shadow-white/20 scale-110 z-20'
+                    : isHovered
+                    ? 'border border-zinc-400 shadow-lg scale-105 z-10'
+                    : isConnected
+                    ? 'border border-cyan-500/60 shadow-md'
+                    : 'border border-[#27272A]/80'
+                }`}
+              >
+                <span
+                  className="text-[9px] font-black uppercase tracking-wider block"
+                  style={{ color: baseColor }}
+                >
+                  {node.type}
+                </span>
+                <p className="text-xs font-extrabold text-white">{node.name}</p>
+                {node.subtitle && (
+                  <p className="text-[10px] text-zinc-400">{node.subtitle}</p>
+                )}
+              </div>
+            </Html>
           </group>
         );
       })}
