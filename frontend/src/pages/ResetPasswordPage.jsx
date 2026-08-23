@@ -15,9 +15,9 @@ const calculateStrength = (pass = '') => {
   if (/[a-z]/.test(pass) && /[A-Z]/.test(pass)) score += 15;
   if (/[^A-Za-z0-9]/.test(pass)) score += 15;
 
-  if (score < 40) return { score, label: 'Weak', color: 'bg-rose-500' };
-  if (score < 75) return { score, label: 'Good', color: 'bg-amber-500' };
-  return { score, label: 'Strong', color: 'bg-emerald-500' };
+  if (score < 40) return { score, label: 'Weak', color: 'bg-[#C04A4D]' };
+  if (score < 75) return { score, label: 'Good', color: 'bg-[#D99443]' };
+  return { score, label: 'Strong', color: 'bg-[#5B8A68]' };
 };
 
 export const ResetPasswordPage = () => {
@@ -84,14 +84,14 @@ export const ResetPasswordPage = () => {
         {/* Brand Header */}
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-2 mb-3">
-            <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-md shadow-indigo-500/20">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#A84A4D] to-[#CB6B5A] flex items-center justify-center text-[#F6E8E2] shadow-md shadow-[#A84A4D]/20">
               <Layers className="w-5 h-5" />
             </div>
           </Link>
-          <h2 className="text-2xl font-extrabold text-[#FAFAFA] tracking-tight">
+          <h2 className="text-2xl font-extrabold text-[#F6E8E2] tracking-tight">
             {isSuccess ? 'Password Reset Complete' : 'Create new password'}
           </h2>
-          <p className="text-xs text-zinc-400 mt-1.5 max-w-xs mx-auto">
+          <p className="text-xs text-[#DDA081] mt-1.5 max-w-xs mx-auto">
             {isSuccess
               ? 'Your password has been securely updated in TeamForge.'
               : 'Choose a strong password with at least 8 characters.'}
@@ -99,17 +99,17 @@ export const ResetPasswordPage = () => {
         </div>
 
         {/* Card */}
-        <div className="bg-[#18181B] rounded-2xl border border-[#27272A] p-6 sm:p-8 shadow-soft">
+        <div className="bg-[#4A2A35] rounded-2xl border border-[#703344] p-6 sm:p-8 shadow-soft">
           {isSuccess ? (
             /* STEP 5: SUCCESS STATE */
             <div className="text-center py-4 space-y-6">
-              <div className="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center mx-auto text-emerald-400 shadow-lg shadow-emerald-500/10">
+              <div className="w-16 h-16 rounded-full bg-[#5B8A68]/20 border border-[#5B8A68]/40 flex items-center justify-center mx-auto text-[#86B190] shadow-lg shadow-[#5B8A68]/10">
                 <CheckCircle2 className="w-8 h-8" />
               </div>
 
               <div>
-                <h3 className="text-lg font-bold text-[#FAFAFA]">Password reset successful!</h3>
-                <p className="text-xs text-zinc-400 mt-1">
+                <h3 className="text-lg font-bold text-[#F6E8E2]">Password reset successful!</h3>
+                <p className="text-xs text-[#DDA081] mt-1">
                   You can now sign in to TeamForge with your new password.
                 </p>
               </div>
@@ -126,11 +126,11 @@ export const ResetPasswordPage = () => {
             <form onSubmit={handleSubmit} className="space-y-5">
               {/* New Password */}
               <div>
-                <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
+                <label className="block text-xs font-semibold text-[#DDA081] mb-1.5">
                   New Password
                 </label>
                 <div className="relative">
-                  <Lock className="w-4 h-4 text-zinc-500 absolute left-3 top-3.5 pointer-events-none" />
+                  <Lock className="w-4 h-4 text-[#DDA081] absolute left-3 top-3.5 pointer-events-none" />
                   <input
                     type={showPassword ? 'text' : 'password'}
                     required
@@ -138,12 +138,12 @@ export const ResetPasswordPage = () => {
                     placeholder="At least 8 characters"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-9 pr-10 py-2.5 text-sm bg-[#111113] border border-[#27272A] text-[#FAFAFA] rounded-xl focus:bg-[#09090B] focus:border-indigo-500 focus:outline-none transition-all placeholder:text-zinc-500"
+                    className="w-full pl-9 pr-10 py-2.5 text-sm bg-[#281A21] border border-[#703344] text-[#F6E8E2] rounded-xl focus:bg-[#281A21] focus:border-[#CB6B5A] focus:outline-none transition-all placeholder:text-[#DDA081]"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-3.5 text-zinc-500 hover:text-zinc-300 focus:outline-none cursor-pointer"
+                    className="absolute right-3 top-3.5 text-[#DDA081] hover:text-[#F6E8E2] focus:outline-none cursor-pointer"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -152,11 +152,11 @@ export const ResetPasswordPage = () => {
                 {/* Password Strength Indicator */}
                 {password && (
                   <div className="mt-2 space-y-1">
-                    <div className="flex justify-between items-center text-[10px] text-zinc-400">
+                    <div className="flex justify-between items-center text-[10px] text-[#DDA081]">
                       <span>Strength</span>
-                      <span className="font-semibold text-zinc-300">{strength.label}</span>
+                      <span className="font-semibold text-[#F6E8E2]">{strength.label}</span>
                     </div>
-                    <div className="w-full bg-zinc-800 h-1.5 rounded-full overflow-hidden">
+                    <div className="w-full bg-[#281A21] h-1.5 rounded-full overflow-hidden">
                       <div
                         className={`h-full ${strength.color} transition-all duration-300`}
                         style={{ width: `${strength.score}%` }}
@@ -168,11 +168,11 @@ export const ResetPasswordPage = () => {
 
               {/* Confirm Password */}
               <div>
-                <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
+                <label className="block text-xs font-semibold text-[#DDA081] mb-1.5">
                   Confirm Password
                 </label>
                 <div className="relative">
-                  <Lock className="w-4 h-4 text-zinc-500 absolute left-3 top-3.5 pointer-events-none" />
+                  <Lock className="w-4 h-4 text-[#DDA081] absolute left-3 top-3.5 pointer-events-none" />
                   <input
                     type={showConfirmPassword ? 'text' : 'password'}
                     required
@@ -180,22 +180,22 @@ export const ResetPasswordPage = () => {
                     placeholder="Re-enter password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className={`w-full pl-9 pr-10 py-2.5 text-sm bg-[#111113] border text-[#FAFAFA] rounded-xl focus:bg-[#09090B] focus:outline-none transition-all placeholder:text-zinc-500 ${
+                    className={`w-full pl-9 pr-10 py-2.5 text-sm bg-[#281A21] border text-[#F6E8E2] rounded-xl focus:bg-[#281A21] focus:outline-none transition-all placeholder:text-[#DDA081] ${
                       confirmPassword && confirmPassword !== password
-                        ? 'border-rose-500/80 focus:border-rose-500'
-                        : 'border-[#27272A] focus:border-indigo-500'
+                        ? 'border-[#C04A4D] focus:border-[#C04A4D]'
+                        : 'border-[#703344] focus:border-[#CB6B5A]'
                     }`}
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-3.5 text-zinc-500 hover:text-zinc-300 focus:outline-none cursor-pointer"
+                    className="absolute right-3 top-3.5 text-[#DDA081] hover:text-[#F6E8E2] focus:outline-none cursor-pointer"
                   >
                     {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
                 {confirmPassword && confirmPassword !== password && (
-                  <p className="text-[11px] text-rose-400 mt-1">Passwords do not match</p>
+                  <p className="text-[11px] text-[#E07D82] mt-1">Passwords do not match</p>
                 )}
               </div>
 

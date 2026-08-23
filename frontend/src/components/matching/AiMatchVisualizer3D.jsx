@@ -66,9 +66,9 @@ const MatchScene3D = ({
 
       pos.push(p1[0], p1[1], p1[2], p2[0], p2[1], p2[2]);
 
-      // Gradient color from Cyan (#06b6d4) to Violet/Emerald (#10b981)
-      cols.push(0.02, 0.71, 0.83); // Cyan
-      cols.push(0.06, 0.72, 0.51); // Emerald
+      // Gradient color from Terracotta (#A84A4D) to Warm Coral (#CB6B5A)
+      cols.push(0.66, 0.29, 0.30); // Terracotta
+      cols.push(0.80, 0.42, 0.35); // Warm Coral
     }
 
     return {
@@ -119,14 +119,14 @@ const MatchScene3D = ({
         <mesh scale={1.15}>
           <sphereGeometry args={[0.55, 32, 32]} />
           <meshStandardMaterial
-            color="#06b6d4"
-            emissive="#06b6d4"
+            color="#A84A4D"
+            emissive="#A84A4D"
             emissiveIntensity={0.6}
             roughness={0.2}
           />
         </mesh>
         <Html distanceFactor={12} center position={[0, -0.9, 0]}>
-          <div className="px-2.5 py-1 rounded-xl bg-slate-900/90 text-cyan-300 border border-cyan-500/40 text-[11px] font-extrabold whitespace-nowrap shadow-lg select-none">
+          <div className="px-2.5 py-1 rounded-xl bg-[#281A21]/95 text-[#F6E8E2] border border-[#703344] text-[11px] font-extrabold whitespace-nowrap shadow-lg select-none">
             👤 {user?.name ? user.name.split(' ')[0] : 'You'} (Lead)
           </div>
         </Html>
@@ -138,14 +138,14 @@ const MatchScene3D = ({
           <mesh scale={progress > 0.4 ? 1 : 0.6}>
             <sphereGeometry args={[0.32, 24, 24]} />
             <meshStandardMaterial
-              color="#a855f7"
-              emissive="#a855f7"
+              color="#703344"
+              emissive="#703344"
               emissiveIntensity={0.5}
               roughness={0.3}
             />
           </mesh>
           <Html distanceFactor={12} center position={[0, 0.55, 0]}>
-            <div className="px-2 py-0.5 rounded-lg bg-purple-950/90 text-purple-200 border border-purple-500/40 text-[10px] font-bold whitespace-nowrap shadow-md select-none">
+            <div className="px-2 py-0.5 rounded-lg bg-[#281A21]/95 text-[#DDA081] border border-[#703344] text-[10px] font-bold whitespace-nowrap shadow-md select-none">
               ✓ {skill.name}
             </div>
           </Html>
@@ -157,14 +157,14 @@ const MatchScene3D = ({
         <mesh scale={progress >= 0.8 ? 1.25 : 0.8}>
           <sphereGeometry args={[0.6, 32, 32]} />
           <meshStandardMaterial
-            color="#10b981"
-            emissive="#10b981"
+            color="#CB6B5A"
+            emissive="#CB6B5A"
             emissiveIntensity={0.7}
             roughness={0.2}
           />
         </mesh>
         <Html distanceFactor={12} center position={[0, -0.95, 0]}>
-          <div className="px-2.5 py-1 rounded-xl bg-slate-900/90 text-emerald-300 border border-emerald-500/50 text-[11px] font-extrabold whitespace-nowrap shadow-xl select-none">
+          <div className="px-2.5 py-1 rounded-xl bg-[#281A21]/95 text-[#F6E8E2] border border-[#A84A4D]/60 text-[11px] font-extrabold whitespace-nowrap shadow-xl select-none">
             ⭐ {candidate?.name || 'Teammate'}
           </div>
         </Html>
@@ -329,18 +329,18 @@ export const AiMatchVisualizer3D = ({
   };
 
   return (
-    <div className="bg-slate-950 rounded-3xl border border-slate-800 text-white overflow-hidden shadow-2xl relative">
+    <div className="bg-[#4A2A35] rounded-3xl border border-[#703344] text-[#F6E8E2] overflow-hidden shadow-2xl relative">
       {/* Top Banner Header */}
-      <div className="p-6 sm:p-7 bg-gradient-to-r from-slate-900 via-indigo-950/60 to-slate-900 border-b border-slate-800 flex items-center justify-between">
+      <div className="p-6 sm:p-7 bg-gradient-to-r from-[#281A21] via-[#4A2A35] to-[#281A21] border-b border-[#703344] flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-indigo-500/20 border border-indigo-500/30 text-indigo-400 flex items-center justify-center font-bold">
+          <div className="w-10 h-10 rounded-2xl bg-[#703344] border border-[#A84A4D]/40 text-[#CB6B5A] flex items-center justify-center font-bold">
             <Brain className="w-5 h-5" />
           </div>
           <div>
-            <div className="text-[11px] font-bold uppercase tracking-wider text-indigo-400">
+            <div className="text-[11px] font-bold uppercase tracking-wider text-[#DDA081]">
               AI Match Engine
             </div>
-            <h3 className="text-xl sm:text-2xl font-black text-white">
+            <h3 className="text-xl sm:text-2xl font-black text-[#F6E8E2]">
               AI Teammate Discovery
             </h3>
           </div>
@@ -349,7 +349,7 @@ export const AiMatchVisualizer3D = ({
         {onClose && (
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-white p-1 rounded-xl bg-slate-900 border border-slate-800 transition-colors"
+            className="text-[#DDA081] hover:text-[#F6E8E2] p-1 rounded-xl bg-[#281A21] border border-[#703344] transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -361,24 +361,24 @@ export const AiMatchVisualizer3D = ({
         {step === 0 ? (
           /* IDLE / START STAGE */
           <div className="py-12 text-center max-w-lg mx-auto space-y-6">
-            <div className="w-20 h-20 mx-auto rounded-3xl bg-indigo-600/20 border border-indigo-500/30 text-indigo-400 flex items-center justify-center shadow-2xl animate-pulse">
-              <Sparkles className="w-10 h-10 text-indigo-300" />
+            <div className="w-20 h-20 mx-auto rounded-3xl bg-[#703344] border border-[#A84A4D]/40 text-[#CB6B5A] flex items-center justify-center shadow-2xl animate-pulse">
+              <Sparkles className="w-10 h-10 text-[#DDA081]" />
             </div>
             <div>
-              <h4 className="text-2xl font-black text-white">
+              <h4 className="text-2xl font-black text-[#F6E8E2]">
                 Find Your Best Compatible Teammate
               </h4>
-              <p className="text-sm text-slate-400 mt-2 leading-relaxed">
+              <p className="text-sm text-[#DDA081] mt-2 leading-relaxed">
                 Our multi-factor matching engine evaluates technical skills, domain interests, hackathon track records, and availability overlaps.
               </p>
             </div>
 
             <Button
-              variant="gradient"
+              variant="primary"
               size="lg"
               icon={Sparkles}
               onClick={handleStartMatching}
-              className="bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 hover:from-indigo-600 hover:to-pink-600 text-white font-extrabold shadow-xl shadow-indigo-500/30 px-8 py-4 rounded-2xl border-0 mx-auto"
+              className="mx-auto shadow-xl shadow-[#A84A4D]/30 px-8 py-4 rounded-2xl"
             >
               Find My Best Teammate
             </Button>
@@ -387,11 +387,11 @@ export const AiMatchVisualizer3D = ({
           /* SCANNING SEQUENCE ANIMATION STAGE */
           <div className="py-10 text-center max-w-xl mx-auto space-y-6">
             {/* 3D Wireframe / Particle Preview */}
-            <div className="h-44 w-full rounded-2xl bg-slate-900/80 border border-slate-800 flex items-center justify-center relative overflow-hidden">
+            <div className="h-44 w-full rounded-2xl bg-[#281A21] border border-[#703344] flex items-center justify-center relative overflow-hidden">
               {hasWebGL && !prefersReducedMotion ? (
                 <Canvas camera={{ position: [0, 0, 8], fov: 45 }}>
                   <ambientLight intensity={0.8} />
-                  <pointLight position={[10, 10, 10]} intensity={1.5} color="#818cf8" />
+                  <pointLight position={[10, 10, 10]} intensity={1.5} color="#CB6B5A" />
                   <Suspense fallback={null}>
                     <MatchScene3D
                       user={user}
@@ -404,26 +404,26 @@ export const AiMatchVisualizer3D = ({
                 </Canvas>
               ) : (
                 <div className="flex flex-col items-center justify-center space-y-3">
-                  <RefreshCw className="w-10 h-10 text-indigo-400 animate-spin" />
+                  <RefreshCw className="w-10 h-10 text-[#CB6B5A] animate-spin" />
                 </div>
               )}
             </div>
 
             {/* Sequence Status Text */}
             <div className="space-y-2">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-xs font-bold uppercase tracking-wider">
-                <RefreshCw className="w-3.5 h-3.5 animate-spin text-indigo-400" />
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#703344] border border-[#A84A4D]/40 text-[#F6E8E2] text-xs font-bold uppercase tracking-wider">
+                <RefreshCw className="w-3.5 h-3.5 animate-spin text-[#CB6B5A]" />
                 <span>Step {step} of 5</span>
               </div>
-              <h4 className="text-xl sm:text-2xl font-black text-white animate-pulse">
+              <h4 className="text-xl sm:text-2xl font-black text-[#F6E8E2] animate-pulse">
                 {SEQUENCE_STEPS[step - 1]?.title}
               </h4>
             </div>
 
             {/* Progress Bar */}
-            <div className="w-full bg-slate-900 rounded-full h-2.5 overflow-hidden border border-slate-800">
+            <div className="w-full bg-[#281A21] rounded-full h-2.5 overflow-hidden border border-[#703344]">
               <div
-                className="bg-gradient-to-r from-cyan-400 via-indigo-500 to-emerald-400 h-full rounded-full transition-all duration-500 ease-out"
+                className="bg-gradient-to-r from-[#A84A4D] via-[#CB6B5A] to-[#DDA081] h-full rounded-full transition-all duration-500 ease-out"
                 style={{ width: `${progress * 100}%` }}
               />
             </div>
@@ -432,11 +432,11 @@ export const AiMatchVisualizer3D = ({
           /* RESULT STAGE */
           noMatchFound ? (
             <div className="py-8 text-center max-w-md mx-auto space-y-4">
-              <div className="w-16 h-16 mx-auto rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center">
+              <div className="w-16 h-16 mx-auto rounded-2xl bg-[#D99443]/20 border border-[#D99443]/40 text-[#E5B079] flex items-center justify-center">
                 <AlertCircle className="w-8 h-8" />
               </div>
-              <h4 className="text-xl font-bold text-white">No strong match found yet.</h4>
-              <p className="text-xs text-slate-400 leading-relaxed">
+              <h4 className="text-xl font-bold text-[#F6E8E2]">No strong match found yet.</h4>
+              <p className="text-xs text-[#DDA081] leading-relaxed">
                 Add more verified skills, interests, and project requirements to your profile to expand your compatibility score.
               </p>
               <div className="pt-2 flex items-center justify-center gap-3">
@@ -454,10 +454,10 @@ export const AiMatchVisualizer3D = ({
             <div className="space-y-6">
               {/* 3D Visualization Canvas showing connection formed */}
               {hasWebGL && !prefersReducedMotion && (
-                <div className="h-56 w-full rounded-2xl bg-slate-900/60 border border-slate-800 overflow-hidden relative">
+                <div className="h-56 w-full rounded-2xl bg-[#281A21] border border-[#703344] overflow-hidden relative">
                   <Canvas camera={{ position: [0, 0, 7.5], fov: 45 }}>
                     <ambientLight intensity={0.9} />
-                    <pointLight position={[10, 10, 10]} intensity={1.8} color="#818cf8" />
+                    <pointLight position={[10, 10, 10]} intensity={1.8} color="#CB6B5A" />
                     <Suspense fallback={null}>
                       <MatchScene3D
                         user={user}
@@ -472,26 +472,26 @@ export const AiMatchVisualizer3D = ({
               )}
 
               {/* Match Result Card */}
-              <div className="p-6 sm:p-7 rounded-3xl bg-slate-900/90 border border-slate-700/80 shadow-2xl relative overflow-hidden">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-slate-800">
+              <div className="p-6 sm:p-7 rounded-3xl bg-[#281A21] border border-[#703344] shadow-2xl relative overflow-hidden">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-[#703344]">
                   {/* Teammate Identity */}
                   <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-500 to-emerald-500 text-white font-black text-2xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-[#A84A4D] to-[#CB6B5A] text-[#F6E8E2] font-black text-2xl flex items-center justify-center shadow-lg shadow-[#A84A4D]/20">
                       {matchData.name?.charAt(0)}
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <h4 className="text-xl sm:text-2xl font-black text-white">
+                        <h4 className="text-xl sm:text-2xl font-black text-[#F6E8E2]">
                           {matchData.name}
                         </h4>
-                        <span className="px-3 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 text-xs font-black">
+                        <span className="px-3 py-0.5 rounded-full bg-[#5B8A68]/20 border border-[#5B8A68]/40 text-[#86B190] text-xs font-black">
                           {matchData.score}% MATCH
                         </span>
                       </div>
-                      <p className="text-xs sm:text-sm text-slate-300 font-medium mt-0.5">
+                      <p className="text-xs sm:text-sm text-[#DDA081] font-medium mt-0.5">
                         {matchData.headline}
                       </p>
-                      <p className="text-xs text-slate-400 mt-0.5">
+                      <p className="text-xs text-[#DDA081]/70 mt-0.5">
                         🎓 {matchData.college} • {matchData.course}
                       </p>
                     </div>
@@ -503,7 +503,6 @@ export const AiMatchVisualizer3D = ({
                       variant="outline"
                       size="md"
                       onClick={() => window.open(`/profile?id=${matchData._id}`, '_blank')}
-                      className="border-slate-700 text-slate-200 hover:bg-slate-800"
                     >
                       View Profile
                     </Button>
@@ -514,7 +513,6 @@ export const AiMatchVisualizer3D = ({
                       loading={inviting}
                       disabled={invited}
                       onClick={handleInviteTeammate}
-                      className={invited ? 'bg-emerald-600 border-emerald-600 text-white' : ''}
                     >
                       {invited ? 'Invited ✓' : 'Invite to Team'}
                     </Button>
@@ -524,8 +522,8 @@ export const AiMatchVisualizer3D = ({
                 {/* Match Breakdowns */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6">
                   {/* Matching Skills */}
-                  <div className="p-4 rounded-2xl bg-slate-950/60 border border-slate-800/80 space-y-2">
-                    <span className="text-xs font-bold uppercase tracking-wider text-cyan-400 flex items-center gap-1.5">
+                  <div className="p-4 rounded-2xl bg-[#4A2A35] border border-[#703344] space-y-2">
+                    <span className="text-xs font-bold uppercase tracking-wider text-[#CB6B5A] flex items-center gap-1.5">
                       <CheckCircle2 className="w-4 h-4" />
                       <span>Matching Skills</span>
                     </span>
@@ -533,7 +531,7 @@ export const AiMatchVisualizer3D = ({
                       {matchData.matchingSkills?.map((s, idx) => (
                         <span
                           key={idx}
-                          className="px-2.5 py-1 rounded-xl bg-cyan-950/60 border border-cyan-500/30 text-cyan-200 text-xs font-bold flex items-center gap-1"
+                          className="px-2.5 py-1 rounded-xl bg-[#281A21] border border-[#703344] text-[#F6E8E2] text-xs font-bold flex items-center gap-1"
                         >
                           ✓ {typeof s === 'string' ? s : s.name}
                         </span>
@@ -542,8 +540,8 @@ export const AiMatchVisualizer3D = ({
                   </div>
 
                   {/* Matching Interests */}
-                  <div className="p-4 rounded-2xl bg-slate-950/60 border border-slate-800/80 space-y-2">
-                    <span className="text-xs font-bold uppercase tracking-wider text-purple-400 flex items-center gap-1.5">
+                  <div className="p-4 rounded-2xl bg-[#4A2A35] border border-[#703344] space-y-2">
+                    <span className="text-xs font-bold uppercase tracking-wider text-[#CB6B5A] flex items-center gap-1.5">
                       <Sparkles className="w-4 h-4" />
                       <span>Matching Interests</span>
                     </span>
@@ -551,7 +549,7 @@ export const AiMatchVisualizer3D = ({
                       {matchData.matchingInterests?.map((i, idx) => (
                         <span
                           key={idx}
-                          className="px-2.5 py-1 rounded-xl bg-purple-950/60 border border-purple-500/30 text-purple-200 text-xs font-bold flex items-center gap-1"
+                          className="px-2.5 py-1 rounded-xl bg-[#281A21] border border-[#703344] text-[#F6E8E2] text-xs font-bold flex items-center gap-1"
                         >
                           ✓ {i}
                         </span>
@@ -562,8 +560,8 @@ export const AiMatchVisualizer3D = ({
 
                 {/* Why this match reason */}
                 {matchData.reason && (
-                  <div className="mt-4 p-3.5 rounded-2xl bg-indigo-950/40 border border-indigo-500/30 text-xs text-indigo-200 leading-relaxed flex items-center gap-2">
-                    <Brain className="w-4 h-4 text-indigo-400 shrink-0" />
+                  <div className="mt-4 p-3.5 rounded-2xl bg-[#703344]/30 border border-[#703344] text-xs text-[#F6E8E2] leading-relaxed flex items-center gap-2">
+                    <Brain className="w-4 h-4 text-[#CB6B5A] shrink-0" />
                     <span><strong>AI Match Rationale:</strong> {matchData.reason}</span>
                   </div>
                 )}
@@ -576,7 +574,6 @@ export const AiMatchVisualizer3D = ({
                   size="sm"
                   icon={RefreshCw}
                   onClick={handleStartMatching}
-                  className="text-slate-400 border-slate-800 hover:text-white"
                 >
                   Scan for Another Match
                 </Button>

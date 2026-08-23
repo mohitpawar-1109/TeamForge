@@ -155,14 +155,14 @@ export const CreateGroupModal = ({ isOpen, onClose, onGroupCreated }) => {
     >
       <form onSubmit={handleSubmit} className="space-y-5">
         {/* Mode Selector (Group vs Direct Message) */}
-        <div className="grid grid-cols-2 gap-2 p-1 bg-[#111113] rounded-xl border border-[#27272A]">
+        <div className="grid grid-cols-2 gap-2 p-1 bg-[#281A21] rounded-xl border border-[#703344]">
           <button
             type="button"
             onClick={() => setMode('group')}
-            className={`flex items-center justify-center gap-2 py-2 text-xs font-bold rounded-lg transition-all ${
+            className={`flex items-center justify-center gap-2 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${
               mode === 'group'
-                ? 'bg-indigo-600 text-white shadow-sm'
-                : 'text-zinc-400 hover:text-zinc-200'
+                ? 'bg-[#A84A4D] text-[#F6E8E2] shadow-sm'
+                : 'text-[#DDA081] hover:text-[#F6E8E2]'
             }`}
           >
             <Users className="w-4 h-4" />
@@ -172,10 +172,10 @@ export const CreateGroupModal = ({ isOpen, onClose, onGroupCreated }) => {
           <button
             type="button"
             onClick={() => setMode('dm')}
-            className={`flex items-center justify-center gap-2 py-2 text-xs font-bold rounded-lg transition-all ${
+            className={`flex items-center justify-center gap-2 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${
               mode === 'dm'
-                ? 'bg-indigo-600 text-white shadow-sm'
-                : 'text-zinc-400 hover:text-zinc-200'
+                ? 'bg-[#A84A4D] text-[#F6E8E2] shadow-sm'
+                : 'text-[#DDA081] hover:text-[#F6E8E2]'
             }`}
           >
             <MessageSquare className="w-4 h-4" />
@@ -187,7 +187,7 @@ export const CreateGroupModal = ({ isOpen, onClose, onGroupCreated }) => {
           <>
             {/* Group Type Selector */}
             <div>
-              <label className="text-xs font-bold uppercase tracking-wider text-zinc-400 block mb-2">
+              <label className="text-xs font-bold uppercase tracking-wider text-[#DDA081] block mb-2">
                 Privacy & Access
               </label>
               <div className="grid grid-cols-2 gap-3">
@@ -195,19 +195,19 @@ export const CreateGroupModal = ({ isOpen, onClose, onGroupCreated }) => {
                   onClick={() => setGroupType('public')}
                   className={`p-3.5 rounded-xl border cursor-pointer transition-all flex items-start gap-3 ${
                     groupType === 'public'
-                      ? 'bg-indigo-950/40 border-indigo-500/50 ring-1 ring-indigo-500/30'
-                      : 'bg-[#111113] border-[#27272A] hover:border-zinc-700'
+                      ? 'bg-[#703344]/50 border-[#CB6B5A] ring-1 ring-[#CB6B5A]/30'
+                      : 'bg-[#281A21] border-[#703344] hover:border-[#A84A4D]/50'
                   }`}
                 >
-                  <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 mt-0.5 flex-shrink-0">
+                  <div className="p-2 rounded-lg bg-[#5B8A68]/20 text-[#86B190] mt-0.5 flex-shrink-0">
                     <Globe className="w-4 h-4" />
                   </div>
                   <div>
-                    <h4 className="text-xs font-bold text-white flex items-center gap-1.5">
+                    <h4 className="text-xs font-bold text-[#F6E8E2] flex items-center gap-1.5">
                       <span>Public Community</span>
-                      {groupType === 'public' && <Check className="w-3.5 h-3.5 text-indigo-400" />}
+                      {groupType === 'public' && <Check className="w-3.5 h-3.5 text-[#CB6B5A]" />}
                     </h4>
-                    <p className="text-[11px] text-zinc-400 mt-0.5 leading-relaxed">
+                    <p className="text-[11px] text-[#DDA081] mt-0.5 leading-relaxed">
                       Anyone on TeamForge can discover, join, and participate.
                     </p>
                   </div>
@@ -217,19 +217,19 @@ export const CreateGroupModal = ({ isOpen, onClose, onGroupCreated }) => {
                   onClick={() => setGroupType('private')}
                   className={`p-3.5 rounded-xl border cursor-pointer transition-all flex items-start gap-3 ${
                     groupType === 'private'
-                      ? 'bg-indigo-950/40 border-indigo-500/50 ring-1 ring-indigo-500/30'
-                      : 'bg-[#111113] border-[#27272A] hover:border-zinc-700'
+                      ? 'bg-[#703344]/50 border-[#CB6B5A] ring-1 ring-[#CB6B5A]/30'
+                      : 'bg-[#281A21] border-[#703344] hover:border-[#A84A4D]/50'
                   }`}
                 >
-                  <div className="p-2 rounded-lg bg-amber-500/10 text-amber-400 mt-0.5 flex-shrink-0">
+                  <div className="p-2 rounded-lg bg-[#D99443]/20 text-[#E5B079] mt-0.5 flex-shrink-0">
                     <Lock className="w-4 h-4" />
                   </div>
                   <div>
-                    <h4 className="text-xs font-bold text-white flex items-center gap-1.5">
+                    <h4 className="text-xs font-bold text-[#F6E8E2] flex items-center gap-1.5">
                       <span>Private Group</span>
-                      {groupType === 'private' && <Check className="w-3.5 h-3.5 text-indigo-400" />}
+                      {groupType === 'private' && <Check className="w-3.5 h-3.5 text-[#CB6B5A]" />}
                     </h4>
-                    <p className="text-[11px] text-zinc-400 mt-0.5 leading-relaxed">
+                    <p className="text-[11px] text-[#DDA081] mt-0.5 leading-relaxed">
                       Members can only join via direct invite from group admins.
                     </p>
                   </div>
@@ -239,8 +239,8 @@ export const CreateGroupModal = ({ isOpen, onClose, onGroupCreated }) => {
 
             {/* Group Name */}
             <div>
-              <label className="text-xs font-bold uppercase tracking-wider text-zinc-400 block mb-1.5">
-                Group Name <span className="text-rose-400">*</span>
+              <label className="text-xs font-bold uppercase tracking-wider text-[#DDA081] block mb-1.5">
+                Group Name <span className="text-[#E07D82]">*</span>
               </label>
               <input
                 type="text"
@@ -248,13 +248,13 @@ export const CreateGroupModal = ({ isOpen, onClose, onGroupCreated }) => {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. Next.js Hackathon Enthusiasts or ML Research Squad"
-                className="w-full bg-[#111113] border border-[#27272A] focus:border-indigo-500 rounded-xl px-4 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none transition-colors"
+                className="w-full bg-[#281A21] border border-[#703344] focus:border-[#CB6B5A] rounded-xl px-4 py-2.5 text-sm text-[#F6E8E2] placeholder-[#DDA081]/60 focus:outline-none transition-colors"
               />
             </div>
 
             {/* Description */}
             <div>
-              <label className="text-xs font-bold uppercase tracking-wider text-zinc-400 block mb-1.5">
+              <label className="text-xs font-bold uppercase tracking-wider text-[#DDA081] block mb-1.5">
                 Topic & Description
               </label>
               <textarea
@@ -262,29 +262,29 @@ export const CreateGroupModal = ({ isOpen, onClose, onGroupCreated }) => {
                 onChange={(e) => setDescription(e.target.value)}
                 rows={2}
                 placeholder="What is the goal or focus of this group? e.g. Discussing project architectures, finding hackathon teammates, sharing resources."
-                className="w-full bg-[#111113] border border-[#27272A] focus:border-indigo-500 rounded-xl px-4 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none transition-colors resize-none"
+                className="w-full bg-[#281A21] border border-[#703344] focus:border-[#CB6B5A] rounded-xl px-4 py-2 text-sm text-[#F6E8E2] placeholder-[#DDA081]/60 focus:outline-none transition-colors resize-none"
               />
             </div>
 
             {/* Category and Tags */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-bold uppercase tracking-wider text-zinc-400 block mb-1.5">
+                <label className="text-xs font-bold uppercase tracking-wider text-[#DDA081] block mb-1.5">
                   Category
                 </label>
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="w-full bg-[#111113] border border-[#27272A] focus:border-indigo-500 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-zinc-200 focus:outline-none"
+                  className="w-full bg-[#281A21] border border-[#703344] focus:border-[#CB6B5A] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-[#F6E8E2] focus:outline-none"
                 >
                   {CATEGORIES.map(cat => (
-                    <option key={cat} value={cat}>{cat}</option>
+                    <option key={cat} value={cat} className="bg-[#281A21] text-[#F6E8E2]">{cat}</option>
                   ))}
                 </select>
               </div>
 
               <div>
-                <label className="text-xs font-bold uppercase tracking-wider text-zinc-400 block mb-1.5">
+                <label className="text-xs font-bold uppercase tracking-wider text-[#DDA081] block mb-1.5">
                   Tags ({tags.length}/5)
                 </label>
                 <input
@@ -293,7 +293,7 @@ export const CreateGroupModal = ({ isOpen, onClose, onGroupCreated }) => {
                   onChange={(e) => setTagInput(e.target.value)}
                   onKeyDown={handleAddTag}
                   placeholder="Type tag & press Enter"
-                  className="w-full bg-[#111113] border border-[#27272A] focus:border-indigo-500 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-zinc-200 placeholder-zinc-500 focus:outline-none"
+                  className="w-full bg-[#281A21] border border-[#703344] focus:border-[#CB6B5A] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-[#F6E8E2] placeholder-[#DDA081]/60 focus:outline-none"
                 />
               </div>
             </div>
@@ -304,13 +304,13 @@ export const CreateGroupModal = ({ isOpen, onClose, onGroupCreated }) => {
                 {tags.map((t, idx) => (
                   <span
                     key={idx}
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-indigo-950/60 text-indigo-300 border border-indigo-500/30"
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-[#703344] text-[#F6E8E2] border border-[#A84A4D]/40"
                   >
                     #{t}
                     <button
                       type="button"
                       onClick={() => handleRemoveTag(t)}
-                      className="hover:text-rose-400 transition-colors ml-0.5"
+                      className="hover:text-[#E07D82] transition-colors ml-0.5 cursor-pointer"
                     >
                       ×
                     </button>
@@ -323,27 +323,27 @@ export const CreateGroupModal = ({ isOpen, onClose, onGroupCreated }) => {
           /* Direct Message (DM) Student Selector */
           <div className="space-y-4">
             <div>
-              <label className="text-xs font-bold uppercase tracking-wider text-zinc-400 block mb-1.5">
+              <label className="text-xs font-bold uppercase tracking-wider text-[#DDA081] block mb-1.5">
                 Search Students
               </label>
               <div className="relative">
-                <Search className="w-4 h-4 text-zinc-400 absolute left-3.5 top-3 pointer-events-none" />
+                <Search className="w-4 h-4 text-[#DDA081] absolute left-3.5 top-3 pointer-events-none" />
                 <input
                   type="text"
                   value={userSearch}
                   onChange={(e) => setUserSearch(e.target.value)}
                   placeholder="Search by name, course, college or skills..."
-                  className="w-full bg-[#111113] border border-[#27272A] focus:border-indigo-500 rounded-xl pl-10 pr-4 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none"
+                  className="w-full bg-[#281A21] border border-[#703344] focus:border-[#CB6B5A] rounded-xl pl-10 pr-4 py-2.5 text-sm text-[#F6E8E2] placeholder-[#DDA081]/60 focus:outline-none"
                 />
               </div>
             </div>
 
             {/* User List */}
-            <div className="max-h-56 overflow-y-auto space-y-2 pr-1 divide-y divide-[#27272A]/40">
+            <div className="max-h-56 overflow-y-auto space-y-2 pr-1 divide-y divide-[#703344]/40">
               {loadingUsers ? (
-                <div className="p-4 text-center text-xs text-zinc-400">Searching developers...</div>
+                <div className="p-4 text-center text-xs text-[#DDA081]">Searching developers...</div>
               ) : usersList.length === 0 ? (
-                <div className="p-6 text-center text-xs text-zinc-500">
+                <div className="p-6 text-center text-xs text-[#DDA081]">
                   No other students found matching query.
                 </div>
               ) : (
@@ -355,25 +355,25 @@ export const CreateGroupModal = ({ isOpen, onClose, onGroupCreated }) => {
                       onClick={() => setSelectedUser(u)}
                       className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all ${
                         isSelected
-                          ? 'bg-indigo-950/60 border border-indigo-500/50'
-                          : 'bg-[#111113] hover:bg-[#27272A]/50 border border-transparent'
+                          ? 'bg-[#703344]/60 border border-[#CB6B5A]'
+                          : 'bg-[#281A21] hover:bg-[#4A2A35] border border-[#703344]'
                       }`}
                     >
                       <div className="flex items-center gap-3 min-w-0">
                         <img
                           src={u.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${u.name}`}
                           alt={u.name}
-                          className="w-9 h-9 rounded-xl object-cover border border-[#27272A] bg-[#18181B] flex-shrink-0"
+                          className="w-9 h-9 rounded-xl object-cover border border-[#703344] bg-[#281A21] flex-shrink-0"
                         />
                         <div className="min-w-0">
-                          <p className="text-xs font-bold text-white truncate">{u.name}</p>
-                          <p className="text-[11px] text-zinc-400 truncate">{u.headline || u.college}</p>
+                          <p className="text-xs font-bold text-[#F6E8E2] truncate">{u.name}</p>
+                          <p className="text-[11px] text-[#DDA081] truncate">{u.headline || u.college}</p>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-2">
                         {isSelected && (
-                          <span className="w-5 h-5 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs">
+                          <span className="w-5 h-5 rounded-full bg-[#A84A4D] text-[#F6E8E2] flex items-center justify-center text-xs font-bold">
                             ✓
                           </span>
                         )}
@@ -387,13 +387,13 @@ export const CreateGroupModal = ({ isOpen, onClose, onGroupCreated }) => {
         )}
 
         {/* Modal Actions */}
-        <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#27272A]">
+        <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#703344]">
           <Button type="button" variant="outline" size="md" onClick={onClose}>
             Cancel
           </Button>
           <Button
             type="submit"
-            variant="gradient"
+            variant="primary"
             size="md"
             loading={loading}
             icon={Sparkles}

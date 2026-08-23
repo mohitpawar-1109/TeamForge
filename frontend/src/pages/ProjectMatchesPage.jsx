@@ -82,30 +82,29 @@ export const ProjectMatchesPage = () => {
       {/* Top Breadcrumb & Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <Link to={`/projects/${id}`} className="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-400 hover:underline mb-2">
+          <Link to={`/projects/${id}`} className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#CB6B5A] hover:underline mb-2">
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Back to Project Overview</span>
           </Link>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-[#FAFAFA] tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-[#F6E8E2] tracking-tight">
               AI Talent & Team Matching
             </h1>
-            <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-indigo-950/60 text-indigo-300 border border-indigo-500/30">
+            <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[#703344] text-[#F6E8E2] border border-[#A84A4D]/40">
               GEMINI POWERED
             </span>
           </div>
-          <p className="text-xs sm:text-sm text-zinc-400 mt-1">
-            Optimized squad recommendations & candidate rankings for <span className="font-bold text-zinc-200">"{projectTitle}"</span>.
+          <p className="text-xs sm:text-sm text-[#DDA081] mt-1">
+            Optimized squad recommendations & candidate rankings for <span className="font-bold text-[#F6E8E2]">"{projectTitle}"</span>.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           <Button
-            variant={show3DVisualizer ? 'secondary' : 'gradient'}
+            variant={show3DVisualizer ? 'secondary' : 'primary'}
             size="md"
             icon={Brain}
             onClick={() => setShow3DVisualizer(!show3DVisualizer)}
-            className={!show3DVisualizer ? 'bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 text-white font-extrabold shadow-md' : ''}
           >
             {show3DVisualizer ? 'Close 3D Match' : '✨ 3D Graph Match'}
           </Button>
@@ -122,28 +121,28 @@ export const ProjectMatchesPage = () => {
       )}
 
       {/* View Switcher Tabs */}
-      <div className="flex border-b border-[#27272A] gap-4">
+      <div className="flex border-b border-[#703344] gap-4">
         <button
           onClick={() => setActiveView('squad')}
-          className={`flex items-center gap-2 pb-3 px-1 text-sm font-bold border-b-2 transition-all ${
+          className={`flex items-center gap-2 pb-3 px-1 text-sm font-bold border-b-2 transition-all cursor-pointer ${
             activeView === 'squad'
-              ? 'border-indigo-500 text-indigo-400'
-              : 'border-transparent text-zinc-400 hover:text-zinc-200'
+              ? 'border-[#A84A4D] text-[#F6E8E2]'
+              : 'border-transparent text-[#DDA081] hover:text-[#F6E8E2]'
           }`}
         >
-          <Sparkles className="w-4 h-4" />
+          <Sparkles className="w-4 h-4 text-[#CB6B5A]" />
           <span>✨ Optimal AI Squad Recommendation</span>
         </button>
 
         <button
           onClick={() => setActiveView('candidates')}
-          className={`flex items-center gap-2 pb-3 px-1 text-sm font-bold border-b-2 transition-all ${
+          className={`flex items-center gap-2 pb-3 px-1 text-sm font-bold border-b-2 transition-all cursor-pointer ${
             activeView === 'candidates'
-              ? 'border-indigo-500 text-indigo-400'
-              : 'border-transparent text-zinc-400 hover:text-zinc-200'
+              ? 'border-[#A84A4D] text-[#F6E8E2]'
+              : 'border-transparent text-[#DDA081] hover:text-[#F6E8E2]'
           }`}
         >
-          <Users className="w-4 h-4" />
+          <Users className="w-4 h-4 text-[#CB6B5A]" />
           <span>All Candidate Matches ({matches.length})</span>
         </button>
       </div>
@@ -193,29 +192,29 @@ export const ProjectMatchesPage = () => {
       >
         <form onSubmit={handleSendInvite} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-zinc-300 mb-1">Assigned Role in Project</label>
+            <label className="block text-xs font-semibold text-[#DDA081] mb-1">Assigned Role in Project</label>
             <input
               type="text"
               required
               value={inviteRole}
               onChange={(e) => setInviteRole(e.target.value)}
               placeholder="e.g. ML Engineer, UI/UX Lead, Backend Developer"
-              className="w-full px-3 py-2 text-sm bg-[#111113] border border-[#27272A] text-[#FAFAFA] rounded-xl focus:bg-[#09090B] focus:border-indigo-500 focus:outline-none placeholder:text-zinc-500"
+              className="w-full px-3 py-2 text-sm bg-[#281A21] border border-[#703344] text-[#F6E8E2] rounded-xl focus:bg-[#281A21] focus:border-[#CB6B5A] focus:outline-none placeholder:text-[#DDA081]"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-zinc-300 mb-1">Personalized Message</label>
+            <label className="block text-xs font-semibold text-[#DDA081] mb-1">Personalized Message</label>
             <textarea
               rows={3}
               required
               value={inviteMessage}
               onChange={(e) => setInviteMessage(e.target.value)}
-              className="w-full px-3 py-2 text-sm bg-[#111113] border border-[#27272A] text-[#FAFAFA] rounded-xl focus:bg-[#09090B] focus:border-indigo-500 focus:outline-none placeholder:text-zinc-500"
+              className="w-full px-3 py-2 text-sm bg-[#281A21] border border-[#703344] text-[#F6E8E2] rounded-xl focus:bg-[#281A21] focus:border-[#CB6B5A] focus:outline-none placeholder:text-[#DDA081]"
             />
           </div>
 
-          <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#27272A]">
+          <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#703344]">
             <Button variant="outline" size="md" onClick={() => setSelectedCandidate(null)}>
               Cancel
             </Button>

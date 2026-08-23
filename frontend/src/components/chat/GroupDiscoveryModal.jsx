@@ -84,23 +84,23 @@ export const GroupDiscoveryModal = ({ isOpen, onClose, onSelectGroup }) => {
         {/* Search & Category Filter Bar */}
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
-            <Search className="w-4 h-4 text-zinc-400 absolute left-3.5 top-3 pointer-events-none" />
+            <Search className="w-4 h-4 text-[#DDA081] absolute left-3.5 top-3 pointer-events-none" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search public groups by keyword, technology, or tag..."
-              className="w-full bg-[#111113] border border-[#27272A] focus:border-indigo-500 rounded-xl pl-10 pr-4 py-2.5 text-xs sm:text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none"
+              className="w-full bg-[#281A21] border border-[#703344] focus:border-[#CB6B5A] rounded-xl pl-10 pr-4 py-2.5 text-xs sm:text-sm text-[#F6E8E2] placeholder-[#DDA081]/60 focus:outline-none"
             />
           </div>
 
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="bg-[#111113] border border-[#27272A] focus:border-indigo-500 rounded-xl px-3 py-2.5 text-xs sm:text-sm text-zinc-200 focus:outline-none"
+            className="bg-[#281A21] border border-[#703344] focus:border-[#CB6B5A] rounded-xl px-3 py-2.5 text-xs sm:text-sm text-[#F6E8E2] focus:outline-none"
           >
             {CATEGORIES.map(cat => (
-              <option key={cat} value={cat}>{cat}</option>
+              <option key={cat} value={cat} className="bg-[#281A21] text-[#F6E8E2]">{cat}</option>
             ))}
           </select>
         </div>
@@ -108,15 +108,15 @@ export const GroupDiscoveryModal = ({ isOpen, onClose, onSelectGroup }) => {
         {/* Group Cards Grid */}
         <div className="max-h-[420px] overflow-y-auto space-y-3 pr-1">
           {loading ? (
-            <div className="flex flex-col items-center justify-center py-16 text-zinc-400 gap-2">
-              <div className="w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+            <div className="flex flex-col items-center justify-center py-16 text-[#DDA081] gap-2">
+              <div className="w-6 h-6 border-2 border-[#A84A4D] border-t-transparent rounded-full animate-spin" />
               <span className="text-xs">Discovering open communities...</span>
             </div>
           ) : groups.length === 0 ? (
-            <div className="text-center py-12 px-4 rounded-2xl bg-[#111113] border border-[#27272A]">
-              <Compass className="w-10 h-10 text-zinc-500 mx-auto mb-2 opacity-60" />
-              <h4 className="text-sm font-bold text-zinc-200">No public groups found</h4>
-              <p className="text-xs text-zinc-500 mt-1 max-w-sm mx-auto">
+            <div className="text-center py-12 px-4 rounded-2xl bg-[#281A21] border border-[#703344]">
+              <Compass className="w-10 h-10 text-[#DDA081] mx-auto mb-2 opacity-60" />
+              <h4 className="text-sm font-bold text-[#F6E8E2]">No public groups found</h4>
+              <p className="text-xs text-[#DDA081] mt-1 max-w-sm mx-auto">
                 No open community groups matched your current query. Be the first to create one!
               </p>
             </div>
@@ -129,26 +129,26 @@ export const GroupDiscoveryModal = ({ isOpen, onClose, onSelectGroup }) => {
               return (
                 <div
                   key={group._id}
-                  className="bg-[#111113] border border-[#27272A] hover:border-indigo-500/40 rounded-2xl p-4 sm:p-5 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                  className="bg-[#281A21] border border-[#703344] hover:border-[#A84A4D]/50 rounded-2xl p-4 sm:p-5 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4"
                 >
                   <div className="flex items-start gap-3.5 min-w-0 flex-1">
-                    <div className="w-12 h-12 rounded-2xl bg-indigo-950/60 text-indigo-400 border border-indigo-500/30 flex items-center justify-center flex-shrink-0 font-bold text-base">
+                    <div className="w-12 h-12 rounded-2xl bg-[#703344] text-[#CB6B5A] border border-[#A84A4D]/40 flex items-center justify-center flex-shrink-0 font-bold text-base">
                       {group.name?.charAt(0)?.toUpperCase() || 'G'}
                     </div>
 
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2 mb-1">
-                        <h4 className="font-bold text-sm text-[#FAFAFA] truncate">{group.name}</h4>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-950/60 text-emerald-300 border border-emerald-500/30">
+                        <h4 className="font-bold text-sm text-[#F6E8E2] truncate">{group.name}</h4>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#5B8A68]/20 text-[#86B190] border border-[#5B8A68]/40">
                           {group.category || 'General'}
                         </span>
-                        <span className="text-[10px] text-zinc-400 flex items-center gap-1 font-medium">
-                          <Users className="w-3 h-3 text-zinc-400" />
+                        <span className="text-[10px] text-[#DDA081] flex items-center gap-1 font-medium">
+                          <Users className="w-3 h-3 text-[#DDA081]" />
                           {group.members?.length || 1} member{group.members?.length !== 1 ? 's' : ''}
                         </span>
                       </div>
 
-                      <p className="text-xs text-zinc-400 line-clamp-2 leading-relaxed mb-2">
+                      <p className="text-xs text-[#DDA081] line-clamp-2 leading-relaxed mb-2">
                         {group.description || 'A collaborative space for developers to connect and build.'}
                       </p>
 
@@ -156,7 +156,7 @@ export const GroupDiscoveryModal = ({ isOpen, onClose, onSelectGroup }) => {
                       {group.tags && group.tags.length > 0 && (
                         <div className="flex flex-wrap gap-1">
                           {group.tags.map((t, idx) => (
-                            <span key={idx} className="text-[10px] font-medium px-2 py-0.5 rounded bg-[#18181B] text-zinc-400 border border-[#27272A]">
+                            <span key={idx} className="text-[10px] font-medium px-2 py-0.5 rounded bg-[#4A2A35] text-[#DDA081] border border-[#703344]">
                               #{t}
                             </span>
                           ))}
@@ -166,11 +166,11 @@ export const GroupDiscoveryModal = ({ isOpen, onClose, onSelectGroup }) => {
                   </div>
 
                   {/* Actions */}
-                  <div className="flex-shrink-0 flex sm:flex-col items-center sm:items-end justify-end gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 border-[#27272A]">
+                  <div className="flex-shrink-0 flex sm:flex-col items-center sm:items-end justify-end gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 border-[#703344]">
                     {isMember ? (
                       <Button
                         size="sm"
-                        variant="secondary"
+                        variant="outline"
                         onClick={() => {
                           onSelectGroup(group);
                           onClose();
@@ -182,7 +182,7 @@ export const GroupDiscoveryModal = ({ isOpen, onClose, onSelectGroup }) => {
                     ) : (
                       <Button
                         size="sm"
-                        variant="gradient"
+                        variant="primary"
                         loading={joiningId === group._id}
                         onClick={() => handleJoin(group)}
                         icon={Plus}

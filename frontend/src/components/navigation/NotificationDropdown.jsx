@@ -99,183 +99,140 @@ export const NotificationDropdown = ({ isMobile = false, onCloseMobile }) => {
       setUnreadCount(0);
       setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
     } catch (err) {
-      console.error('Failed to mark all read:', err);
+      console.error('Failed to mark notifications read:', err);
     }
   };
 
   const handleNotificationClick = async (notif) => {
-    if (!notif.read) {
-      try {
+    try {
+      if (!notif.read) {
         await notifAPI.markRead(notif._id);
         setNotifications((prev) =>
           prev.map((n) => (n._id === notif._id ? { ...n, read: true } : n))
         );
         setUnreadCount((prev) => Math.max(0, prev - 1));
-      } catch (err) {
-        console.error('Failed to mark notification read:', err);
       }
-    }
 
-    setIsOpen(false);
-    if (onCloseMobile) onCloseMobile();
+      setIsOpen(false);
+      if (onCloseMobile) onCloseMobile();
 
-    if (notif.relatedPost) {
-      navigate('/community');
-    } else if (notif.relatedProject) {
-      const projId = notif.relatedProject?._id || notif.relatedProject;
-      navigate(`/projects/${projId}`);
-    } else if (notif.type?.includes('TEAM_REQUEST')) {
-      navigate('/dashboard');
-    } else if (notif.type === 'invite') {
-      navigate('/invitations');
+      // Navigation routing based on notification type / context
+      if (notif.relatedPost || notif.link?.includes('/community')) {
+        navigate('/community');
+      } else if (notif.relatedProject || notif.link?.includes('/projects')) {
+        navigate(notif.link || `/projects/${notif.relatedProject}`);
+      } else if (notif.type === 'team_invite' || notif.type === 'INVITATION_RECEIVED') {
+        navigate('/invitations');
+      } else if (notif.type === 'team_join_request') {
+        navigate('/dashboard');
+      } else if (notif.link) {
+        navigate(notif.link);
+      } else {
+        navigate('/notifications');
+      }
+    } catch (err) {
+      console.error('Failed to handle notification click:', err);
     }
   };
 
-  // Get icon and colors by notification type
   const getNotificationIcon = (type) => {
     switch (type) {
-      case 'LIKE':
-      case 'post_like':
+      case 'like':
+      case 'POST_LIKED':
         return {
           icon: Heart,
           emoji: '❤️',
-          bg: 'bg-rose-950/50',
-          text: 'text-rose-400',
-          border: 'border-rose-500/30'
+          bg: 'bg-[#703344]',
+          text: 'text-[#CB6B5A]',
+          border: 'border-[#A84A4D]/40'
         };
-      case 'COMMENT':
-      case 'post_comment':
+      case 'comment':
+      case 'POST_COMMENTED':
         return {
           icon: MessageSquare,
           emoji: '💬',
-          bg: 'bg-blue-950/50',
-          text: 'text-blue-400',
-          border: 'border-blue-500/30'
+          bg: 'bg-[#703344]',
+          text: 'text-[#CB6B5A]',
+          border: 'border-[#A84A4D]/40'
         };
-      case 'new_message':
-        return {
-          icon: MessageSquare,
-          emoji: '✉️',
-          bg: 'bg-sky-950/50',
-          text: 'text-sky-400',
-          border: 'border-sky-500/30'
-        };
-      case 'TEAM_REQUEST':
       case 'team_invite':
-      case 'project_invite':
-      case 'invite':
+      case 'INVITATION_RECEIVED':
+        return {
+          icon: Mail,
+          emoji: '📩',
+          bg: 'bg-[#5B8A68]/20',
+          text: 'text-[#86B190]',
+          border: 'border-[#5B8A68]/40'
+        };
+      case 'team_join_request':
         return {
           icon: Users,
           emoji: '🤝',
-          bg: 'bg-purple-950/50',
-          text: 'text-purple-400',
-          border: 'border-purple-500/30'
+          bg: 'bg-[#D99443]/20',
+          text: 'text-[#E5B079]',
+          border: 'border-[#D99443]/40'
         };
-      case 'group_invite':
+      case 'team_request_accepted':
+      case 'INVITATION_ACCEPTED':
         return {
-          icon: Users,
-          emoji: '👥',
-          bg: 'bg-indigo-950/50',
-          text: 'text-indigo-400',
-          border: 'border-indigo-500/30'
-        };
-      case 'group_member_joined':
-      case 'team_join':
-      case 'TEAM_REQUEST_ACCEPTED':
-        return {
-          icon: CheckCircle2,
+          icon: Check,
           emoji: '🎉',
-          bg: 'bg-emerald-950/50',
-          text: 'text-emerald-400',
-          border: 'border-emerald-500/30'
+          bg: 'bg-[#5B8A68]/20',
+          text: 'text-[#86B190]',
+          border: 'border-[#5B8A68]/40'
         };
-      case 'task_assigned':
-      case 'task':
+      case 'team_request_rejected':
+      case 'INVITATION_REJECTED':
         return {
-          icon: CheckCircle2,
-          emoji: '📋',
-          bg: 'bg-amber-950/50',
-          text: 'text-amber-400',
-          border: 'border-amber-500/30'
+          icon: XCircle,
+          emoji: '❌',
+          bg: 'bg-[#C04A4D]/20',
+          text: 'text-[#E07D82]',
+          border: 'border-[#C04A4D]/40'
         };
       case 'task_completed':
         return {
           icon: CheckCircle2,
           emoji: '✅',
-          bg: 'bg-emerald-950/50',
-          text: 'text-emerald-400',
-          border: 'border-emerald-500/30'
+          bg: 'bg-[#5B8A68]/20',
+          text: 'text-[#86B190]',
+          border: 'border-[#5B8A68]/40'
         };
       case 'team_update':
         return {
           icon: Users,
           emoji: '🛡️',
-          bg: 'bg-cyan-950/50',
-          text: 'text-cyan-400',
-          border: 'border-cyan-500/30'
+          bg: 'bg-[#703344]',
+          text: 'text-[#DDA081]',
+          border: 'border-[#A84A4D]/40'
         };
       case 'ai_recommendation':
       case 'MATCH_FOUND':
         return {
           icon: Sparkles,
           emoji: '✨',
-          bg: 'bg-violet-950/50',
-          text: 'text-violet-400',
-          border: 'border-violet-500/30'
+          bg: 'bg-[#703344]',
+          text: 'text-[#CB6B5A]',
+          border: 'border-[#A84A4D]/40'
         };
       case 'hackathon_deadline':
         return {
           icon: Clock,
           emoji: '⏰',
-          bg: 'bg-orange-950/50',
-          text: 'text-orange-400',
-          border: 'border-orange-500/30'
+          bg: 'bg-[#D99443]/20',
+          text: 'text-[#E5B079]',
+          border: 'border-[#D99443]/40'
         };
       default:
         return {
           icon: Bell,
           emoji: '🔔',
-          bg: 'bg-indigo-950/50',
-          text: 'text-indigo-400',
-          border: 'border-indigo-500/30'
+          bg: 'bg-[#703344]',
+          text: 'text-[#CB6B5A]',
+          border: 'border-[#A84A4D]/40'
         };
     }
   };
-
-  // Socket event listeners
-  useEffect(() => {
-    if (!socket) return;
-
-    const handleUnreadCount = ({ unreadCount }) => {
-      if (typeof unreadCount === 'number') {
-        setUnreadCount(unreadCount);
-      }
-    };
-
-    const handleNotifRead = ({ notificationId, unreadCount }) => {
-      setNotifications((prev) =>
-        prev.map((n) => (n._id === notificationId ? { ...n, read: true } : n))
-      );
-      if (typeof unreadCount === 'number') {
-        setUnreadCount(unreadCount);
-      }
-    };
-
-    const handleAllRead = () => {
-      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-      setUnreadCount(0);
-    };
-
-    socket.on('notification_unread_count', handleUnreadCount);
-    socket.on('notification_read', handleNotifRead);
-    socket.on('all_notifications_read', handleAllRead);
-
-    return () => {
-      socket.off('notification_unread_count', handleUnreadCount);
-      socket.off('notification_read', handleNotifRead);
-      socket.off('all_notifications_read', handleAllRead);
-    };
-  }, [socket]);
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -284,11 +241,11 @@ export const NotificationDropdown = ({ isMobile = false, onCloseMobile }) => {
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         aria-label="Notifications"
-        className="relative p-2.5 rounded-2xl text-zinc-400 hover:text-[#FAFAFA] hover:bg-[#18181B] transition-all active:scale-95 focus:outline-none"
+        className="relative p-2.5 rounded-2xl text-[#DDA081] hover:text-[#F6E8E2] hover:bg-[#703344]/50 transition-all active:scale-95 focus:outline-none cursor-pointer"
       >
         <Bell className="w-5 h-5" />
         {unreadCount > 0 && (
-          <span className="absolute top-1.5 right-1.5 min-w-[18px] h-[18px] px-1 bg-gradient-to-r from-rose-500 to-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center ring-2 ring-[#09090B] shadow-xs animate-pulse">
+          <span className="absolute top-1.5 right-1.5 min-w-[18px] h-[18px] px-1 bg-[#A84A4D] text-[#F6E8E2] text-[10px] font-black rounded-full flex items-center justify-center ring-2 ring-[#281A21] shadow-xs animate-pulse">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
@@ -296,18 +253,18 @@ export const NotificationDropdown = ({ isMobile = false, onCloseMobile }) => {
 
       {/* Dropdown Panel */}
       {isOpen && (
-        <div className="absolute right-0 mt-2.5 w-80 sm:w-96 max-w-[calc(100vw-24px)] bg-[#18181B] rounded-3xl shadow-2xl border border-[#27272A] z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="absolute right-0 mt-2.5 w-80 sm:w-96 max-w-[calc(100vw-24px)] bg-[#4A2A35] rounded-3xl shadow-2xl border border-[#703344] z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 pb-3.5 bg-[#111113] border-b border-[#27272A]">
+          <div className="flex items-center justify-between p-4 pb-3.5 bg-[#281A21] border-b border-[#703344]">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-indigo-950/60 text-indigo-400 border border-indigo-500/30 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-xl bg-[#703344] text-[#CB6B5A] border border-[#A84A4D]/40 flex items-center justify-center">
                 <Bell className="w-4 h-4" />
               </div>
               <div>
-                <h4 className="font-extrabold text-sm text-[#FAFAFA] flex items-center gap-1.5">
+                <h4 className="font-extrabold text-sm text-[#F6E8E2] flex items-center gap-1.5">
                   <span>Notifications</span>
                   {unreadCount > 0 && (
-                    <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-indigo-950/80 text-indigo-300 border border-indigo-500/40">
+                    <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-[#703344] text-[#CB6B5A] border border-[#A84A4D]/40">
                       {unreadCount} new
                     </span>
                   )}
@@ -319,7 +276,7 @@ export const NotificationDropdown = ({ isMobile = false, onCloseMobile }) => {
               <button
                 type="button"
                 onClick={handleMarkAllRead}
-                className="text-xs font-bold text-indigo-400 hover:text-indigo-300 transition-colors flex items-center gap-1 px-2.5 py-1 rounded-lg hover:bg-indigo-950/40"
+                className="text-xs font-bold text-[#CB6B5A] hover:text-[#F6E8E2] transition-colors flex items-center gap-1 px-2.5 py-1 rounded-lg hover:bg-[#703344]/50 cursor-pointer"
               >
                 <Check className="w-3.5 h-3.5" />
                 <span>Mark all read</span>
@@ -328,14 +285,14 @@ export const NotificationDropdown = ({ isMobile = false, onCloseMobile }) => {
           </div>
 
           {/* Notifications List */}
-          <div className="max-h-[380px] overflow-y-auto divide-y divide-[#27272A] overscroll-contain">
+          <div className="max-h-[380px] overflow-y-auto divide-y divide-[#703344] overscroll-contain">
             {notifications.length === 0 ? (
               <div className="py-10 px-4 text-center">
-                <div className="w-12 h-12 rounded-2xl bg-indigo-950/40 text-indigo-400 border border-indigo-500/20 flex items-center justify-center mx-auto mb-3">
+                <div className="w-12 h-12 rounded-2xl bg-[#703344] text-[#CB6B5A] border border-[#A84A4D]/40 flex items-center justify-center mx-auto mb-3">
                   <Sparkles className="w-6 h-6" />
                 </div>
-                <p className="text-xs font-bold text-zinc-300">You're all caught up!</p>
-                <p className="text-[11px] text-zinc-500 mt-0.5">
+                <p className="text-xs font-bold text-[#F6E8E2]">You're all caught up!</p>
+                <p className="text-[11px] text-[#DDA081] mt-0.5">
                   No new notifications right now.
                 </p>
               </div>
@@ -349,8 +306,8 @@ export const NotificationDropdown = ({ isMobile = false, onCloseMobile }) => {
                     onClick={() => handleNotificationClick(n)}
                     className={`p-3.5 transition-all cursor-pointer flex items-start gap-3 select-none ${
                       n.read
-                        ? 'bg-[#18181B] hover:bg-[#27272A]/60'
-                        : 'bg-indigo-950/20 hover:bg-indigo-950/35'
+                        ? 'bg-[#4A2A35] hover:bg-[#703344]/50'
+                        : 'bg-[#703344]/30 hover:bg-[#703344]/60'
                     }`}
                   >
                     {/* Notification Icon Avatar */}
@@ -365,20 +322,20 @@ export const NotificationDropdown = ({ isMobile = false, onCloseMobile }) => {
                       <div className="flex items-center justify-between gap-1">
                         <p
                           className={`text-xs leading-snug line-clamp-2 ${
-                            n.read ? 'text-zinc-300 font-medium' : 'text-[#FAFAFA] font-bold'
+                            n.read ? 'text-[#DDA081] font-medium' : 'text-[#F6E8E2] font-bold'
                           }`}
                         >
                           {n.message || n.title}
                         </p>
                         {!n.read && (
-                          <span className="w-2 h-2 rounded-full bg-indigo-500 flex-shrink-0 ring-2 ring-indigo-950" />
+                          <span className="w-2 h-2 rounded-full bg-[#CB6B5A] flex-shrink-0 ring-2 ring-[#281A21]" />
                         )}
                       </div>
 
                       {/* Relative Time & Action Hint */}
-                      <div className="flex items-center gap-2 mt-1 text-[10px] text-zinc-500 font-medium">
+                      <div className="flex items-center gap-2 mt-1 text-[10px] text-[#DDA081] font-medium">
                         <span className="flex items-center gap-1">
-                          <Clock className="w-2.5 h-2.5 text-zinc-500" />
+                          <Clock className="w-2.5 h-2.5 text-[#DDA081]" />
                           {formatTimeAgo(n.createdAt)}
                         </span>
                         {n.relatedPost && <span>• Post</span>}
@@ -392,8 +349,8 @@ export const NotificationDropdown = ({ isMobile = false, onCloseMobile }) => {
           </div>
 
           {/* Footer */}
-          <div className="p-2.5 bg-[#111113] border-t border-[#27272A] flex items-center justify-between px-4">
-            <span className="text-[11px] text-zinc-500 font-medium">
+          <div className="p-2.5 bg-[#281A21] border-t border-[#703344] flex items-center justify-between px-4">
+            <span className="text-[11px] text-[#DDA081] font-medium">
               {notifications.length} recent
             </span>
             <button
@@ -403,7 +360,7 @@ export const NotificationDropdown = ({ isMobile = false, onCloseMobile }) => {
                 if (onCloseMobile) onCloseMobile();
                 navigate('/notifications');
               }}
-              className="text-xs font-bold text-indigo-400 hover:text-indigo-300 transition-colors flex items-center gap-1 cursor-pointer"
+              className="text-xs font-bold text-[#CB6B5A] hover:text-[#F6E8E2] transition-colors flex items-center gap-1 cursor-pointer"
             >
               <span>View all</span>
               <ChevronRight className="w-3.5 h-3.5" />

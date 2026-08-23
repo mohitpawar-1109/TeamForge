@@ -43,7 +43,7 @@ const TeamScene = ({
       y: 0,
       z: 0,
       size: 0.55,
-      color: '#f59e0b' // Amber
+      color: '#CB6B5A' // Warm Coral
     };
     nList.push(centerNode);
 
@@ -69,7 +69,7 @@ const TeamScene = ({
         y,
         z,
         size: 0.38,
-        color: '#06b6d4' // Cyan
+        color: '#A84A4D' // Terracotta
       };
       nList.push(memberNode);
 
@@ -77,7 +77,7 @@ const TeamScene = ({
       lList.push({
         source: mId,
         target: 'project-center',
-        color: '#06b6d4'
+        color: '#A84A4D'
       });
     });
 
@@ -106,7 +106,7 @@ const TeamScene = ({
         y,
         z,
         size: 0.3,
-        color: isCovered ? '#10b981' : '#f43f5e' // Emerald (covered) or Rose (missing)
+        color: isCovered ? '#5B8A68' : '#C04A4D' // Sage (covered) or Terracotta-Red (missing)
       };
       nList.push(skillNode);
 
@@ -120,7 +120,7 @@ const TeamScene = ({
           lList.push({
             source: `member-${m.user?._id || mIdx}`,
             target: sId,
-            color: '#10b981'
+            color: '#5B8A68'
           });
         }
       });
@@ -166,9 +166,9 @@ const TeamScene = ({
             />
           </bufferGeometry>
           <lineBasicMaterial
-            color="#6366f1"
+            color="#703344"
             transparent
-            opacity={0.35}
+            opacity={0.45}
             blending={THREE.AdditiveBlending}
           />
         </lineSegments>
@@ -211,13 +211,13 @@ const TeamScene = ({
             {/* Floating Tag */}
             {(isHovered || isSelected || node.type === 'project') && (
               <Html distanceFactor={12} center position={[0, node.size + 0.35, 0]}>
-                <div className="bg-[#18181B]/95 backdrop-blur-md border border-[#27272A] px-2.5 py-1 rounded-xl shadow-xl pointer-events-none text-center whitespace-nowrap">
-                  <p className="text-[11px] font-extrabold text-white">{node.label}</p>
-                  {node.role && <p className="text-[9px] text-cyan-300 uppercase">{node.role}</p>}
+                <div className="bg-[#281A21]/95 backdrop-blur-md border border-[#703344] px-2.5 py-1 rounded-xl shadow-xl pointer-events-none text-center whitespace-nowrap">
+                  <p className="text-[11px] font-extrabold text-[#F6E8E2]">{node.label}</p>
+                  {node.role && <p className="text-[9px] text-[#DDA081] uppercase">{node.role}</p>}
                   {node.type === 'skill' && (
                     <p
                       className={`text-[9px] font-bold uppercase ${
-                        node.isCovered ? 'text-emerald-400' : 'text-rose-400'
+                        node.isCovered ? 'text-[#86B190]' : 'text-[#E07D82]'
                       }`}
                     >
                       {node.isCovered ? 'Covered' : 'Missing'}
@@ -249,18 +249,18 @@ export const TeamTopology3D = ({ project }) => {
   if (!project) return null;
 
   return (
-    <div className="bg-[#18181B] border border-[#27272A] rounded-3xl overflow-hidden shadow-2xl relative flex flex-col h-[620px]">
+    <div className="bg-[#4A2A35] border border-[#703344] rounded-3xl overflow-hidden shadow-2xl relative flex flex-col h-[620px]">
       {/* Top Header */}
-      <div className="p-4 bg-[#111113] border-b border-[#27272A] flex items-center justify-between gap-4 z-10">
+      <div className="p-4 bg-[#281A21] border-b border-[#703344] flex items-center justify-between gap-4 z-10">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-2xl bg-indigo-950/80 border border-indigo-500/40 text-indigo-400 flex items-center justify-center">
+          <div className="w-9 h-9 rounded-2xl bg-[#703344] border border-[#A84A4D]/40 text-[#CB6B5A] flex items-center justify-center">
             <Sparkles className="w-4 h-4" />
           </div>
           <div>
-            <h4 className="text-sm font-extrabold text-[#FAFAFA]">
+            <h4 className="text-sm font-extrabold text-[#F6E8E2]">
               3D Team Topology & Skill Synergy
             </h4>
-            <p className="text-[11px] text-zinc-400">
+            <p className="text-[11px] text-[#DDA081]">
               Interactive spatial view of team roles and required skills coverage
             </p>
           </div>
@@ -270,10 +270,10 @@ export const TeamTopology3D = ({ project }) => {
           <button
             type="button"
             onClick={() => setAutoRotate(!autoRotate)}
-            className={`p-2 rounded-xl text-xs font-bold border transition-all ${
+            className={`p-2 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
               autoRotate
-                ? 'bg-indigo-950/80 text-indigo-300 border-indigo-500/40'
-                : 'bg-[#18181B] text-zinc-400 border-[#27272A]'
+                ? 'bg-[#703344] text-[#F6E8E2] border-[#A84A4D]/40'
+                : 'bg-[#281A21] text-[#DDA081] border-[#703344]'
             }`}
             title="Toggle Auto-Rotation"
           >
@@ -286,7 +286,7 @@ export const TeamTopology3D = ({ project }) => {
               if (controlsRef.current) controlsRef.current.reset();
               setSelectedNode(null);
             }}
-            className="px-3 py-1.5 bg-[#27272A] hover:bg-[#3F3F46] text-zinc-200 rounded-xl text-xs font-bold transition-all"
+            className="px-3 py-1.5 bg-[#703344] hover:bg-[#A84A4D] text-[#F6E8E2] rounded-xl text-xs font-bold transition-all cursor-pointer"
           >
             Reset
           </button>
@@ -301,8 +301,8 @@ export const TeamTopology3D = ({ project }) => {
           gl={{ antialias: true, alpha: true }}
         >
           <ambientLight intensity={0.7} />
-          <pointLight position={[10, 10, 10]} intensity={1.2} color="#818cf8" />
-          <pointLight position={[-10, -10, -10]} intensity={0.8} color="#38bdf8" />
+          <pointLight position={[10, 10, 10]} intensity={1.2} color="#CB6B5A" />
+          <pointLight position={[-10, -10, -10]} intensity={0.8} color="#DDA081" />
           <Suspense fallback={null}>
             <TeamScene
               projectTitle={project.title}
@@ -327,22 +327,22 @@ export const TeamTopology3D = ({ project }) => {
         </Canvas>
 
         {/* Legend */}
-        <div className="absolute bottom-3 left-3 bg-[#111113]/90 backdrop-blur-md border border-[#27272A] px-3 py-1.5 rounded-xl flex items-center gap-3 text-[10px] font-bold">
+        <div className="absolute bottom-3 left-3 bg-[#281A21]/90 backdrop-blur-md border border-[#703344] px-3 py-1.5 rounded-xl flex items-center gap-3 text-[10px] font-bold">
           <div className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-amber-400" />
-            <span className="text-zinc-300">Project Core</span>
+            <span className="w-2 h-2 rounded-full bg-[#CB6B5A]" />
+            <span className="text-[#F6E8E2]">Project Core</span>
           </div>
           <div className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-cyan-400" />
-            <span className="text-zinc-300">Members</span>
+            <span className="w-2 h-2 rounded-full bg-[#A84A4D]" />
+            <span className="text-[#F6E8E2]">Members</span>
           </div>
           <div className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-emerald-400" />
-            <span className="text-zinc-300">Covered Skills</span>
+            <span className="w-2 h-2 rounded-full bg-[#5B8A68]" />
+            <span className="text-[#F6E8E2]">Covered Skills</span>
           </div>
           <div className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-rose-400" />
-            <span className="text-zinc-300">Missing Skills</span>
+            <span className="w-2 h-2 rounded-full bg-[#C04A4D]" />
+            <span className="text-[#F6E8E2]">Missing Skills</span>
           </div>
         </div>
       </div>

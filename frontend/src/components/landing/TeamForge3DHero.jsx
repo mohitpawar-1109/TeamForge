@@ -6,32 +6,24 @@ import * as THREE from 'three';
 import {
   Sparkles,
   ArrowRight,
-  Compass,
-  Users,
-  Brain,
-  Code2,
-  Layers,
-  Zap,
-  CheckCircle2,
-  Trophy,
-  ExternalLink
+  Compass
 } from 'lucide-react';
 import { Button } from '../common/Button';
 
-// Pre-defined interactive sample entities in the 3D network
+// Pre-defined interactive sample entities in the Autumn Dusk 3D network
 const SAMPLE_HERO_NODES = [
-  { id: 'n1', label: 'Mohit (Lead Dev)', type: 'student', color: '#06b6d4', size: 0.35, role: 'Full Stack & ML' },
-  { id: 'n2', label: 'Priya (UI/UX)', type: 'student', color: '#ec4899', size: 0.32, role: 'Design Lead' },
-  { id: 'n3', label: 'Aarav (Backend)', type: 'student', color: '#3b82f6', size: 0.32, role: 'Cloud & Node.js' },
-  { id: 'n4', label: 'AI Resume Scanner', type: 'project', color: '#f59e0b', size: 0.42, category: 'AI / ML Project' },
-  { id: 'n5', label: 'Campus Eco-Forge', type: 'project', color: '#10b981', size: 0.38, category: 'Sustainability' },
-  { id: 'n6', label: 'React.js', type: 'skill', color: '#6366f1', size: 0.28, category: 'Frontend' },
-  { id: 'n7', label: 'Python & FastAPI', type: 'skill', color: '#8b5cf6', size: 0.28, category: 'Backend' },
-  { id: 'n8', label: 'Machine Learning', type: 'skill', color: '#a855f7', size: 0.3, category: 'AI' },
-  { id: 'n9', label: 'Cloud Squad Alpha', type: 'team', color: '#10b981', size: 0.4, members: '4 Formed' },
-  { id: 'n10', label: 'Global AI Hackathon', type: 'hackathon', color: '#f43f5e', size: 0.42, prize: '$45,000' },
-  { id: 'n11', label: 'DevOps & Docker', type: 'skill', color: '#06b6d4', size: 0.26, category: 'Cloud' },
-  { id: 'n12', label: 'Ananya (Frontend)', type: 'student', color: '#06b6d4', size: 0.3, role: 'React Engineer' }
+  { id: 'n1', label: 'Mohit (Lead Dev)', type: 'student', color: '#CB6B5A', size: 0.35, role: 'Full Stack & ML' },
+  { id: 'n2', label: 'Priya (UI/UX)', type: 'student', color: '#DDA081', size: 0.32, role: 'Design Lead' },
+  { id: 'n3', label: 'Aarav (Backend)', type: 'student', color: '#A84A4D', size: 0.32, role: 'Cloud & Node.js' },
+  { id: 'n4', label: 'AI Resume Scanner', type: 'project', color: '#CB6B5A', size: 0.42, category: 'AI / ML Project' },
+  { id: 'n5', label: 'Campus Eco-Forge', type: 'project', color: '#703344', size: 0.38, category: 'Sustainability' },
+  { id: 'n6', label: 'React.js', type: 'skill', color: '#DDA081', size: 0.28, category: 'Frontend' },
+  { id: 'n7', label: 'Python & FastAPI', type: 'skill', color: '#A84A4D', size: 0.28, category: 'Backend' },
+  { id: 'n8', label: 'Machine Learning', type: 'skill', color: '#CB6B5A', size: 0.3, category: 'AI' },
+  { id: 'n9', label: 'Cloud Squad Alpha', type: 'team', color: '#4A2A35', size: 0.4, members: '4 Formed' },
+  { id: 'n10', label: 'Global AI Hackathon', type: 'hackathon', color: '#A84A4D', size: 0.42, prize: '$45,000' },
+  { id: 'n11', label: 'DevOps & Docker', type: 'skill', color: '#703344', size: 0.26, category: 'Cloud' },
+  { id: 'n12', label: 'Ananya (Frontend)', type: 'student', color: '#DDA081', size: 0.3, role: 'React Engineer' }
 ];
 
 // Interactive 3D Node Mesh with Hover & Click
@@ -58,18 +50,18 @@ const HeroNodeMesh = ({ node, isHovered, onHover, onClick }) => {
         <meshStandardMaterial
           color={node.color}
           emissive={node.color}
-          emissiveIntensity={isHovered ? 0.9 : 0.35}
-          roughness={0.25}
-          metalness={0.4}
+          emissiveIntensity={isHovered ? 0.8 : 0.25}
+          roughness={0.3}
+          metalness={0.3}
         />
       </mesh>
 
       {/* Floating Tag over hovered or featured nodes */}
       {isHovered && (
         <Html distanceFactor={14} center position={[0, node.size + 0.4, 0]}>
-          <div className="bg-[#18181B]/95 backdrop-blur-md border border-indigo-500/60 px-3 py-1.5 rounded-xl shadow-2xl pointer-events-none text-center whitespace-nowrap animate-in fade-in zoom-in-95 duration-150">
-            <p className="text-xs font-black text-white">{node.label}</p>
-            <p className="text-[10px] font-bold text-indigo-300 uppercase tracking-wider">
+          <div className="bg-[#4A2A35]/95 backdrop-blur-md border border-[#CB6B5A]/60 px-3 py-1.5 rounded-xl shadow-2xl pointer-events-none text-center whitespace-nowrap animate-in fade-in zoom-in-95 duration-150">
+            <p className="text-xs font-black text-[#F6E8E2]">{node.label}</p>
+            <p className="text-[10px] font-bold text-[#DDA081] uppercase tracking-wider">
               {node.role || node.category || node.prize || node.type}
             </p>
           </div>
@@ -170,13 +162,13 @@ const NetworkScene = ({ prefersReducedMotion, hoveredNode, setHoveredNode, setSe
         />
       ))}
 
-      {/* Dynamic Network Connection Lines */}
+      {/* Dynamic Network Connection Lines - Autumn Dusk Warm Palette */}
       <lineSegments ref={linesRef}>
         <bufferGeometry />
         <lineBasicMaterial
-          color="#6366f1"
+          color="#CB6B5A"
           transparent
-          opacity={0.35}
+          opacity={0.25}
           blending={THREE.AdditiveBlending}
         />
       </lineSegments>
@@ -187,11 +179,11 @@ const NetworkScene = ({ prefersReducedMotion, hoveredNode, setHoveredNode, setSe
 // Fallback background for devices without WebGL
 const FallbackNetworkBackground = () => (
   <div className="absolute inset-0 pointer-events-none overflow-hidden">
-    <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-gradient-to-tr from-indigo-600/15 via-purple-500/15 to-pink-600/15 rounded-full blur-3xl" />
-    <svg className="w-full h-full opacity-20" xmlns="http://www.w3.org/2000/svg">
+    <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-gradient-to-tr from-[#703344]/25 via-[#A84A4D]/20 to-[#CB6B5A]/15 rounded-full blur-3xl" />
+    <svg className="w-full h-full opacity-15" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <pattern id="grid-pattern" width="40" height="40" patternUnits="userSpaceOnUse">
-          <circle cx="20" cy="20" r="1.5" fill="#6366f1" />
+          <circle cx="20" cy="20" r="1.5" fill="#CB6B5A" />
         </pattern>
       </defs>
       <rect width="100%" height="100%" fill="url(#grid-pattern)" />
@@ -225,7 +217,7 @@ export const TeamForge3DHero = () => {
   }, []);
 
   return (
-    <section className="relative min-h-[660px] md:min-h-[740px] flex items-center justify-center overflow-hidden bg-gradient-to-b from-[#09090B] via-[#0D0F18] to-[#09090B] text-white pt-20 pb-24 px-4 sm:px-6 lg:px-8">
+    <section className="relative min-h-[660px] md:min-h-[740px] flex items-center justify-center overflow-hidden bg-gradient-to-b from-[#281A21] via-[#351F28] to-[#281A21] text-[#F6E8E2] pt-20 pb-24 px-4 sm:px-6 lg:px-8">
       {/* 3D WebGL Canvas Layer */}
       {hasWebGL && !prefersReducedMotion ? (
         <div className="absolute inset-0 z-0">
@@ -236,8 +228,8 @@ export const TeamForge3DHero = () => {
             frameloop="always"
           >
             <ambientLight intensity={0.7} />
-            <pointLight position={[10, 10, 10]} intensity={1.4} color="#818cf8" />
-            <pointLight position={[-10, -10, -10]} intensity={0.9} color="#c084fc" />
+            <pointLight position={[10, 10, 10]} intensity={1.4} color="#DDA081" />
+            <pointLight position={[-10, -10, -10]} intensity={0.9} color="#A84A4D" />
             <Suspense fallback={null}>
               <NetworkScene
                 prefersReducedMotion={prefersReducedMotion}
@@ -259,26 +251,26 @@ export const TeamForge3DHero = () => {
       )}
 
       {/* Ambient Radial Gradient Glow Overlay */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_35%,rgba(99,102,241,0.2),transparent_75%)] pointer-events-none -z-0" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_35%,rgba(203,107,90,0.12),transparent_75%)] pointer-events-none -z-0" />
 
       {/* Hero Content */}
       <div className="relative z-10 max-w-4xl mx-auto text-center space-y-6 pointer-events-auto">
         {/* Top Tagline Pill */}
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-indigo-400/30 text-indigo-200 text-xs font-bold tracking-wider uppercase shadow-inner">
-          <Sparkles className="w-4 h-4 text-indigo-400 animate-pulse" />
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#4A2A35]/80 backdrop-blur-md border border-[#703344] text-[#DDA081] text-xs font-bold tracking-wider uppercase shadow-inner">
+          <Sparkles className="w-4 h-4 text-[#CB6B5A] animate-pulse" />
           <span>Interactive 3D Student & Skill Network</span>
         </div>
 
         {/* Main Headline */}
-        <h1 className="text-4xl sm:text-6xl md:text-7xl font-black tracking-tight text-white leading-[1.1]">
+        <h1 className="text-4xl sm:text-6xl md:text-7xl font-black tracking-tight text-[#F6E8E2] leading-[1.1]">
           Build the right team. <br />
-          <span className="bg-gradient-to-r from-indigo-400 via-purple-300 to-teal-300 bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-[#F6E8E2] via-[#DDA081] to-[#CB6B5A] bg-clip-text text-transparent">
             Build something great.
           </span>
         </h1>
 
         {/* Supporting Text */}
-        <p className="text-base sm:text-xl text-zinc-300 max-w-2xl mx-auto font-normal leading-relaxed">
+        <p className="text-base sm:text-xl text-[#DDA081] max-w-2xl mx-auto font-normal leading-relaxed">
           AI-powered collaboration for students, developers and builders. Connect through verified skills, hackathon goals, and shared project vision in an interactive graph.
         </p>
 
@@ -289,7 +281,7 @@ export const TeamForge3DHero = () => {
               variant="gradient"
               size="lg"
               icon={ArrowRight}
-              className="bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 hover:from-indigo-600 hover:to-pink-600 text-white font-extrabold shadow-lg shadow-indigo-500/25 px-8 py-3.5 rounded-2xl border-0"
+              className="bg-gradient-to-r from-[#A84A4D] to-[#CB6B5A] hover:from-[#CB6B5A] hover:to-[#DDA081] text-[#F6E8E2] font-extrabold shadow-lg shadow-[#A84A4D]/25 px-8 py-3.5 rounded-2xl border-0"
             >
               Explore Projects
             </Button>
@@ -300,7 +292,7 @@ export const TeamForge3DHero = () => {
               variant="outline"
               size="lg"
               icon={Compass}
-              className="text-white border-white/25 hover:bg-white/10 backdrop-blur-sm px-7 py-3.5 rounded-2xl font-bold"
+              className="text-[#F6E8E2] border-[#703344] hover:bg-[#4A2A35] backdrop-blur-sm px-7 py-3.5 rounded-2xl font-bold"
             >
               Explore 3D Network
             </Button>
@@ -308,29 +300,29 @@ export const TeamForge3DHero = () => {
         </div>
 
         {/* Live Interaction Hint */}
-        <p className="text-[11px] font-semibold text-zinc-400 pt-2 flex items-center justify-center gap-1.5">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+        <p className="text-[11px] font-semibold text-[#DDA081]/80 pt-2 flex items-center justify-center gap-1.5">
+          <span className="w-2 h-2 rounded-full bg-[#CB6B5A] animate-ping" />
           <span>Click and drag on the background to rotate the live 3D student network</span>
         </p>
       </div>
 
       {/* Selected Node Modal / Slideup if user clicks on a node in hero */}
       {selectedNode && (
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 bg-[#18181B]/95 backdrop-blur-md border border-indigo-500/60 p-4 rounded-3xl shadow-2xl flex items-center gap-4 max-w-md w-full animate-in slide-in-from-bottom-4">
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 bg-[#4A2A35]/95 backdrop-blur-md border border-[#703344] p-4 rounded-3xl shadow-2xl flex items-center gap-4 max-w-md w-full animate-in slide-in-from-bottom-4">
           <div
-            className="w-10 h-10 rounded-2xl flex items-center justify-center text-white font-bold shadow-md"
+            className="w-10 h-10 rounded-2xl flex items-center justify-center text-[#F6E8E2] font-bold shadow-md"
             style={{ backgroundColor: selectedNode.color }}
           >
             <Sparkles className="w-5 h-5" />
           </div>
           <div className="flex-1 min-w-0">
-            <h4 className="text-sm font-extrabold text-white truncate">{selectedNode.label}</h4>
-            <p className="text-xs text-zinc-400 capitalize">{selectedNode.role || selectedNode.category || selectedNode.type}</p>
+            <h4 className="text-sm font-extrabold text-[#F6E8E2] truncate">{selectedNode.label}</h4>
+            <p className="text-xs text-[#DDA081] capitalize">{selectedNode.role || selectedNode.category || selectedNode.type}</p>
           </div>
           <Link to={selectedNode.type === 'project' ? '/projects' : '/network'}>
             <button
               type="button"
-              className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition-all"
+              className="px-3 py-1.5 bg-[#A84A4D] hover:bg-[#CB6B5A] text-[#F6E8E2] rounded-xl text-xs font-bold transition-all"
             >
               View
             </button>
@@ -338,7 +330,7 @@ export const TeamForge3DHero = () => {
           <button
             type="button"
             onClick={() => setSelectedNode(null)}
-            className="p-1 text-zinc-400 hover:text-white"
+            className="p-1 text-[#DDA081] hover:text-[#F6E8E2]"
           >
             ✕
           </button>

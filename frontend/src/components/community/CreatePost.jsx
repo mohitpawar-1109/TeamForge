@@ -329,7 +329,7 @@ export const CreatePost = ({ onPostCreated }) => {
   const popularTagSuggestions = ['hackathon', 'aiml', 'webdev', 'teammates', 'react', 'python', 'figma'];
 
   return (
-    <div className="bg-[#18181B] rounded-3xl border border-[#27272A] p-5 sm:p-6 shadow-soft transition-all">
+    <div className="bg-[#4A2A35] rounded-3xl border border-[#703344] p-5 sm:p-6 shadow-soft transition-all">
       {/* Hidden File Inputs */}
       <input
         ref={imageInputRef}
@@ -355,27 +355,27 @@ export const CreatePost = ({ onPostCreated }) => {
               <img
                 src={user?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.name || 'Student'}`}
                 alt={user?.name}
-                className="w-10 h-10 rounded-xl object-cover border border-[#27272A] bg-[#111113] flex-shrink-0"
+                className="w-10 h-10 rounded-xl object-cover border border-[#703344] bg-[#281A21] flex-shrink-0"
               />
               <div>
                 <div className="flex items-center gap-1.5">
-                  <span className="font-bold text-[#FAFAFA] text-sm">{user?.name || 'Student'}</span>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-950/60 text-indigo-300 border border-indigo-500/30">
+                  <span className="font-bold text-[#F6E8E2] text-sm">{user?.name || 'Student'}</span>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#703344] text-[#DDA081] border border-[#A84A4D]/40">
                     {user?.college || 'Campus Builder'}
                   </span>
                 </div>
-                <p className="text-xs text-zinc-400 font-medium">Publishing to Community</p>
+                <p className="text-xs text-[#DDA081] font-medium">Publishing to Community</p>
               </div>
             </div>
 
-            <span className="text-xs text-zinc-500 font-medium hidden sm:inline-block">
+            <span className="text-xs text-[#DDA081] font-medium hidden sm:inline-block">
               {content.length}/1000
             </span>
           </div>
 
           {/* Post Type Selector Pills */}
           <div>
-            <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 block mb-1.5">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#DDA081] block mb-1.5">
               Category:
             </span>
             <PostTypeSelector selectedType={type} onSelectType={setType} />
@@ -396,25 +396,25 @@ export const CreatePost = ({ onPostCreated }) => {
                   ? 'Add a description for your video (optional)...'
                   : selectedTypeConfig.placeholder
             }
-            className="w-full px-4 py-3 text-sm bg-[#111113] border border-[#27272A] text-[#FAFAFA] rounded-2xl focus:bg-[#09090B] focus:border-indigo-500 focus:outline-none transition-all placeholder:text-zinc-500 resize-y min-h-[90px]"
+            className="w-full px-4 py-3 text-sm bg-[#281A21] border border-[#703344] text-[#F6E8E2] rounded-2xl focus:bg-[#281A21] focus:border-[#CB6B5A] focus:outline-none transition-all placeholder:text-[#DDA081] resize-y min-h-[90px]"
           />
         </div>
 
         {/* Selected Media Previews Section */}
         {mediaItems.length > 0 && (
-          <div className="p-3.5 bg-[#111113] rounded-2xl border border-[#27272A] space-y-3 animate-fadeIn">
+          <div className="p-3.5 bg-[#281A21] rounded-2xl border border-[#703344] space-y-3 animate-fadeIn">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-xs font-bold text-zinc-300">
+              <div className="flex items-center gap-2 text-xs font-bold text-[#F6E8E2]">
                 {mediaMode === 'image' ? (
                   <>
-                    <ImageIcon className="w-4 h-4 text-indigo-400" />
+                    <ImageIcon className="w-4 h-4 text-[#CB6B5A]" />
                     <span>
                       Attached Images ({mediaItems.length}/6)
                     </span>
                   </>
                 ) : (
                   <>
-                    <VideoIcon className="w-4 h-4 text-purple-400" />
+                    <VideoIcon className="w-4 h-4 text-[#DDA081]" />
                     <span>Attached Video Demo</span>
                   </>
                 )}
@@ -424,7 +424,7 @@ export const CreatePost = ({ onPostCreated }) => {
                 <button
                   type="button"
                   onClick={() => imageInputRef.current?.click()}
-                  className="text-xs font-bold text-indigo-400 hover:text-indigo-300 transition-colors"
+                  className="text-xs font-bold text-[#CB6B5A] hover:text-[#DDA081] transition-colors"
                 >
                   + Add More
                 </button>
@@ -437,7 +437,7 @@ export const CreatePost = ({ onPostCreated }) => {
                 {mediaItems.map((item, idx) => (
                   <div
                     key={idx}
-                    className="relative group rounded-xl overflow-hidden aspect-video bg-black/40 border border-zinc-800"
+                    className="relative group rounded-xl overflow-hidden aspect-video bg-black/40 border border-[#703344]"
                   >
                     <img
                       src={item.previewUrl}
@@ -449,13 +449,13 @@ export const CreatePost = ({ onPostCreated }) => {
                         <button
                           type="button"
                           onClick={() => handleRemoveMedia(idx)}
-                          className="p-1 rounded-lg bg-black/70 hover:bg-rose-600 text-white transition-colors"
+                          className="p-1 rounded-lg bg-black/70 hover:bg-[#A8383B] text-white transition-colors"
                           title="Remove image"
                         >
                           <X className="w-3.5 h-3.5" />
                         </button>
                       </div>
-                      <div className="text-[10px] text-zinc-300 truncate">
+                      <div className="text-[10px] text-[#DDA081] truncate">
                         <span className="font-semibold">{item.size} MB</span>
                       </div>
                     </div>
@@ -466,18 +466,18 @@ export const CreatePost = ({ onPostCreated }) => {
 
             {/* Video Preview */}
             {mediaMode === 'video' && mediaItems[0] && (
-              <div className="relative rounded-xl overflow-hidden bg-black border border-zinc-800 max-h-64 flex flex-col items-center">
+              <div className="relative rounded-xl overflow-hidden bg-black border border-[#703344] max-h-64 flex flex-col items-center">
                 <video
                   src={mediaItems[0].previewUrl}
                   controls
                   className="max-h-56 w-full object-contain"
                 />
-                <div className="w-full px-3 py-1.5 bg-zinc-900/90 flex items-center justify-between text-xs text-zinc-300">
+                <div className="w-full px-3 py-1.5 bg-[#281A21] border-t border-[#703344] flex items-center justify-between text-xs text-[#DDA081]">
                   <span className="truncate max-w-xs">{mediaItems[0].name} ({mediaItems[0].size} MB)</span>
                   <button
                     type="button"
                     onClick={() => handleRemoveMedia(0)}
-                    className="text-xs font-bold text-rose-400 hover:text-rose-300"
+                    className="text-xs font-bold text-[#E07D82] hover:text-[#F6E8E2]"
                   >
                     Remove Video
                   </button>
@@ -489,15 +489,15 @@ export const CreatePost = ({ onPostCreated }) => {
 
         {/* Team Builder Panel for LOOKING_FOR_TEAMMATES */}
         {type === 'LOOKING_FOR_TEAMMATES' && (
-          <div className="p-4 bg-indigo-950/20 rounded-2xl border border-indigo-500/30 space-y-4 animate-fadeIn">
-            <div className="flex items-center gap-2 text-xs font-bold text-indigo-300">
+          <div className="p-4 bg-[#281A21] rounded-2xl border border-[#703344] space-y-4 animate-fadeIn">
+            <div className="flex items-center gap-2 text-xs font-bold text-[#CB6B5A]">
               <span className="text-base">🚀</span>
               <span>Team Recruitment Details</span>
             </div>
 
             {/* Project / Team Title */}
             <div>
-              <label className="block text-[11px] font-bold text-zinc-300 mb-1">
+              <label className="block text-[11px] font-bold text-[#DDA081] mb-1">
                 Project / Team Title
               </label>
               <input
@@ -505,13 +505,13 @@ export const CreatePost = ({ onPostCreated }) => {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g. AI Resume Analyzer or SIH Smart Mobility"
-                className="w-full px-3 py-2 text-xs bg-[#111113] border border-[#27272A] text-[#FAFAFA] rounded-xl focus:border-indigo-500 focus:outline-none"
+                className="w-full px-3 py-2 text-xs bg-[#4A2A35] border border-[#703344] text-[#F6E8E2] placeholder:text-[#DDA081] rounded-xl focus:border-[#CB6B5A] focus:outline-none"
               />
             </div>
 
             {/* Required Roles */}
             <div>
-              <label className="block text-[11px] font-bold text-zinc-300 mb-1">
+              <label className="block text-[11px] font-bold text-[#DDA081] mb-1">
                 Looking for Roles:
               </label>
               {requiredRoles.length > 0 && (
@@ -519,9 +519,9 @@ export const CreatePost = ({ onPostCreated }) => {
                   {requiredRoles.map((role) => (
                     <span
                       key={role}
-                      className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg bg-indigo-950/70 text-indigo-300 border border-indigo-500/40"
+                      className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg bg-[#703344] text-[#F6E8E2] border border-[#A84A4D]/50"
                     >
-                      <span>🟣 {role}</span>
+                      <span>{role}</span>
                       <button
                         type="button"
                         onClick={() => handleRemoveRole(role)}
@@ -546,12 +546,12 @@ export const CreatePost = ({ onPostCreated }) => {
                     }
                   }}
                   placeholder="e.g. ML Developer, UI/UX Designer..."
-                  className="flex-1 px-3 py-1.5 text-xs bg-[#111113] border border-[#27272A] text-[#FAFAFA] rounded-xl focus:border-indigo-500 focus:outline-none"
+                  className="flex-1 px-3 py-1.5 text-xs bg-[#4A2A35] border border-[#703344] text-[#F6E8E2] placeholder:text-[#DDA081] rounded-xl focus:border-[#CB6B5A] focus:outline-none"
                 />
                 <button
                   type="button"
                   onClick={() => handleAddRole()}
-                  className="px-3 py-1.5 text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl transition-colors"
+                  className="px-3 py-1.5 text-xs font-bold bg-[#A84A4D] hover:bg-[#CB6B5A] text-[#F6E8E2] rounded-xl transition-colors"
                 >
                   + Add Role
                 </button>
@@ -559,13 +559,13 @@ export const CreatePost = ({ onPostCreated }) => {
 
               {/* Quick preset roles */}
               <div className="flex flex-wrap gap-1 mt-2">
-                <span className="text-[10px] text-zinc-500 font-medium mr-1 self-center">Presets:</span>
+                <span className="text-[10px] text-[#DDA081] font-medium mr-1 self-center">Presets:</span>
                 {['ML Developer', 'UI/UX Designer', 'Backend Developer', 'Frontend Developer', 'App Developer'].map((r) => (
                   <button
                     key={r}
                     type="button"
                     onClick={() => handleAddRole(r)}
-                    className="text-[11px] font-medium px-2 py-0.5 rounded-md bg-[#111113] border border-[#27272A] hover:bg-indigo-950/50 text-zinc-400 hover:text-indigo-300 transition-colors"
+                    className="text-[11px] font-medium px-2 py-0.5 rounded-md bg-[#4A2A35] border border-[#703344] hover:bg-[#703344] text-[#DDA081] hover:text-[#F6E8E2] transition-colors"
                   >
                     + {r}
                   </button>
@@ -575,7 +575,7 @@ export const CreatePost = ({ onPostCreated }) => {
 
             {/* Required Skills */}
             <div>
-              <label className="block text-[11px] font-bold text-zinc-300 mb-1">
+              <label className="block text-[11px] font-bold text-[#DDA081] mb-1">
                 Required Skills & Tech Stack:
               </label>
               {requiredSkills.length > 0 && (
@@ -583,7 +583,7 @@ export const CreatePost = ({ onPostCreated }) => {
                   {requiredSkills.map((skill) => (
                     <span
                       key={skill}
-                      className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg bg-purple-950/70 text-purple-300 border border-purple-500/40"
+                      className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg bg-[#703344] text-[#F6E8E2] border border-[#A84A4D]/50"
                     >
                       <span>{skill}</span>
                       <button
@@ -610,12 +610,12 @@ export const CreatePost = ({ onPostCreated }) => {
                     }
                   }}
                   placeholder="e.g. Python, React, Gemini..."
-                  className="flex-1 px-3 py-1.5 text-xs bg-[#111113] border border-[#27272A] text-[#FAFAFA] rounded-xl focus:border-indigo-500 focus:outline-none"
+                  className="flex-1 px-3 py-1.5 text-xs bg-[#4A2A35] border border-[#703344] text-[#F6E8E2] placeholder:text-[#DDA081] rounded-xl focus:border-[#CB6B5A] focus:outline-none"
                 />
                 <button
                   type="button"
                   onClick={() => handleAddSkill()}
-                  className="px-3 py-1.5 text-xs font-bold bg-purple-600 hover:bg-purple-500 text-white rounded-xl transition-colors"
+                  className="px-3 py-1.5 text-xs font-bold bg-[#A84A4D] hover:bg-[#CB6B5A] text-[#F6E8E2] rounded-xl transition-colors"
                 >
                   + Add Skill
                 </button>
@@ -623,13 +623,13 @@ export const CreatePost = ({ onPostCreated }) => {
 
               {/* Quick preset skills */}
               <div className="flex flex-wrap gap-1 mt-2">
-                <span className="text-[10px] text-zinc-500 font-medium mr-1 self-center">Presets:</span>
+                <span className="text-[10px] text-[#DDA081] font-medium mr-1 self-center">Presets:</span>
                 {['Python', 'React', 'Gemini', 'Node.js', 'Figma', 'PyTorch', 'Tailwind'].map((s) => (
                   <button
                     key={s}
                     type="button"
                     onClick={() => handleAddSkill(s)}
-                    className="text-[11px] font-medium px-2 py-0.5 rounded-md bg-[#111113] border border-[#27272A] hover:bg-purple-950/50 text-zinc-400 hover:text-purple-300 transition-colors"
+                    className="text-[11px] font-medium px-2 py-0.5 rounded-md bg-[#4A2A35] border border-[#703344] hover:bg-[#703344] text-[#DDA081] hover:text-[#F6E8E2] transition-colors"
                   >
                     + {s}
                   </button>
@@ -640,13 +640,13 @@ export const CreatePost = ({ onPostCreated }) => {
             {/* Team Size & Current Members */}
             <div className="grid grid-cols-2 gap-3 pt-1">
               <div>
-                <label className="block text-[11px] font-bold text-zinc-300 mb-1">
+                <label className="block text-[11px] font-bold text-[#DDA081] mb-1">
                   Target Team Size
                 </label>
                 <select
                   value={teamSize}
                   onChange={(e) => setTeamSize(Number(e.target.value))}
-                  className="w-full px-3 py-2 text-xs bg-[#111113] border border-[#27272A] text-[#FAFAFA] rounded-xl focus:border-indigo-500 focus:outline-none"
+                  className="w-full px-3 py-2 text-xs bg-[#4A2A35] border border-[#703344] text-[#F6E8E2] rounded-xl focus:border-[#CB6B5A] focus:outline-none"
                 >
                   <option value={2}>2 Members</option>
                   <option value={3}>3 Members</option>
@@ -657,13 +657,13 @@ export const CreatePost = ({ onPostCreated }) => {
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold text-zinc-300 mb-1">
+                <label className="block text-[11px] font-bold text-[#DDA081] mb-1">
                   Current Members
                 </label>
                 <select
                   value={currentMembers}
                   onChange={(e) => setCurrentMembers(Number(e.target.value))}
-                  className="w-full px-3 py-2 text-xs bg-[#111113] border border-[#27272A] text-[#FAFAFA] rounded-xl focus:border-indigo-500 focus:outline-none"
+                  className="w-full px-3 py-2 text-xs bg-[#4A2A35] border border-[#703344] text-[#F6E8E2] rounded-xl focus:border-[#CB6B5A] focus:outline-none"
                 >
                   <option value={1}>1 (Only you)</option>
                   <option value={2}>2 Members</option>
@@ -683,7 +683,7 @@ export const CreatePost = ({ onPostCreated }) => {
               {tags.map((tag) => (
                 <span
                   key={tag}
-                  className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg bg-indigo-950/60 text-indigo-300 border border-indigo-500/30"
+                  className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg bg-[#703344] text-[#F6E8E2] border border-[#A84A4D]/50"
                 >
                   <span>#{tag}</span>
                   <button
@@ -700,8 +700,8 @@ export const CreatePost = ({ onPostCreated }) => {
 
           {/* Tag Input Field & Quick Suggestions */}
           <div className="flex flex-wrap items-center gap-2">
-            <div className="flex items-center gap-1.5 bg-[#111113] border border-[#27272A] rounded-xl px-2.5 py-1 text-xs">
-              <Tag className="w-3.5 h-3.5 text-zinc-500" />
+            <div className="flex items-center gap-1.5 bg-[#281A21] border border-[#703344] rounded-xl px-2.5 py-1 text-xs">
+              <Tag className="w-3.5 h-3.5 text-[#DDA081]" />
               <input
                 type="text"
                 value={tagInput}
@@ -713,12 +713,12 @@ export const CreatePost = ({ onPostCreated }) => {
                   }
                 }}
                 placeholder="Add tag (Press Enter)..."
-                className="bg-transparent text-xs focus:outline-none text-[#FAFAFA] w-36 placeholder:text-zinc-500"
+                className="bg-transparent text-xs focus:outline-none text-[#F6E8E2] w-36 placeholder:text-[#DDA081]"
               />
               <button
                 type="button"
                 onClick={handleAddTag}
-                className="text-[11px] font-bold text-indigo-400 hover:text-indigo-300"
+                className="text-[11px] font-bold text-[#CB6B5A] hover:text-[#DDA081]"
               >
                 +Add
               </button>
@@ -726,13 +726,13 @@ export const CreatePost = ({ onPostCreated }) => {
 
             {/* Suggested quick tag pills */}
             <div className="flex items-center gap-1 overflow-x-auto scrollbar-none py-0.5">
-              <span className="text-[10px] text-zinc-500 font-medium">Suggestions:</span>
+              <span className="text-[10px] text-[#DDA081] font-medium">Suggestions:</span>
               {popularTagSuggestions.map((s) => (
                 <button
                   key={s}
                   type="button"
                   onClick={() => handleSuggestedTagClick(s)}
-                  className="text-[11px] font-medium px-2 py-0.5 rounded-md bg-[#111113] hover:bg-indigo-950/50 hover:text-indigo-300 text-zinc-400 border border-[#27272A] transition-colors"
+                  className="text-[11px] font-medium px-2 py-0.5 rounded-md bg-[#281A21] hover:bg-[#703344] hover:text-[#F6E8E2] text-[#DDA081] border border-[#703344] transition-colors"
                 >
                   #{s}
                 </button>
@@ -746,7 +746,7 @@ export const CreatePost = ({ onPostCreated }) => {
           <button
             type="button"
             onClick={() => setShowExtras(!showExtras)}
-            className="inline-flex items-center gap-1 text-xs font-semibold text-zinc-400 hover:text-indigo-400 transition-colors"
+            className="inline-flex items-center gap-1 text-xs font-semibold text-[#DDA081] hover:text-[#CB6B5A] transition-colors"
           >
             <LinkIcon className="w-3.5 h-3.5" />
             <span>{showExtras ? 'Hide URL Link' : '+ Add Project / Hackathon URL'}</span>
@@ -754,10 +754,10 @@ export const CreatePost = ({ onPostCreated }) => {
           </button>
 
           {showExtras && (
-            <div className="mt-3 p-3.5 bg-[#111113] rounded-2xl border border-[#27272A] space-y-2.5 animate-fadeIn">
+            <div className="mt-3 p-3.5 bg-[#281A21] rounded-2xl border border-[#703344] space-y-2.5 animate-fadeIn">
               <div>
-                <label className="block text-[11px] font-bold text-zinc-300 mb-1 flex items-center gap-1">
-                  <LinkIcon className="w-3 h-3 text-zinc-400" />
+                <label className="block text-[11px] font-bold text-[#DDA081] mb-1 flex items-center gap-1">
+                  <LinkIcon className="w-3 h-3 text-[#DDA081]" />
                   <span>Project / Repo / Hackathon URL (Optional)</span>
                 </label>
                 <input
@@ -765,7 +765,7 @@ export const CreatePost = ({ onPostCreated }) => {
                   placeholder="https://github.com/..."
                   value={projectLink}
                   onChange={(e) => setProjectLink(e.target.value)}
-                  className="w-full px-3 py-1.5 text-xs bg-[#18181B] border border-[#27272A] text-[#FAFAFA] rounded-xl focus:border-indigo-500 focus:outline-none"
+                  className="w-full px-3 py-1.5 text-xs bg-[#4A2A35] border border-[#703344] text-[#F6E8E2] placeholder:text-[#DDA081] rounded-xl focus:border-[#CB6B5A] focus:outline-none"
                 />
               </div>
             </div>
@@ -773,22 +773,23 @@ export const CreatePost = ({ onPostCreated }) => {
         </div>
 
         {/* Footer Actions: Image, Video Buttons & Publish */}
-        <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-[#27272A]">
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-[#703344]">
           <div className="flex items-center gap-2">
             {/* 📷 Image Button */}
             <button
               type="button"
               onClick={() => imageInputRef.current?.click()}
-              className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer shadow-xs active:scale-95 ${mediaMode === 'image'
-                  ? 'bg-indigo-950/70 text-indigo-300 border-indigo-500/50'
-                  : 'bg-[#111113] hover:bg-[#27272A] text-zinc-300 hover:text-indigo-400 border-[#27272A]'
-                }`}
+              className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer shadow-xs active:scale-95 ${
+                mediaMode === 'image'
+                  ? 'bg-[#703344] text-[#F6E8E2] border-[#A84A4D]'
+                  : 'bg-[#281A21] hover:bg-[#703344] text-[#DDA081] hover:text-[#F6E8E2] border-[#703344]'
+              }`}
               title="Attach Images (JPG, PNG, WEBP, GIF up to 25MB, max 6 images)"
             >
-              <ImageIcon className="w-4 h-4 text-indigo-400" />
+              <ImageIcon className="w-4 h-4 text-[#CB6B5A]" />
               <span>Image</span>
               {mediaMode === 'image' && mediaItems.length > 0 && (
-                <span className="ml-0.5 px-1.5 py-0.2 rounded-full bg-indigo-600 text-white text-[10px]">
+                <span className="ml-0.5 px-1.5 py-0.2 rounded-full bg-[#A84A4D] text-[#F6E8E2] text-[10px]">
                   {mediaItems.length}
                 </span>
               )}
@@ -798,34 +799,35 @@ export const CreatePost = ({ onPostCreated }) => {
             <button
               type="button"
               onClick={() => videoInputRef.current?.click()}
-              className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer shadow-xs active:scale-95 ${mediaMode === 'video'
-                  ? 'bg-purple-950/70 text-purple-300 border-purple-500/50'
-                  : 'bg-[#111113] hover:bg-[#27272A] text-zinc-300 hover:text-purple-400 border-[#27272A]'
-                }`}
+              className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer shadow-xs active:scale-95 ${
+                mediaMode === 'video'
+                  ? 'bg-[#703344] text-[#F6E8E2] border-[#A84A4D]'
+                  : 'bg-[#281A21] hover:bg-[#703344] text-[#DDA081] hover:text-[#F6E8E2] border-[#703344]'
+              }`}
               title="Attach Video (MP4, WEBM, MOV up to 100MB, 1 video per post)"
             >
-              <VideoIcon className="w-4 h-4 text-purple-400" />
+              <VideoIcon className="w-4 h-4 text-[#CB6B5A]" />
               <span>Video</span>
               {mediaMode === 'video' && (
-                <span className="ml-0.5 px-1.5 py-0.2 rounded-full bg-purple-600 text-white text-[10px]">
+                <span className="ml-0.5 px-1.5 py-0.2 rounded-full bg-[#A84A4D] text-[#F6E8E2] text-[10px]">
                   1
                 </span>
               )}
             </button>
 
-            <span className="text-[11px] text-zinc-500 hidden md:inline">
+            <span className="text-[11px] text-[#DDA081] hidden md:inline">
               Max 25MB image • 100MB video
             </span>
           </div>
 
           <Button
-            variant="gradient"
+            variant="primary"
             size="md"
             icon={loading ? Loader2 : Send}
             loading={loading}
             disabled={loading || (!content.trim() && mediaItems.length === 0)}
             type="submit"
-            className="shadow-sm shadow-indigo-500/20"
+            className="shadow-sm shadow-[#A84A4D]/20"
           >
             {loading ? 'Uploading & Publishing...' : 'Post to Feed'}
           </Button>

@@ -524,30 +524,30 @@ export const TeamVideoMeeting = ({
   return (
     <div
       ref={containerRef}
-      className={`flex flex-col bg-[#09090B] border border-[#27272A] rounded-3xl overflow-hidden shadow-2xl relative ${
+      className={`flex flex-col bg-[#281A21] border border-[#703344] rounded-3xl overflow-hidden shadow-2xl relative ${
         isFullscreen ? 'h-screen w-screen rounded-none' : 'h-[750px] max-h-[85vh]'
       }`}
     >
       {/* Top Video Room Header */}
-      <div className="p-4 bg-[#111113] border-b border-[#27272A] flex flex-wrap items-center justify-between gap-4 z-10">
+      <div className="p-4 bg-[#4A2A35] border-b border-[#703344] flex flex-wrap items-center justify-between gap-4 z-10">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-indigo-950/80 border border-indigo-500/40 text-indigo-400 flex items-center justify-center shadow-inner">
+          <div className="w-10 h-10 rounded-2xl bg-[#703344] border border-[#A84A4D]/40 text-[#CB6B5A] flex items-center justify-center shadow-inner">
             <VideoIcon className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="font-extrabold text-base text-[#FAFAFA] tracking-tight truncate max-w-xs sm:max-w-md">
+              <h3 className="font-extrabold text-base text-[#F6E8E2] tracking-tight truncate max-w-xs sm:max-w-md">
                 {meetingTitle}
               </h3>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-emerald-950/80 text-emerald-300 border border-emerald-500/40 flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-[#5B8A68]/20 text-[#86B190] border border-[#5B8A68]/40 flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#86B190] animate-pulse" />
                 Live
               </span>
             </div>
-            <p className="text-xs text-zinc-400 flex items-center gap-2 mt-0.5">
+            <p className="text-xs text-[#DDA081] flex items-center gap-2 mt-0.5">
               <span>{totalCount} Active {totalCount === 1 ? 'Participant' : 'Participants'}</span>
               <span>•</span>
-              <span className="text-emerald-400 font-semibold flex items-center gap-1">
+              <span className="text-[#86B190] font-semibold flex items-center gap-1">
                 <ShieldCheck className="w-3.5 h-3.5" /> WebRTC Encrypted
               </span>
             </p>
@@ -559,7 +559,7 @@ export const TeamVideoMeeting = ({
           <button
             type="button"
             onClick={toggleFullscreen}
-            className="p-2.5 rounded-xl bg-[#18181B] hover:bg-[#27272A] border border-[#27272A] text-zinc-400 hover:text-white transition-all"
+            className="p-2.5 rounded-xl bg-[#281A21] hover:bg-[#703344] border border-[#703344] text-[#DDA081] hover:text-[#F6E8E2] transition-all cursor-pointer"
             title={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
           >
             {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
@@ -569,17 +569,17 @@ export const TeamVideoMeeting = ({
 
       {/* Media Device Notice Banner if limited */}
       {mediaError && (
-        <div className="px-4 py-2 bg-amber-950/40 border-b border-amber-500/30 text-amber-300 text-xs font-semibold flex items-center gap-2">
+        <div className="px-4 py-2 bg-[#D99443]/20 border-b border-[#D99443]/40 text-[#E5B079] text-xs font-semibold flex items-center gap-2">
           <AlertTriangle className="w-4 h-4 flex-shrink-0" />
           <span>{mediaError}</span>
         </div>
       )}
 
       {/* Main Video Tiles Grid */}
-      <div className="flex-1 p-4 sm:p-6 overflow-y-auto bg-[#0E0E11] flex items-center justify-center">
+      <div className="flex-1 p-4 sm:p-6 overflow-y-auto bg-[#281A21] flex items-center justify-center">
         <div className={`w-full grid gap-4 ${getGridColsClass()}`}>
           {/* Local User Tile */}
-          <div className="relative aspect-video rounded-3xl overflow-hidden bg-[#18181B] border-2 border-[#27272A] shadow-xl group flex items-center justify-center">
+          <div className="relative aspect-video rounded-3xl overflow-hidden bg-[#4A2A35] border-2 border-[#703344] shadow-xl group flex items-center justify-center">
             {isVideoEnabled || isScreenSharing ? (
               <video
                 ref={localVideoRef}
@@ -590,20 +590,20 @@ export const TeamVideoMeeting = ({
               />
             ) : (
               <div className="flex flex-col items-center justify-center space-y-2">
-                <div className="w-16 h-16 rounded-3xl bg-gradient-to-tr from-indigo-600 to-purple-600 text-white flex items-center justify-center text-xl font-extrabold shadow-lg">
+                <div className="w-16 h-16 rounded-3xl bg-gradient-to-tr from-[#A84A4D] to-[#CB6B5A] text-[#F6E8E2] flex items-center justify-center text-xl font-extrabold shadow-lg">
                   {user?.name?.charAt(0) || 'U'}
                 </div>
-                <span className="text-xs font-semibold text-zinc-400">Camera is off</span>
+                <span className="text-xs font-semibold text-[#DDA081]">Camera is off</span>
               </div>
             )}
 
             {/* Local Tile Floating Badges */}
             <div className="absolute top-3 left-3 flex items-center gap-1.5">
-              <span className="px-2.5 py-1 rounded-xl bg-black/60 backdrop-blur-md text-[11px] font-extrabold text-white border border-white/10 shadow-md flex items-center gap-1.5">
+              <span className="px-2.5 py-1 rounded-xl bg-black/60 backdrop-blur-md text-[11px] font-extrabold text-[#F6E8E2] border border-white/10 shadow-md flex items-center gap-1.5">
                 <span>{user?.name || 'You'} (You)</span>
               </span>
               {isScreenSharing && (
-                <span className="px-2 py-0.5 rounded-lg bg-indigo-600 text-white text-[10px] font-black uppercase tracking-wider flex items-center gap-1">
+                <span className="px-2 py-0.5 rounded-lg bg-[#A84A4D] text-[#F6E8E2] text-[10px] font-black uppercase tracking-wider flex items-center gap-1">
                   <Monitor className="w-3 h-3" /> Screen
                 </span>
               )}
@@ -613,8 +613,8 @@ export const TeamVideoMeeting = ({
               <div
                 className={`p-1.5 rounded-xl backdrop-blur-md ${
                   !isAudioEnabled
-                    ? 'bg-rose-600 text-white'
-                    : 'bg-black/50 text-emerald-400'
+                    ? 'bg-[#C04A4D] text-white'
+                    : 'bg-black/50 text-[#86B190]'
                 }`}
               >
                 {!isAudioEnabled ? <MicOff className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5" />}
@@ -633,15 +633,15 @@ export const TeamVideoMeeting = ({
       </div>
 
       {/* Bottom Floating Control Bar */}
-      <div className="p-4 bg-[#111113] border-t border-[#27272A] flex items-center justify-center gap-3 sm:gap-4 z-10">
+      <div className="p-4 bg-[#4A2A35] border-t border-[#703344] flex items-center justify-center gap-3 sm:gap-4 z-10">
         {/* Microphone Toggle Button */}
         <button
           type="button"
           onClick={toggleMicrophone}
-          className={`p-3.5 rounded-2xl font-bold transition-all flex items-center gap-2 shadow-lg ${
+          className={`p-3.5 rounded-2xl font-bold transition-all flex items-center gap-2 shadow-lg cursor-pointer ${
             isAudioEnabled
-              ? 'bg-[#27272A] hover:bg-[#3F3F46] text-white'
-              : 'bg-rose-600 hover:bg-rose-500 text-white shadow-rose-600/30'
+              ? 'bg-[#281A21] hover:bg-[#703344] text-[#F6E8E2] border border-[#703344]'
+              : 'bg-[#C04A4D] hover:bg-[#A84A4D] text-white'
           }`}
           title={isAudioEnabled ? 'Mute Microphone' : 'Unmute Microphone'}
         >
@@ -653,10 +653,10 @@ export const TeamVideoMeeting = ({
         <button
           type="button"
           onClick={toggleCamera}
-          className={`p-3.5 rounded-2xl font-bold transition-all flex items-center gap-2 shadow-lg ${
+          className={`p-3.5 rounded-2xl font-bold transition-all flex items-center gap-2 shadow-lg cursor-pointer ${
             isVideoEnabled
-              ? 'bg-[#27272A] hover:bg-[#3F3F46] text-white'
-              : 'bg-rose-600 hover:bg-rose-500 text-white shadow-rose-600/30'
+              ? 'bg-[#281A21] hover:bg-[#703344] text-[#F6E8E2] border border-[#703344]'
+              : 'bg-[#C04A4D] hover:bg-[#A84A4D] text-white'
           }`}
           title={isVideoEnabled ? 'Turn Off Camera' : 'Turn On Camera'}
         >
@@ -668,10 +668,10 @@ export const TeamVideoMeeting = ({
         <button
           type="button"
           onClick={toggleScreenShare}
-          className={`p-3.5 rounded-2xl font-bold transition-all flex items-center gap-2 shadow-lg ${
+          className={`p-3.5 rounded-2xl font-bold transition-all flex items-center gap-2 shadow-lg cursor-pointer ${
             isScreenSharing
-              ? 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-600/30'
-              : 'bg-[#27272A] hover:bg-[#3F3F46] text-zinc-300 hover:text-white'
+              ? 'bg-[#A84A4D] hover:bg-[#CB6B5A] text-[#F6E8E2]'
+              : 'bg-[#281A21] hover:bg-[#703344] text-[#DDA081] hover:text-[#F6E8E2] border border-[#703344]'
           }`}
           title={isScreenSharing ? 'Stop Screen Share' : 'Share Screen'}
         >
@@ -683,7 +683,7 @@ export const TeamVideoMeeting = ({
         <button
           type="button"
           onClick={handleLeave}
-          className="p-3.5 px-6 rounded-2xl bg-rose-600 hover:bg-rose-500 text-white font-extrabold text-xs transition-all flex items-center gap-2 shadow-lg shadow-rose-600/30 cursor-pointer active:scale-95"
+          className="p-3.5 px-6 rounded-2xl bg-[#C04A4D] hover:bg-[#A84A4D] text-white font-extrabold text-xs transition-all flex items-center gap-2 shadow-lg cursor-pointer active:scale-95"
           title="Leave Meeting"
         >
           <PhoneOff className="w-5 h-5" />
@@ -708,7 +708,7 @@ const RemoteVideoTile = ({ participant }) => {
   const isAudioMuted = participant.isAudioMuted;
 
   return (
-    <div className="relative aspect-video rounded-3xl overflow-hidden bg-[#18181B] border-2 border-[#27272A] shadow-xl flex items-center justify-center">
+    <div className="relative aspect-video rounded-3xl overflow-hidden bg-[#4A2A35] border-2 border-[#703344] shadow-xl flex items-center justify-center">
       {participant.stream && !isVideoOff ? (
         <video
           ref={videoRef}
@@ -718,20 +718,20 @@ const RemoteVideoTile = ({ participant }) => {
         />
       ) : (
         <div className="flex flex-col items-center justify-center space-y-2">
-          <div className="w-16 h-16 rounded-3xl bg-indigo-950 border border-indigo-500/40 text-indigo-300 flex items-center justify-center text-xl font-extrabold shadow-inner">
+          <div className="w-16 h-16 rounded-3xl bg-[#703344] border border-[#A84A4D]/40 text-[#CB6B5A] flex items-center justify-center text-xl font-extrabold shadow-inner">
             {participant.userName?.charAt(0) || 'P'}
           </div>
-          <span className="text-xs font-semibold text-zinc-400">{participant.userName || 'Peer'}</span>
+          <span className="text-xs font-semibold text-[#DDA081]">{participant.userName || 'Peer'}</span>
         </div>
       )}
 
       {/* Floating Badges */}
       <div className="absolute top-3 left-3 flex items-center gap-1.5">
-        <span className="px-2.5 py-1 rounded-xl bg-black/60 backdrop-blur-md text-[11px] font-extrabold text-white border border-white/10 shadow-md">
+        <span className="px-2.5 py-1 rounded-xl bg-black/60 backdrop-blur-md text-[11px] font-extrabold text-[#F6E8E2] border border-white/10 shadow-md">
           {participant.userName || 'Team Member'}
         </span>
         {participant.isScreenSharing && (
-          <span className="px-2 py-0.5 rounded-lg bg-indigo-600 text-white text-[10px] font-black uppercase tracking-wider flex items-center gap-1">
+          <span className="px-2 py-0.5 rounded-lg bg-[#A84A4D] text-[#F6E8E2] text-[10px] font-black uppercase tracking-wider flex items-center gap-1">
             <Monitor className="w-3 h-3" /> Screen
           </span>
         )}
@@ -740,7 +740,7 @@ const RemoteVideoTile = ({ participant }) => {
       <div className="absolute top-3 right-3 flex items-center gap-1.5">
         <div
           className={`p-1.5 rounded-xl backdrop-blur-md ${
-            isAudioMuted ? 'bg-rose-600 text-white' : 'bg-black/50 text-emerald-400'
+            isAudioMuted ? 'bg-[#C04A4D] text-white' : 'bg-black/50 text-[#86B190]'
           }`}
         >
           {isAudioMuted ? <MicOff className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5" />}

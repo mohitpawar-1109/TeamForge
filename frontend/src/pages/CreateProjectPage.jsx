@@ -124,8 +124,8 @@ export const CreateProjectPage = () => {
     <div className="max-w-3xl mx-auto py-6">
       {/* Stepper Header */}
       <div className="mb-8">
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-[#FAFAFA] tracking-tight">Create New Project</h1>
-        <p className="text-xs sm:text-sm text-zinc-400 mt-1">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-[#F6E8E2] tracking-tight">Create New Project</h1>
+        <p className="text-xs sm:text-sm text-[#DDA081] mt-1">
           Set up project scope, analyze required skills with AI, and start recruiting teammates.
         </p>
 
@@ -141,10 +141,10 @@ export const CreateProjectPage = () => {
               key={s.num}
               className={`p-3 rounded-xl border transition-all text-center ${
                 step === s.num
-                  ? 'bg-indigo-950/80 border-indigo-500/50 text-indigo-300 font-bold shadow-xs'
+                  ? 'bg-[#703344] border-[#A84A4D] text-[#F6E8E2] font-bold shadow-xs'
                   : step > s.num
-                  ? 'bg-emerald-950/60 border-emerald-500/30 text-emerald-300 font-medium'
-                  : 'bg-[#18181B] border-[#27272A] text-zinc-500'
+                  ? 'bg-[#5B8A68]/20 border-[#5B8A68]/40 text-[#86B190] font-medium'
+                  : 'bg-[#4A2A35] border-[#703344] text-[#DDA081]/60'
               }`}
             >
               <div className="text-xs">Step {s.num}</div>
@@ -155,45 +155,45 @@ export const CreateProjectPage = () => {
       </div>
 
       {/* Main Wizard Form Card */}
-      <div className="bg-[#18181B] rounded-3xl border border-[#27272A] p-6 sm:p-10 shadow-soft">
+      <div className="bg-[#4A2A35] rounded-3xl border border-[#703344] p-6 sm:p-10 shadow-soft">
         {/* STEP 1: Basic Information */}
         {step === 1 && (
           <div className="space-y-5">
-            <h2 className="text-lg font-bold text-[#FAFAFA] pb-3 border-b border-[#27272A]">
+            <h2 className="text-lg font-bold text-[#F6E8E2] pb-3 border-b border-[#703344]">
               Step 1: Project Information
             </h2>
 
             <div>
-              <label className="block text-xs font-semibold text-zinc-300 mb-1">Project Title *</label>
+              <label className="block text-xs font-semibold text-[#DDA081] mb-1">Project Title *</label>
               <input
                 type="text"
                 required
                 placeholder="e.g. AI Resume Analyzer"
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                className="w-full px-3.5 py-2.5 text-sm bg-[#111113] border border-[#27272A] text-[#FAFAFA] rounded-xl focus:bg-[#09090B] focus:border-indigo-500 focus:outline-none placeholder:text-zinc-500"
+                className="w-full px-3.5 py-2.5 text-sm bg-[#281A21] border border-[#703344] text-[#F6E8E2] rounded-xl focus:bg-[#281A21] focus:border-[#CB6B5A] focus:outline-none placeholder:text-[#DDA081]"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-zinc-300 mb-1">Project Description *</label>
+              <label className="block text-xs font-semibold text-[#DDA081] mb-1">Project Description *</label>
               <textarea
                 rows={4}
                 required
                 placeholder="Describe what your project does, problem it solves, and target architecture..."
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="w-full px-3.5 py-2.5 text-sm bg-[#111113] border border-[#27272A] text-[#FAFAFA] rounded-xl focus:bg-[#09090B] focus:border-indigo-500 focus:outline-none placeholder:text-zinc-500"
+                className="w-full px-3.5 py-2.5 text-sm bg-[#281A21] border border-[#703344] text-[#F6E8E2] rounded-xl focus:bg-[#281A21] focus:border-[#CB6B5A] focus:outline-none placeholder:text-[#DDA081]"
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold text-zinc-300 mb-1">Category</label>
+                <label className="block text-xs font-semibold text-[#DDA081] mb-1">Category</label>
                 <select
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  className="w-full px-3.5 py-2.5 text-sm bg-[#111113] border border-[#27272A] text-zinc-300 rounded-xl focus:outline-none focus:border-indigo-500"
+                  className="w-full px-3.5 py-2.5 text-sm bg-[#281A21] border border-[#703344] text-[#F6E8E2] rounded-xl focus:outline-none focus:border-[#CB6B5A]"
                 >
                   <option value="AI / Machine Learning">AI / Machine Learning</option>
                   <option value="Web Development">Web Development</option>
@@ -207,25 +207,25 @@ export const CreateProjectPage = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-zinc-300 mb-1">Target Team Size</label>
+                <label className="block text-xs font-semibold text-[#DDA081] mb-1">Target Team Size</label>
                 <input
                   type="number"
                   min={2}
                   max={8}
                   value={formData.teamSize}
                   onChange={(e) => setFormData({ ...formData, teamSize: Number(e.target.value) })}
-                  className="w-full px-3.5 py-2.5 text-sm bg-[#111113] border border-[#27272A] text-[#FAFAFA] rounded-xl focus:bg-[#09090B] focus:border-indigo-500 focus:outline-none placeholder:text-zinc-500"
+                  className="w-full px-3.5 py-2.5 text-sm bg-[#281A21] border border-[#703344] text-[#F6E8E2] rounded-xl focus:bg-[#281A21] focus:border-[#CB6B5A] focus:outline-none placeholder:text-[#DDA081]"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold text-zinc-300 mb-1">Difficulty Level</label>
+                <label className="block text-xs font-semibold text-[#DDA081] mb-1">Difficulty Level</label>
                 <select
                   value={formData.difficulty}
                   onChange={(e) => setFormData({ ...formData, difficulty: e.target.value })}
-                  className="w-full px-3.5 py-2.5 text-sm bg-[#111113] border border-[#27272A] text-zinc-300 rounded-xl focus:outline-none focus:border-indigo-500"
+                  className="w-full px-3.5 py-2.5 text-sm bg-[#281A21] border border-[#703344] text-[#F6E8E2] rounded-xl focus:outline-none focus:border-[#CB6B5A]"
                 >
                   <option value="Beginner">Beginner</option>
                   <option value="Medium">Medium</option>
@@ -235,11 +235,11 @@ export const CreateProjectPage = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-zinc-300 mb-1">Estimated Duration</label>
+                <label className="block text-xs font-semibold text-[#DDA081] mb-1">Estimated Duration</label>
                 <select
                   value={formData.duration}
                   onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
-                  className="w-full px-3.5 py-2.5 text-sm bg-[#111113] border border-[#27272A] text-zinc-300 rounded-xl focus:outline-none focus:border-indigo-500"
+                  className="w-full px-3.5 py-2.5 text-sm bg-[#281A21] border border-[#703344] text-[#F6E8E2] rounded-xl focus:outline-none focus:border-[#CB6B5A]"
                 >
                   <option value="Hackathon (24-48h)">Hackathon (24-48h)</option>
                   <option value="2-3 Weeks">2-3 Weeks</option>
@@ -271,19 +271,19 @@ export const CreateProjectPage = () => {
         {/* STEP 2: Required Skills */}
         {step === 2 && (
           <div className="space-y-5">
-            <h2 className="text-lg font-bold text-[#FAFAFA] pb-3 border-b border-[#27272A]">
+            <h2 className="text-lg font-bold text-[#F6E8E2] pb-3 border-b border-[#703344]">
               Step 2: Technical Skills Needed
             </h2>
-            <p className="text-xs text-zinc-400">
+            <p className="text-xs text-[#DDA081]">
               Add technical skills required for this project. Our matching engine compares these against candidate profiles.
             </p>
 
             {/* Chips Container */}
-            <div className="flex flex-wrap gap-2 p-4 bg-[#111113] rounded-2xl border border-[#27272A] min-h-[80px] items-center">
+            <div className="flex flex-wrap gap-2 p-4 bg-[#281A21] rounded-2xl border border-[#703344] min-h-[80px] items-center">
               {requiredSkills.map((skill, idx) => (
                 <span
                   key={idx}
-                  className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-xl bg-indigo-600 text-white shadow-xs"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-xl bg-[#A84A4D] text-[#F6E8E2] shadow-xs"
                 >
                   {skill}
                   <button type="button" onClick={() => handleRemoveSkill(skill)}>
@@ -301,7 +301,7 @@ export const CreateProjectPage = () => {
                 value={newSkill}
                 onChange={(e) => setNewSkill(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleAddSkill(e)}
-                className="flex-1 px-3.5 py-2 text-sm bg-[#111113] border border-[#27272A] text-[#FAFAFA] rounded-xl focus:bg-[#09090B] focus:border-indigo-500 focus:outline-none placeholder:text-zinc-500"
+                className="flex-1 px-3.5 py-2 text-sm bg-[#281A21] border border-[#703344] text-[#F6E8E2] rounded-xl focus:bg-[#281A21] focus:border-[#CB6B5A] focus:outline-none placeholder:text-[#DDA081]"
               />
               <Button variant="secondary" size="md" onClick={handleAddSkill}>
                 Add Skill
@@ -310,7 +310,7 @@ export const CreateProjectPage = () => {
 
             {/* Suggested skill presets */}
             <div>
-              <span className="text-xs font-semibold text-zinc-400 block mb-2">Quick Presets:</span>
+              <span className="text-xs font-semibold text-[#DDA081] block mb-2">Quick Presets:</span>
               <div className="flex flex-wrap gap-1.5">
                 {['React', 'Node.js', 'Python', 'Machine Learning', 'NLP', 'UI/UX', 'Figma', 'MongoDB', 'PostgreSQL', 'Docker', 'React Native'].map(ps => (
                   <button
@@ -319,7 +319,7 @@ export const CreateProjectPage = () => {
                     onClick={() => {
                       if (!requiredSkills.includes(ps)) setRequiredSkills([...requiredSkills, ps]);
                     }}
-                    className="text-xs px-2.5 py-1 rounded-lg bg-[#111113] hover:bg-indigo-950/50 hover:text-indigo-300 text-zinc-300 border border-[#27272A] transition-colors"
+                    className="text-xs px-2.5 py-1 rounded-lg bg-[#281A21] hover:bg-[#703344] hover:text-[#F6E8E2] text-[#DDA081] border border-[#703344] transition-colors cursor-pointer"
                   >
                     + {ps}
                   </button>
@@ -341,12 +341,12 @@ export const CreateProjectPage = () => {
         {/* STEP 3: Availability & Work Style */}
         {step === 3 && (
           <div className="space-y-5">
-            <h2 className="text-lg font-bold text-[#FAFAFA] pb-3 border-b border-[#27272A]">
+            <h2 className="text-lg font-bold text-[#F6E8E2] pb-3 border-b border-[#703344]">
               Step 3: Schedule & Collaboration Needs
             </h2>
 
             <div>
-              <label className="block text-xs font-semibold text-zinc-300 mb-2">Preferred Team Meeting Times</label>
+              <label className="block text-xs font-semibold text-[#DDA081] mb-2">Preferred Team Meeting Times</label>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {['Weekdays (Evening)', 'Weekends (Full Day)', 'Flexible / Async'].map((timeOption) => {
                   const selected = formData.availabilityNeeded.includes(timeOption);
@@ -361,10 +361,10 @@ export const CreateProjectPage = () => {
                           setFormData({ ...formData, availabilityNeeded: [...formData.availabilityNeeded, timeOption] });
                         }
                       }}
-                      className={`p-3.5 rounded-2xl border text-center text-xs font-semibold transition-all ${
+                      className={`p-3.5 rounded-2xl border text-center text-xs font-semibold transition-all cursor-pointer ${
                         selected
-                          ? 'bg-indigo-950/80 border-indigo-500/50 text-indigo-300 shadow-xs'
-                          : 'bg-[#111113] border-[#27272A] text-zinc-400 hover:bg-[#27272A]'
+                          ? 'bg-[#703344] border-[#A84A4D] text-[#F6E8E2] shadow-xs'
+                          : 'bg-[#281A21] border-[#703344] text-[#DDA081] hover:bg-[#703344]/50'
                       }`}
                     >
                       {timeOption}
@@ -388,25 +388,25 @@ export const CreateProjectPage = () => {
         {/* STEP 4: AI Analysis & Review */}
         {step === 4 && (
           <div className="space-y-6">
-            <h2 className="text-lg font-bold text-[#FAFAFA] pb-3 border-b border-[#27272A]">
+            <h2 className="text-lg font-bold text-[#F6E8E2] pb-3 border-b border-[#703344]">
               Step 4: AI Project Requirements Analysis
             </h2>
 
             {/* AI Callout Banner */}
-            <div className="p-6 rounded-2xl bg-indigo-950/20 border border-indigo-500/30">
+            <div className="p-6 rounded-2xl bg-[#281A21] border border-[#703344]">
               <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center flex-shrink-0 shadow-md shadow-indigo-500/20">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#A84A4D] to-[#CB6B5A] text-[#F6E8E2] flex items-center justify-center flex-shrink-0 shadow-md shadow-[#A84A4D]/20">
                   <Brain className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-[#FAFAFA]">Analyze Project Scope with AI</h3>
-                  <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
+                  <h3 className="text-base font-bold text-[#F6E8E2]">Analyze Project Scope with AI</h3>
+                  <p className="text-xs text-[#DDA081] mt-1 leading-relaxed">
                     Our AI scans your project overview, extracts exact skill dependencies, estimates team balance, and flags potential technical bottlenecks before you begin recruitment.
                   </p>
 
                   <div className="mt-4 flex flex-wrap gap-2">
                     <Button
-                      variant="gradient"
+                      variant="primary"
                       size="md"
                       icon={Sparkles}
                       loading={aiLoading}
@@ -420,26 +420,26 @@ export const CreateProjectPage = () => {
             </div>
 
             {/* Summary Review Card */}
-            <div className="bg-[#111113] rounded-2xl p-5 border border-[#27272A] space-y-3">
+            <div className="bg-[#281A21] rounded-2xl p-5 border border-[#703344] space-y-3">
               <div className="flex justify-between items-start">
                 <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-indigo-300 bg-indigo-950/60 px-2 py-0.5 rounded border border-indigo-500/30">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#F6E8E2] bg-[#703344] px-2 py-0.5 rounded border border-[#A84A4D]/40">
                     {formData.category}
                   </span>
-                  <h3 className="text-base font-bold text-[#FAFAFA] mt-1">{formData.title}</h3>
+                  <h3 className="text-base font-bold text-[#F6E8E2] mt-1">{formData.title}</h3>
                 </div>
-                <span className="text-xs font-semibold px-2 py-1 rounded bg-[#18181B] border border-[#27272A] text-zinc-300">
+                <span className="text-xs font-semibold px-2 py-1 rounded bg-[#4A2A35] border border-[#703344] text-[#DDA081]">
                   {formData.teamSize} Members Required
                 </span>
               </div>
 
-              <p className="text-xs text-zinc-400 line-clamp-2">{formData.description}</p>
+              <p className="text-xs text-[#DDA081] line-clamp-2">{formData.description}</p>
 
               <div>
-                <span className="text-[11px] font-bold text-zinc-500 block mb-1">Target Skills:</span>
+                <span className="text-[11px] font-bold text-[#DDA081] block mb-1">Target Skills:</span>
                 <div className="flex flex-wrap gap-1">
                   {requiredSkills.map((s, idx) => (
-                    <span key={idx} className="text-xs px-2 py-0.5 bg-[#18181B] border border-[#27272A] rounded-md text-zinc-300 font-medium">
+                    <span key={idx} className="text-xs px-2 py-0.5 bg-[#4A2A35] border border-[#703344] rounded-md text-[#F6E8E2] font-medium">
                       {s}
                     </span>
                   ))}

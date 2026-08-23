@@ -93,40 +93,40 @@ export const InviteMemberModal = ({ isOpen, onClose, group, onMemberInvited }) =
       <form onSubmit={handleInvite} className="space-y-4">
         {/* Search input */}
         <div className="relative">
-          <Search className="w-4 h-4 text-zinc-400 absolute left-3.5 top-3 pointer-events-none" />
+          <Search className="w-4 h-4 text-[#DDA081] absolute left-3.5 top-3 pointer-events-none" />
           <input
             type="text"
             value={search}
             onChange={handleSearchChange}
             placeholder="Search by name, skills, course or college..."
-            className="w-full bg-[#111113] border border-[#27272A] focus:border-indigo-500 rounded-xl pl-10 pr-4 py-2.5 text-xs sm:text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none"
+            className="w-full bg-[#281A21] border border-[#703344] focus:border-[#CB6B5A] rounded-xl pl-10 pr-4 py-2.5 text-xs sm:text-sm text-[#F6E8E2] placeholder-[#DDA081]/60 focus:outline-none"
           />
         </div>
 
         {/* Role Selection */}
-        <div className="flex items-center justify-between p-3 rounded-xl bg-[#111113] border border-[#27272A]">
-          <div className="flex items-center gap-2 text-xs font-bold text-zinc-300">
-            <Shield className="w-4 h-4 text-indigo-400" />
+        <div className="flex items-center justify-between p-3 rounded-xl bg-[#281A21] border border-[#703344]">
+          <div className="flex items-center gap-2 text-xs font-bold text-[#F6E8E2]">
+            <Shield className="w-4 h-4 text-[#CB6B5A]" />
             <span>Assigned Role:</span>
           </div>
 
           <select
             value={role}
             onChange={(e) => setRole(e.target.value)}
-            className="bg-[#18181B] border border-[#27272A] focus:border-indigo-500 rounded-lg px-3 py-1.5 text-xs text-zinc-200 focus:outline-none"
+            className="bg-[#4A2A35] border border-[#703344] focus:border-[#CB6B5A] rounded-lg px-3 py-1.5 text-xs text-[#F6E8E2] focus:outline-none"
           >
-            <option value="member">Member (Regular)</option>
-            <option value="lead">Team Lead</option>
-            <option value="admin">Admin</option>
+            <option value="member" className="bg-[#281A21]">Member (Regular)</option>
+            <option value="lead" className="bg-[#281A21]">Team Lead</option>
+            <option value="admin" className="bg-[#281A21]">Admin</option>
           </select>
         </div>
 
         {/* Users List */}
-        <div className="max-h-60 overflow-y-auto space-y-2 pr-1 divide-y divide-[#27272A]/40">
+        <div className="max-h-60 overflow-y-auto space-y-2 pr-1 divide-y divide-[#703344]/40">
           {loading ? (
-            <div className="text-center py-8 text-xs text-zinc-400">Loading developers...</div>
+            <div className="text-center py-8 text-xs text-[#DDA081]">Loading developers...</div>
           ) : users.length === 0 ? (
-            <div className="text-center py-8 text-xs text-zinc-500">No matching students found.</div>
+            <div className="text-center py-8 text-xs text-[#DDA081]">No matching students found.</div>
           ) : (
             users.map((u) => {
               const isAlreadyMember = existingMemberIds.has(u._id);
@@ -138,35 +138,35 @@ export const InviteMemberModal = ({ isOpen, onClose, group, onMemberInvited }) =
                   onClick={() => !isAlreadyMember && toggleSelectUser(u._id)}
                   className={`flex items-center justify-between p-3 rounded-xl transition-all ${
                     isAlreadyMember
-                      ? 'opacity-50 bg-[#111113] cursor-not-allowed'
+                      ? 'opacity-50 bg-[#281A21] cursor-not-allowed'
                       : isSelected
-                      ? 'bg-indigo-950/60 border border-indigo-500/50 cursor-pointer'
-                      : 'bg-[#111113] hover:bg-[#27272A]/50 border border-transparent cursor-pointer'
+                      ? 'bg-[#703344]/60 border border-[#CB6B5A] cursor-pointer'
+                      : 'bg-[#281A21] hover:bg-[#4A2A35] border border-[#703344] cursor-pointer'
                   }`}
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <img
                       src={u.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${u.name}`}
                       alt={u.name}
-                      className="w-9 h-9 rounded-xl object-cover border border-[#27272A] bg-[#18181B] flex-shrink-0"
+                      className="w-9 h-9 rounded-xl object-cover border border-[#703344] bg-[#281A21] flex-shrink-0"
                     />
                     <div className="min-w-0">
-                      <p className="text-xs font-bold text-white truncate">{u.name}</p>
-                      <p className="text-[11px] text-zinc-400 truncate">{u.headline || u.college}</p>
+                      <p className="text-xs font-bold text-[#F6E8E2] truncate">{u.name}</p>
+                      <p className="text-[11px] text-[#DDA081] truncate">{u.headline || u.college}</p>
                     </div>
                   </div>
 
                   <div>
                     {isAlreadyMember ? (
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-400">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#4A2A35] text-[#DDA081]">
                         In Group
                       </span>
                     ) : isSelected ? (
-                      <span className="w-5 h-5 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs">
+                      <span className="w-5 h-5 rounded-full bg-[#A84A4D] text-[#F6E8E2] flex items-center justify-center text-xs font-bold">
                         <Check className="w-3 h-3" />
                       </span>
                     ) : (
-                      <span className="w-5 h-5 rounded-full border border-zinc-600 flex items-center justify-center" />
+                      <span className="w-5 h-5 rounded-full border border-[#703344] flex items-center justify-center" />
                     )}
                   </div>
                 </div>
@@ -176,8 +176,8 @@ export const InviteMemberModal = ({ isOpen, onClose, group, onMemberInvited }) =
         </div>
 
         {/* Modal Buttons */}
-        <div className="flex items-center justify-between pt-4 border-t border-[#27272A]">
-          <span className="text-xs text-zinc-400 font-medium">
+        <div className="flex items-center justify-between pt-4 border-t border-[#703344]">
+          <span className="text-xs text-[#DDA081] font-medium">
             {selectedUserIds.length} student{selectedUserIds.length !== 1 ? 's' : ''} selected
           </span>
 
@@ -187,7 +187,7 @@ export const InviteMemberModal = ({ isOpen, onClose, group, onMemberInvited }) =
             </Button>
             <Button
               type="submit"
-              variant="gradient"
+              variant="primary"
               size="sm"
               loading={submitting}
               disabled={selectedUserIds.length === 0}

@@ -49,8 +49,8 @@ export const MyProjectsPage = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-[#FAFAFA] tracking-tight">My Projects</h1>
-          <p className="text-xs sm:text-sm text-zinc-400 mt-1">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-[#F6E8E2] tracking-tight">My Projects</h1>
+          <p className="text-xs sm:text-sm text-[#DDA081] mt-1">
             Manage projects you created and collaborative teams you have joined.
           </p>
         </div>
@@ -63,23 +63,23 @@ export const MyProjectsPage = () => {
       </div>
 
       {/* Tab Switcher */}
-      <div className="flex items-center gap-4 border-b border-[#27272A]">
+      <div className="flex items-center gap-4 border-b border-[#703344]">
         <button
           onClick={() => setTab('created')}
-          className={`pb-3 text-sm font-bold transition-all border-b-2 ${
+          className={`pb-3 text-sm font-bold transition-all border-b-2 cursor-pointer ${
             tab === 'created'
-              ? 'border-indigo-500 text-indigo-400'
-              : 'border-transparent text-zinc-400 hover:text-[#FAFAFA]'
+              ? 'border-[#A84A4D] text-[#F6E8E2]'
+              : 'border-transparent text-[#DDA081] hover:text-[#F6E8E2]'
           }`}
         >
           Created by You ({createdProjects.length})
         </button>
         <button
           onClick={() => setTab('joined')}
-          className={`pb-3 text-sm font-bold transition-all border-b-2 ${
+          className={`pb-3 text-sm font-bold transition-all border-b-2 cursor-pointer ${
             tab === 'joined'
-              ? 'border-indigo-500 text-indigo-400'
-              : 'border-transparent text-zinc-400 hover:text-[#FAFAFA]'
+              ? 'border-[#A84A4D] text-[#F6E8E2]'
+              : 'border-transparent text-[#DDA081] hover:text-[#F6E8E2]'
           }`}
         >
           Teams Joined ({joinedProjects.length})

@@ -92,10 +92,10 @@ export const GoogleAuthButton = ({ text = 'Continue with Google', className = ''
       type="button"
       onClick={handleCustomButtonClick}
       disabled={loading}
-      className={`w-full py-2.5 px-4 rounded-xl bg-[#111113] hover:bg-[#18181B] border border-[#27272A] hover:border-zinc-600 text-zinc-200 hover:text-white text-xs sm:text-sm font-bold transition-all shadow-sm flex items-center justify-center gap-3 cursor-pointer active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
+      className={`w-full py-2.5 px-4 rounded-xl bg-[#281A21] hover:bg-[#703344] border border-[#703344] hover:border-[#A84A4D] text-[#F6E8E2] hover:text-white text-xs sm:text-sm font-bold transition-all shadow-sm flex items-center justify-center gap-3 cursor-pointer active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
     >
       {loading ? (
-        <div className="w-4 h-4 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+        <div className="w-4 h-4 border-2 border-[#A84A4D] border-t-transparent rounded-full animate-spin" />
       ) : (
         /* Official Google 'G' Logo SVG */
         <svg className="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24">

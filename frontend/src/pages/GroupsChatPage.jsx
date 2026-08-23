@@ -610,24 +610,24 @@ export const GroupsChatPage = () => {
   ).length;
 
   return (
-    <div className="h-[calc(100vh-8.5rem)] flex flex-col bg-[#09090B] rounded-3xl border border-[#27272A] overflow-hidden shadow-2xl">
+    <div className="h-[calc(100vh-8.5rem)] flex flex-col bg-[#281A21] rounded-3xl border border-[#703344] overflow-hidden shadow-2xl">
       <div className="flex-1 flex min-h-0 relative">
         {/* ========================================================================= */}
         {/* COLUMN 1: LEFT SIDEBAR (Groups & Direct Messages List)                   */}
         {/* ========================================================================= */}
         <aside
-          className={`w-full lg:w-80 bg-[#111113] border-r border-[#27272A] flex flex-col z-20 flex-shrink-0 transition-all ${
+          className={`w-full lg:w-80 bg-[#281A21] border-r border-[#703344] flex flex-col z-20 flex-shrink-0 transition-all ${
             mobileView === 'list' ? 'flex' : 'hidden lg:flex'
           }`}
         >
           {/* Header & Quick Action Buttons */}
-          <div className="p-4 border-b border-[#27272A] space-y-3">
+          <div className="p-4 border-b border-[#703344] space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center">
+                <div className="w-8 h-8 rounded-xl bg-[#703344] text-[#CB6B5A] border border-[#A84A4D]/40 flex items-center justify-center">
                   <Users className="w-4 h-4" />
                 </div>
-                <h2 className="text-sm font-extrabold text-white tracking-tight">
+                <h2 className="text-sm font-extrabold text-[#F6E8E2] tracking-tight">
                   Collaboration Hub
                 </h2>
               </div>
@@ -636,15 +636,15 @@ export const GroupsChatPage = () => {
                 <button
                   onClick={() => setDiscoverModalOpen(true)}
                   title="Discover Public Groups"
-                  className="p-1.5 rounded-lg bg-[#18181B] hover:bg-[#27272A] text-zinc-300 hover:text-white border border-[#27272A] transition-colors"
+                  className="p-1.5 rounded-lg bg-[#4A2A35] hover:bg-[#703344] text-[#DDA081] hover:text-[#F6E8E2] border border-[#703344] transition-colors cursor-pointer"
                 >
-                  <Compass className="w-4 h-4 text-emerald-400" />
+                  <Compass className="w-4 h-4 text-[#86B190]" />
                 </button>
 
                 <button
                   onClick={() => setCreateModalOpen(true)}
                   title="Create Group or DM"
-                  className="p-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/20 transition-all"
+                  className="p-1.5 rounded-lg bg-[#A84A4D] hover:bg-[#CB6B5A] text-[#F6E8E2] shadow-md shadow-[#A84A4D]/20 transition-all cursor-pointer"
                 >
                   <Plus className="w-4 h-4" />
                 </button>
@@ -653,46 +653,46 @@ export const GroupsChatPage = () => {
 
             {/* Search Input */}
             <div className="relative">
-              <Search className="w-3.5 h-3.5 text-zinc-400 absolute left-3 top-2.5 pointer-events-none" />
+              <Search className="w-3.5 h-3.5 text-[#DDA081] absolute left-3 top-2.5 pointer-events-none" />
               <input
                 type="text"
                 value={groupSearch}
                 onChange={(e) => setGroupSearch(e.target.value)}
                 placeholder="Search conversations..."
-                className="w-full bg-[#18181B] border border-[#27272A] focus:border-indigo-500 rounded-xl pl-8 pr-3 py-1.5 text-xs text-zinc-200 placeholder-zinc-500 focus:outline-none"
+                className="w-full bg-[#4A2A35] border border-[#703344] focus:border-[#CB6B5A] rounded-xl pl-8 pr-3 py-1.5 text-xs text-[#F6E8E2] placeholder-[#DDA081]/60 focus:outline-none"
               />
             </div>
 
             {/* Filter Pills */}
-            <div className="grid grid-cols-4 gap-1 p-1 bg-[#18181B] rounded-xl border border-[#27272A] text-[11px] font-semibold text-center">
+            <div className="grid grid-cols-4 gap-1 p-1 bg-[#4A2A35] rounded-xl border border-[#703344] text-[11px] font-semibold text-center">
               <button
                 onClick={() => setActiveTab('all')}
-                className={`py-1 rounded-lg transition-all ${
-                  activeTab === 'all' ? 'bg-indigo-600 text-white' : 'text-zinc-400 hover:text-zinc-200'
+                className={`py-1 rounded-lg transition-all cursor-pointer ${
+                  activeTab === 'all' ? 'bg-[#A84A4D] text-[#F6E8E2]' : 'text-[#DDA081] hover:text-[#F6E8E2]'
                 }`}
               >
                 All
               </button>
               <button
                 onClick={() => setActiveTab('project')}
-                className={`py-1 rounded-lg transition-all ${
-                  activeTab === 'project' ? 'bg-indigo-600 text-white' : 'text-zinc-400 hover:text-zinc-200'
+                className={`py-1 rounded-lg transition-all cursor-pointer ${
+                  activeTab === 'project' ? 'bg-[#A84A4D] text-[#F6E8E2]' : 'text-[#DDA081] hover:text-[#F6E8E2]'
                 }`}
               >
                 Teams
               </button>
               <button
                 onClick={() => setActiveTab('public')}
-                className={`py-1 rounded-lg transition-all ${
-                  activeTab === 'public' ? 'bg-indigo-600 text-white' : 'text-zinc-400 hover:text-zinc-200'
+                className={`py-1 rounded-lg transition-all cursor-pointer ${
+                  activeTab === 'public' ? 'bg-[#A84A4D] text-[#F6E8E2]' : 'text-[#DDA081] hover:text-[#F6E8E2]'
                 }`}
               >
                 Clubs
               </button>
               <button
                 onClick={() => setActiveTab('dm')}
-                className={`py-1 rounded-lg transition-all ${
-                  activeTab === 'dm' ? 'bg-indigo-600 text-white' : 'text-zinc-400 hover:text-zinc-200'
+                className={`py-1 rounded-lg transition-all cursor-pointer ${
+                  activeTab === 'dm' ? 'bg-[#A84A4D] text-[#F6E8E2]' : 'text-[#DDA081] hover:text-[#F6E8E2]'
                 }`}
               >
                 DMs
@@ -703,16 +703,16 @@ export const GroupsChatPage = () => {
           {/* Conversation List Scroll Area */}
           <div className="flex-1 overflow-y-auto p-2 space-y-1 divide-y divide-transparent">
             {loadingGroups ? (
-              <div className="p-8 text-center text-xs text-zinc-500 space-y-2">
-                <div className="w-5 h-5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto" />
+              <div className="p-8 text-center text-xs text-[#DDA081] space-y-2">
+                <div className="w-5 h-5 border-2 border-[#A84A4D] border-t-transparent rounded-full animate-spin mx-auto" />
                 <p>Loading your squads...</p>
               </div>
             ) : filteredGroups.length === 0 ? (
               <div className="p-8 text-center space-y-3">
-                <div className="w-10 h-10 rounded-2xl bg-indigo-950/40 text-indigo-400 border border-indigo-500/20 flex items-center justify-center mx-auto">
+                <div className="w-10 h-10 rounded-2xl bg-[#703344] text-[#CB6B5A] border border-[#A84A4D]/40 flex items-center justify-center mx-auto">
                   <MessageSquare className="w-5 h-5" />
                 </div>
-                <p className="text-xs text-zinc-400">No conversations found</p>
+                <p className="text-xs text-[#DDA081]">No conversations found</p>
                 <div className="flex flex-col gap-2">
                   <Button
                     size="sm"
@@ -725,7 +725,7 @@ export const GroupsChatPage = () => {
                   </Button>
                   <Button
                     size="sm"
-                    variant="gradient"
+                    variant="primary"
                     onClick={() => setCreateModalOpen(true)}
                     icon={Plus}
                     className="justify-center text-xs"
@@ -750,8 +750,8 @@ export const GroupsChatPage = () => {
                     }}
                     className={`flex items-center gap-3 p-3 rounded-2xl cursor-pointer transition-all ${
                       isSelected
-                        ? 'bg-indigo-950/70 border border-indigo-500/40 text-white shadow-xs'
-                        : 'hover:bg-[#18181B] text-zinc-300 border border-transparent'
+                        ? 'bg-[#4A2A35] border border-[#A84A4D]/50 text-[#F6E8E2] shadow-xs'
+                        : 'hover:bg-[#4A2A35]/60 text-[#DDA081] border border-transparent'
                     }`}
                   >
                     {/* Icon / Avatar */}
@@ -760,16 +760,16 @@ export const GroupsChatPage = () => {
                         <img
                           src={dmAvatar}
                           alt={displayName}
-                          className="w-10 h-10 rounded-xl object-cover border border-[#27272A] bg-[#18181B]"
+                          className="w-10 h-10 rounded-xl object-cover border border-[#703344] bg-[#281A21]"
                         />
                       ) : (
                         <div
                           className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-xs border ${
                             g.type === 'project'
-                              ? 'bg-purple-950/50 text-purple-400 border-purple-500/30'
+                              ? 'bg-[#703344] text-[#CB6B5A] border-[#A84A4D]/40'
                               : g.type === 'private'
-                              ? 'bg-amber-950/50 text-amber-400 border-amber-500/30'
-                              : 'bg-indigo-950/50 text-indigo-400 border-indigo-500/30'
+                              ? 'bg-[#D99443]/20 text-[#E5B079] border-[#D99443]/40'
+                              : 'bg-[#703344] text-[#DDA081] border-[#703344]'
                           }`}
                         >
                           {g.type === 'project' ? (
@@ -785,8 +785,8 @@ export const GroupsChatPage = () => {
                       {/* Online Presence Pill for DMs */}
                       {g.type === 'dm' && (
                         <span
-                          className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full ring-2 ring-[#111113] ${
-                            isOnline ? 'bg-emerald-500' : 'bg-zinc-600'
+                          className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full ring-2 ring-[#281A21] ${
+                            isOnline ? 'bg-[#5B8A68]' : 'bg-zinc-600'
                           }`}
                         />
                       )}
@@ -797,13 +797,13 @@ export const GroupsChatPage = () => {
                       <div className="flex items-center justify-between gap-1 mb-0.5">
                         <h4
                           className={`text-xs font-bold truncate ${
-                            isSelected ? 'text-white' : 'text-zinc-200'
+                            isSelected ? 'text-[#F6E8E2]' : 'text-[#F6E8E2]'
                           }`}
                         >
                           {displayName}
                         </h4>
                         {g.lastMessage?.createdAt && (
-                          <span className="text-[10px] text-zinc-500 flex-shrink-0">
+                          <span className="text-[10px] text-[#DDA081] flex-shrink-0">
                             {new Date(g.lastMessage.createdAt).toLocaleTimeString([], {
                               hour: '2-digit',
                               minute: '2-digit'
@@ -812,7 +812,7 @@ export const GroupsChatPage = () => {
                         )}
                       </div>
 
-                      <div className="flex items-center justify-between text-[11px] text-zinc-400">
+                      <div className="flex items-center justify-between text-[11px] text-[#DDA081]">
                         <p className="truncate max-w-[160px]">
                           {g.lastMessage?.content
                             ? g.lastMessage.content
@@ -822,10 +822,10 @@ export const GroupsChatPage = () => {
                         <span
                           className={`text-[9px] font-bold px-1.5 py-0.2 rounded uppercase ${
                             g.type === 'project'
-                              ? 'bg-purple-950/60 text-purple-300'
+                              ? 'bg-[#703344] text-[#CB6B5A]'
                               : g.type === 'dm'
-                              ? 'bg-blue-950/60 text-blue-300'
-                              : 'bg-zinc-800 text-zinc-400'
+                              ? 'bg-[#A84A4D]/30 text-[#CB6B5A]'
+                              : 'bg-[#4A2A35] text-[#DDA081]'
                           }`}
                         >
                           {g.type}
@@ -843,50 +843,50 @@ export const GroupsChatPage = () => {
         {/* COLUMN 2: CENTER CHAT AREA                                               */}
         {/* ========================================================================= */}
         <main
-          className={`flex-1 flex flex-col bg-[#18181B] min-w-0 z-10 transition-all ${
+          className={`flex-1 flex flex-col bg-[#4A2A35] min-w-0 z-10 transition-all ${
             mobileView === 'chat' ? 'flex' : 'hidden lg:flex'
           }`}
         >
           {activeGroup ? (
             <>
               {/* Center Chat Header */}
-              <div className="h-16 px-4 sm:px-6 bg-[#111113] border-b border-[#27272A] flex items-center justify-between gap-3 flex-shrink-0">
+              <div className="h-16 px-4 sm:px-6 bg-[#281A21] border-b border-[#703344] flex items-center justify-between gap-3 flex-shrink-0">
                 <div className="flex items-center gap-3 min-w-0">
                   {/* Mobile Back to List Button */}
                   <button
                     onClick={() => setMobileView('list')}
-                    className="lg:hidden p-1.5 rounded-xl text-zinc-400 hover:bg-[#18181B] hover:text-white"
+                    className="lg:hidden p-1.5 rounded-xl text-[#DDA081] hover:bg-[#4A2A35] hover:text-[#F6E8E2] cursor-pointer"
                   >
                     <ChevronLeft className="w-5 h-5" />
                   </button>
 
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <h3 className="text-sm sm:text-base font-bold text-white truncate">
+                      <h3 className="text-sm sm:text-base font-bold text-[#F6E8E2] truncate">
                         {getGroupDisplayName(activeGroup)}
                       </h3>
 
                       <span
                         className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ${
                           activeGroup.type === 'project'
-                            ? 'bg-purple-950/60 text-purple-300 border border-purple-500/30'
+                            ? 'bg-[#703344] text-[#CB6B5A] border border-[#A84A4D]/40'
                             : activeGroup.type === 'dm'
-                            ? 'bg-blue-950/60 text-blue-300 border border-blue-500/30'
+                            ? 'bg-[#A84A4D]/30 text-[#CB6B5A] border border-[#A84A4D]/40'
                             : activeGroup.type === 'private'
-                            ? 'bg-amber-950/60 text-amber-300 border border-amber-500/30'
-                            : 'bg-emerald-950/60 text-emerald-300 border border-emerald-500/30'
+                            ? 'bg-[#D99443]/20 text-[#E5B079] border border-[#D99443]/40'
+                            : 'bg-[#5B8A68]/20 text-[#86B190] border border-[#5B8A68]/40'
                         }`}
                       >
                         {activeGroup.type}
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-2 text-xs text-zinc-400">
+                    <div className="flex items-center gap-2 text-xs text-[#DDA081]">
                       {activeGroup.type === 'dm' ? (
                         <span className="flex items-center gap-1">
                           <span
                             className={`w-2 h-2 rounded-full ${
-                              isDMOnline(activeGroup) ? 'bg-emerald-500' : 'bg-zinc-600'
+                              isDMOnline(activeGroup) ? 'bg-[#5B8A68]' : 'bg-zinc-600'
                             }`}
                           />
                           <span>{isDMOnline(activeGroup) ? 'Online now' : 'Offline'}</span>
@@ -894,7 +894,7 @@ export const GroupsChatPage = () => {
                       ) : (
                         <span>
                           {activeGroup.members?.length || 1} members •{' '}
-                          <span className="text-emerald-400 font-medium">
+                          <span className="text-[#86B190] font-medium">
                             {onlineMembersCount} online
                           </span>
                         </span>
@@ -909,18 +909,18 @@ export const GroupsChatPage = () => {
                   <span
                     className={`inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full ${
                       isConnected
-                        ? 'bg-emerald-950/60 text-emerald-300 border border-emerald-500/30'
-                        : 'bg-zinc-800 text-zinc-400 border border-zinc-700'
+                        ? 'bg-[#5B8A68]/20 text-[#86B190] border border-[#5B8A68]/40'
+                        : 'bg-[#281A21] text-[#DDA081] border border-[#703344]'
                     }`}
                   >
                     {isConnected ? (
                       <>
-                        <Wifi className="w-3 h-3 text-emerald-400" />
+                        <Wifi className="w-3 h-3 text-[#86B190]" />
                         <span className="hidden sm:inline">Live</span>
                       </>
                     ) : (
                       <>
-                        <WifiOff className="w-3 h-3 text-zinc-400" />
+                        <WifiOff className="w-3 h-3 text-[#DDA081]" />
                         <span className="hidden sm:inline">Connecting</span>
                       </>
                     )}
@@ -932,7 +932,7 @@ export const GroupsChatPage = () => {
                       navigate(`/meetings/group-${activeGroup._id}`);
                     }}
                     title="Start Team Video Meeting"
-                    className="flex items-center gap-1.5 text-xs font-bold px-2.5 py-1.5 rounded-xl bg-emerald-600/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-600/30 transition-all cursor-pointer"
+                    className="flex items-center gap-1.5 text-xs font-bold px-2.5 py-1.5 rounded-xl bg-[#5B8A68]/20 text-[#86B190] border border-[#5B8A68]/40 hover:bg-[#5B8A68]/30 transition-all cursor-pointer"
                   >
                     <Video className="w-3.5 h-3.5" />
                     <span className="hidden md:inline">Video Call</span>
@@ -942,7 +942,7 @@ export const GroupsChatPage = () => {
                   {activeGroup.type !== 'dm' && (
                     <button
                       onClick={() => setInviteModalOpen(true)}
-                      className="hidden sm:flex items-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-xl bg-indigo-600/20 text-indigo-300 border border-indigo-500/30 hover:bg-indigo-600/30 transition-colors"
+                      className="hidden sm:flex items-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-xl bg-[#703344] text-[#F6E8E2] border border-[#A84A4D]/40 hover:bg-[#A84A4D] transition-colors cursor-pointer"
                     >
                       <UserPlus className="w-3.5 h-3.5" />
                       <span>Invite</span>
@@ -956,10 +956,10 @@ export const GroupsChatPage = () => {
                       if (mobileView === 'chat') setMobileView('info');
                     }}
                     title="Group Details & Members"
-                    className={`p-2 rounded-xl border transition-colors ${
+                    className={`p-2 rounded-xl border transition-colors cursor-pointer ${
                       showRightSidebar
-                        ? 'bg-indigo-950/60 text-indigo-400 border-indigo-500/40'
-                        : 'bg-[#18181B] text-zinc-400 hover:text-white border-[#27272A]'
+                        ? 'bg-[#703344] text-[#CB6B5A] border-[#A84A4D]/40'
+                        : 'bg-[#281A21] text-[#DDA081] hover:text-[#F6E8E2] border-[#703344]'
                     }`}
                   >
                     <Info className="w-4 h-4" />
@@ -978,11 +978,11 @@ export const GroupsChatPage = () => {
                     <button
                       onClick={handleLoadOlderMessages}
                       disabled={loadingOlder}
-                      className="text-xs font-semibold text-indigo-400 hover:text-indigo-300 bg-[#111113] hover:bg-[#27272A] border border-[#27272A] px-4 py-1.5 rounded-full transition-all flex items-center gap-1.5 shadow-xs"
+                      className="text-xs font-semibold text-[#CB6B5A] hover:text-[#DDA081] bg-[#281A21] hover:bg-[#703344] border border-[#703344] px-4 py-1.5 rounded-full transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
                     >
                       {loadingOlder ? (
                         <>
-                          <div className="w-3 h-3 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin" />
+                          <div className="w-3 h-3 border-2 border-[#CB6B5A] border-t-transparent rounded-full animate-spin" />
                           <span>Loading earlier messages...</span>
                         </>
                       ) : (
@@ -993,19 +993,19 @@ export const GroupsChatPage = () => {
                 )}
 
                 {loadingMessages ? (
-                  <div className="flex flex-col items-center justify-center h-full gap-2 text-zinc-400">
-                    <div className="w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+                  <div className="flex flex-col items-center justify-center h-full gap-2 text-[#DDA081]">
+                    <div className="w-6 h-6 border-2 border-[#A84A4D] border-t-transparent rounded-full animate-spin" />
                     <span className="text-xs">Loading conversation history...</span>
                   </div>
                 ) : messages.length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-full text-center py-12 px-4">
-                    <div className="w-12 h-12 rounded-2xl bg-indigo-950/40 text-indigo-400 border border-indigo-500/20 flex items-center justify-center mb-3">
+                    <div className="w-12 h-12 rounded-2xl bg-[#703344] text-[#CB6B5A] border border-[#A84A4D]/40 flex items-center justify-center mb-3">
                       <Sparkles className="w-6 h-6" />
                     </div>
-                    <h4 className="text-sm font-bold text-white">
+                    <h4 className="text-sm font-bold text-[#F6E8E2]">
                       Welcome to #{getGroupDisplayName(activeGroup)}!
                     </h4>
-                    <p className="text-xs text-zinc-400 max-w-sm mt-1 leading-relaxed">
+                    <p className="text-xs text-[#DDA081] max-w-sm mt-1 leading-relaxed">
                       This is the beginning of the conversation. Say hello, discuss milestones, or share code!
                     </p>
                   </div>
@@ -1043,11 +1043,11 @@ export const GroupsChatPage = () => {
                                 }`
                               }
                               alt={senderUser.name}
-                              className="w-8 h-8 rounded-xl object-cover border border-[#27272A] bg-[#111113]"
+                              className="w-8 h-8 rounded-xl object-cover border border-[#703344] bg-[#281A21]"
                             />
                             <span
-                              className={`absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full ring-2 ring-[#18181B] ${
-                                isOnline ? 'bg-emerald-500' : 'bg-zinc-600'
+                              className={`absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full ring-2 ring-[#4A2A35] ${
+                                isOnline ? 'bg-[#5B8A68]' : 'bg-zinc-600'
                               }`}
                             />
                           </div>
@@ -1062,7 +1062,7 @@ export const GroupsChatPage = () => {
                           {/* Sender name & role badge */}
                           {!isMe && (
                             <div className="flex items-center gap-1.5 mb-1 px-1">
-                              <span className="text-xs font-bold text-zinc-200">
+                              <span className="text-xs font-bold text-[#F6E8E2]">
                                 {senderUser.name || 'Member'}
                               </span>
 
@@ -1070,8 +1070,8 @@ export const GroupsChatPage = () => {
                                 <span
                                   className={`text-[9px] font-bold px-1.5 py-0.2 rounded uppercase ${
                                     senderRole === 'admin'
-                                      ? 'bg-rose-950/60 text-rose-300 border border-rose-500/30'
-                                      : 'bg-indigo-950/60 text-indigo-300 border border-indigo-500/30'
+                                      ? 'bg-[#C04A4D]/30 text-[#E07D82] border border-[#C04A4D]/40'
+                                      : 'bg-[#703344] text-[#CB6B5A] border border-[#A84A4D]/40'
                                   }`}
                                 >
                                   {senderRole === 'lead' ? 'Team Lead' : 'Admin'}
@@ -1083,16 +1083,16 @@ export const GroupsChatPage = () => {
                           {/* Quoted Parent Reply Bubble */}
                           {msg.replyTo && (
                             <div
-                              className={`mb-1.5 p-2 rounded-xl text-[11px] border border-indigo-500/20 bg-indigo-950/30 text-zinc-300 max-w-full flex items-center gap-2 ${
+                              className={`mb-1.5 p-2 rounded-xl text-[11px] border border-[#A84A4D]/30 bg-[#703344]/30 text-[#F6E8E2] max-w-full flex items-center gap-2 ${
                                 isMe ? 'rounded-br-xs' : 'rounded-bl-xs'
                               }`}
                             >
-                              <CornerDownRight className="w-3.5 h-3.5 text-indigo-400 flex-shrink-0" />
+                              <CornerDownRight className="w-3.5 h-3.5 text-[#CB6B5A] flex-shrink-0" />
                               <div className="min-w-0 truncate">
-                                <span className="font-bold text-indigo-300 mr-1">
+                                <span className="font-bold text-[#CB6B5A] mr-1">
                                   {msg.replyTo.sender?.name || 'User'}:
                                 </span>
-                                <span className="italic text-zinc-400 truncate">
+                                <span className="italic text-[#DDA081] truncate">
                                   {msg.replyTo.content || 'Attached snippet'}
                                 </span>
                               </div>
@@ -1103,17 +1103,17 @@ export const GroupsChatPage = () => {
                           <div
                             className={`relative p-3.5 rounded-2xl text-xs sm:text-sm leading-relaxed break-words shadow-xs ${
                               msg.isDeleted
-                                ? 'italic text-zinc-500 bg-[#111113] border border-[#27272A]'
+                                ? 'italic text-[#DDA081] bg-[#281A21] border border-[#703344]'
                                 : isMe
-                                ? 'bg-gradient-to-tr from-indigo-600 to-indigo-500 text-white rounded-br-xs'
-                                : 'bg-[#111113] border border-[#27272A] text-zinc-100 rounded-bl-xs'
+                                ? 'bg-gradient-to-tr from-[#A84A4D] to-[#CB6B5A] text-[#F6E8E2] rounded-br-xs'
+                                : 'bg-[#281A21] border border-[#703344] text-[#F6E8E2] rounded-bl-xs'
                             }`}
                           >
                             <p className="whitespace-pre-wrap">{msg.content}</p>
                           </div>
 
                           {/* Message Footer: Timestamp & Read Status */}
-                          <div className="flex items-center gap-1.5 mt-1 px-1 text-[10px] text-zinc-500 font-medium">
+                          <div className="flex items-center gap-1.5 mt-1 px-1 text-[10px] text-[#DDA081] font-medium">
                             <span>
                               {new Date(msg.createdAt || Date.now()).toLocaleTimeString([], {
                                 hour: '2-digit',
@@ -1124,9 +1124,9 @@ export const GroupsChatPage = () => {
                             {isMe && !msg.isDeleted && (
                               <span title={isReadByOthers ? 'Read' : 'Delivered'}>
                                 {isReadByOthers ? (
-                                  <CheckCheck className="w-3 h-3 text-indigo-400 inline" />
+                                  <CheckCheck className="w-3 h-3 text-[#86B190] inline" />
                                 ) : (
-                                  <Check className="w-3 h-3 text-zinc-500 inline" />
+                                  <Check className="w-3 h-3 text-[#DDA081] inline" />
                                 )}
                               </span>
                             )}
@@ -1136,14 +1136,14 @@ export const GroupsChatPage = () => {
                         {/* Hover Action Menu (Reply, Delete) */}
                         {!msg.isDeleted && (
                           <div
-                            className={`opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 bg-[#111113] border border-[#27272A] rounded-xl p-1 mb-2 shadow-md ${
+                            className={`opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 bg-[#281A21] border border-[#703344] rounded-xl p-1 mb-2 shadow-md ${
                               isMe ? 'order-first' : 'order-last'
                             }`}
                           >
                             <button
                               onClick={() => setReplyTarget(msg)}
                               title="Reply"
-                              className="p-1 rounded-lg text-zinc-400 hover:text-indigo-400 hover:bg-[#18181B]"
+                              className="p-1 rounded-lg text-[#DDA081] hover:text-[#CB6B5A] hover:bg-[#4A2A35] cursor-pointer"
                             >
                               <Reply className="w-3.5 h-3.5" />
                             </button>
@@ -1152,7 +1152,7 @@ export const GroupsChatPage = () => {
                               <button
                                 onClick={() => handleDeleteMessage(msg._id)}
                                 title="Delete Message"
-                                className="p-1 rounded-lg text-zinc-400 hover:text-rose-400 hover:bg-rose-500/10"
+                                className="p-1 rounded-lg text-[#DDA081] hover:text-[#E07D82] hover:bg-[#C04A4D]/20 cursor-pointer"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
                               </button>
@@ -1166,21 +1166,21 @@ export const GroupsChatPage = () => {
 
                 {/* Live Typing Banner */}
                 {typingUsers.size > 0 && (
-                  <div className="flex items-center gap-2 text-xs text-zinc-400 py-1 animate-pulse">
-                    <div className="flex gap-1 py-1 px-2.5 rounded-full bg-[#111113] border border-[#27272A] items-center">
+                  <div className="flex items-center gap-2 text-xs text-[#DDA081] py-1 animate-pulse">
+                    <div className="flex gap-1 py-1 px-2.5 rounded-full bg-[#281A21] border border-[#703344] items-center">
                       <span
-                        className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-bounce"
+                        className="w-1.5 h-1.5 rounded-full bg-[#CB6B5A] animate-bounce"
                         style={{ animationDelay: '0ms' }}
                       />
                       <span
-                        className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-bounce"
+                        className="w-1.5 h-1.5 rounded-full bg-[#CB6B5A] animate-bounce"
                         style={{ animationDelay: '150ms' }}
                       />
                       <span
-                        className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-bounce"
+                        className="w-1.5 h-1.5 rounded-full bg-[#CB6B5A] animate-bounce"
                         style={{ animationDelay: '300ms' }}
                       />
-                      <span className="ml-1.5 text-[11px] text-zinc-400 font-medium">
+                      <span className="ml-1.5 text-[11px] text-[#DDA081] font-medium">
                         {Array.from(typingUsers.values()).join(', ')} is typing...
                       </span>
                     </div>
@@ -1192,19 +1192,19 @@ export const GroupsChatPage = () => {
 
               {/* Quoted Reply Banner above input */}
               {replyTarget && (
-                <div className="px-4 py-2 bg-indigo-950/40 border-t border-indigo-500/30 flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-2 min-w-0 text-zinc-300">
-                    <Reply className="w-3.5 h-3.5 text-indigo-400 flex-shrink-0" />
-                    <span className="font-bold text-indigo-300">
+                <div className="px-4 py-2 bg-[#703344]/40 border-t border-[#A84A4D]/30 flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-2 min-w-0 text-[#F6E8E2]">
+                    <Reply className="w-3.5 h-3.5 text-[#CB6B5A] flex-shrink-0" />
+                    <span className="font-bold text-[#CB6B5A]">
                       Replying to {replyTarget.sender?.name || 'message'}:
                     </span>
-                    <span className="text-zinc-400 italic truncate max-w-sm">
+                    <span className="text-[#DDA081] italic truncate max-w-sm">
                       "{replyTarget.content}"
                     </span>
                   </div>
                   <button
                     onClick={() => setReplyTarget(null)}
-                    className="text-zinc-400 hover:text-white text-xs px-1.5 py-0.5 rounded hover:bg-white/10"
+                    className="text-[#DDA081] hover:text-[#F6E8E2] text-xs px-1.5 py-0.5 rounded hover:bg-white/10 cursor-pointer"
                   >
                     ×
                   </button>
@@ -1214,7 +1214,7 @@ export const GroupsChatPage = () => {
               {/* Chat Input Bar */}
               <form
                 onSubmit={handleSendMessage}
-                className="p-3 sm:p-4 bg-[#111113] border-t border-[#27272A] flex items-center gap-2 flex-shrink-0"
+                className="p-3 sm:p-4 bg-[#281A21] border-t border-[#703344] flex items-center gap-2 flex-shrink-0"
               >
                 <div className="flex-1 relative">
                   <textarea
@@ -1228,14 +1228,14 @@ export const GroupsChatPage = () => {
                     }
                     disabled={!isConnected}
                     rows={1}
-                    className="w-full resize-none bg-[#18181B] border border-[#27272A] focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50 rounded-2xl py-2.5 px-4 text-xs sm:text-sm text-zinc-100 placeholder:text-zinc-500 focus:outline-none max-h-24 transition-colors"
+                    className="w-full resize-none bg-[#4A2A35] border border-[#703344] focus:border-[#CB6B5A] focus:ring-1 focus:ring-[#CB6B5A]/50 rounded-2xl py-2.5 px-4 text-xs sm:text-sm text-[#F6E8E2] placeholder:text-[#DDA081]/60 focus:outline-none max-h-24 transition-colors"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={!inputText.trim() || !isConnected || sending}
-                  className="p-3 rounded-2xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:hover:bg-indigo-600 text-white shadow-md shadow-indigo-600/20 transition-all flex items-center justify-center flex-shrink-0 active:scale-95"
+                  className="p-3 rounded-2xl bg-[#A84A4D] hover:bg-[#CB6B5A] disabled:opacity-40 disabled:hover:bg-[#A84A4D] text-[#F6E8E2] shadow-md shadow-[#A84A4D]/20 transition-all flex items-center justify-center flex-shrink-0 active:scale-95 cursor-pointer disabled:cursor-not-allowed"
                   title="Send message"
                 >
                   <Send className="w-4 h-4" />
@@ -1244,12 +1244,12 @@ export const GroupsChatPage = () => {
             </>
           ) : (
             <div className="flex flex-col items-center justify-center h-full p-8 text-center space-y-4">
-              <div className="w-16 h-16 rounded-3xl bg-indigo-950/40 text-indigo-400 border border-indigo-500/20 flex items-center justify-center">
+              <div className="w-16 h-16 rounded-3xl bg-[#703344] text-[#CB6B5A] border border-[#A84A4D]/40 flex items-center justify-center">
                 <Users className="w-8 h-8" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-white">Select or Create a Conversation</h3>
-                <p className="text-xs text-zinc-400 mt-1 max-w-sm">
+                <h3 className="text-base font-bold text-[#F6E8E2]">Select or Create a Conversation</h3>
+                <p className="text-xs text-[#DDA081] mt-1 max-w-sm">
                   Join project teams, open interest communities, or message teammates directly in real time.
                 </p>
               </div>
@@ -1257,7 +1257,7 @@ export const GroupsChatPage = () => {
                 <Button variant="outline" size="sm" onClick={() => setDiscoverModalOpen(true)} icon={Compass}>
                   Explore Groups
                 </Button>
-                <Button variant="gradient" size="sm" onClick={() => setCreateModalOpen(true)} icon={Plus}>
+                <Button variant="primary" size="sm" onClick={() => setCreateModalOpen(true)} icon={Plus}>
                   Create New Group
                 </Button>
               </div>
@@ -1270,21 +1270,21 @@ export const GroupsChatPage = () => {
         {/* ========================================================================= */}
         {activeGroup && (showRightSidebar || mobileView === 'info') && (
           <aside
-            className={`w-full lg:w-72 bg-[#111113] border-l border-[#27272A] flex flex-col z-20 flex-shrink-0 ${
-              mobileView === 'info' ? 'flex fixed inset-0 z-40 bg-[#111113]' : 'hidden lg:flex'
+            className={`w-full lg:w-72 bg-[#281A21] border-l border-[#703344] flex flex-col z-20 flex-shrink-0 ${
+              mobileView === 'info' ? 'flex fixed inset-0 z-40 bg-[#281A21]' : 'hidden lg:flex'
             }`}
           >
             {/* Header */}
-            <div className="h-16 px-5 border-b border-[#27272A] flex items-center justify-between">
-              <h3 className="text-xs font-extrabold uppercase tracking-wider text-zinc-400 flex items-center gap-2">
-                <Info className="w-4 h-4 text-indigo-400" />
+            <div className="h-16 px-5 border-b border-[#703344] flex items-center justify-between">
+              <h3 className="text-xs font-extrabold uppercase tracking-wider text-[#DDA081] flex items-center gap-2">
+                <Info className="w-4 h-4 text-[#CB6B5A]" />
                 <span>Group Information</span>
               </h3>
 
               {mobileView === 'info' && (
                 <button
                   onClick={() => setMobileView('chat')}
-                  className="lg:hidden p-1.5 rounded-lg text-zinc-400 hover:text-white"
+                  className="lg:hidden p-1.5 rounded-lg text-[#DDA081] hover:text-[#F6E8E2] cursor-pointer"
                 >
                   ✕
                 </button>
@@ -1298,26 +1298,26 @@ export const GroupsChatPage = () => {
                 {isEditingSettings ? (
                   <form onSubmit={handleSaveSettings} className="space-y-3">
                     <div>
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block mb-1">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-[#DDA081] block mb-1">
                         Group Name
                       </label>
                       <input
                         type="text"
                         value={editName}
                         onChange={(e) => setEditName(e.target.value)}
-                        className="w-full bg-[#18181B] border border-[#27272A] focus:border-indigo-500 rounded-xl px-3 py-1.5 text-xs text-white"
+                        className="w-full bg-[#4A2A35] border border-[#703344] focus:border-[#CB6B5A] rounded-xl px-3 py-1.5 text-xs text-[#F6E8E2]"
                       />
                     </div>
 
                     <div>
-                      <label className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block mb-1">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-[#DDA081] block mb-1">
                         Description
                       </label>
                       <textarea
                         value={editDesc}
                         onChange={(e) => setEditDesc(e.target.value)}
                         rows={2}
-                        className="w-full bg-[#18181B] border border-[#27272A] focus:border-indigo-500 rounded-xl px-3 py-1.5 text-xs text-white resize-none"
+                        className="w-full bg-[#4A2A35] border border-[#703344] focus:border-[#CB6B5A] rounded-xl px-3 py-1.5 text-xs text-[#F6E8E2] resize-none"
                       />
                     </div>
 
@@ -1325,7 +1325,7 @@ export const GroupsChatPage = () => {
                       <Button type="button" size="xs" variant="outline" onClick={() => setIsEditingSettings(false)}>
                         Cancel
                       </Button>
-                      <Button type="submit" size="xs" variant="gradient">
+                      <Button type="submit" size="xs" variant="primary">
                         Save
                       </Button>
                     </div>
@@ -1333,11 +1333,11 @@ export const GroupsChatPage = () => {
                 ) : (
                   <div>
                     <div className="flex items-start justify-between gap-2 mb-1">
-                      <h4 className="text-sm font-bold text-white">{getGroupDisplayName(activeGroup)}</h4>
+                      <h4 className="text-sm font-bold text-[#F6E8E2]">{getGroupDisplayName(activeGroup)}</h4>
                       {isGroupAdmin && activeGroup.type !== 'dm' && (
                         <button
                           onClick={() => setIsEditingSettings(true)}
-                          className="p-1 text-zinc-400 hover:text-indigo-400 transition-colors"
+                          className="p-1 text-[#DDA081] hover:text-[#CB6B5A] transition-colors cursor-pointer"
                           title="Edit Group Info"
                         >
                           <Settings className="w-3.5 h-3.5" />
@@ -1345,7 +1345,7 @@ export const GroupsChatPage = () => {
                       )}
                     </div>
 
-                    <p className="text-xs text-zinc-400 leading-relaxed">
+                    <p className="text-xs text-[#DDA081] leading-relaxed">
                       {activeGroup.description || 'No description provided.'}
                     </p>
                   </div>
@@ -1353,30 +1353,30 @@ export const GroupsChatPage = () => {
 
                 {/* Project Team Card Shortcut */}
                 {activeGroup.type === 'project' && activeGroup.project && (
-                  <div className="p-3.5 rounded-2xl bg-indigo-950/20 border border-indigo-500/30 space-y-2">
-                    <div className="flex items-center justify-between text-xs font-bold text-indigo-300">
+                  <div className="p-3.5 rounded-2xl bg-[#4A2A35] border border-[#703344] space-y-2">
+                    <div className="flex items-center justify-between text-xs font-bold text-[#CB6B5A]">
                       <span className="flex items-center gap-1.5">
                         <FolderGit2 className="w-4 h-4" />
                         <span>Associated Project</span>
                       </span>
                     </div>
-                    <p className="text-xs text-zinc-300">{activeGroup.project.title || 'Project Workspace'}</p>
+                    <p className="text-xs text-[#F6E8E2]">{activeGroup.project.title || 'Project Workspace'}</p>
                     <Link
                       to={`/projects/${activeGroup.project._id || activeGroup.project}`}
-                      className="inline-flex items-center gap-1 text-[11px] font-semibold text-indigo-400 hover:underline pt-1"
+                      className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#CB6B5A] hover:underline pt-1"
                     >
                       <span>Open Project Details</span>
-                      <ExternalLink className="w-3 h-3" />
+                      <ExternalLink className="w-3.5 h-3.5" />
                     </Link>
                   </div>
                 )}
 
                 {/* Category & Tags */}
                 {activeGroup.type !== 'dm' && (
-                  <div className="space-y-2 pt-2 border-t border-[#27272A]">
+                  <div className="space-y-2 pt-2 border-t border-[#703344]">
                     <div className="flex items-center justify-between text-[11px]">
-                      <span className="text-zinc-500">Category:</span>
-                      <span className="font-semibold text-zinc-300">{activeGroup.category || 'General'}</span>
+                      <span className="text-[#DDA081]">Category:</span>
+                      <span className="font-semibold text-[#F6E8E2]">{activeGroup.category || 'General'}</span>
                     </div>
 
                     {activeGroup.tags && activeGroup.tags.length > 0 && (
@@ -1384,7 +1384,7 @@ export const GroupsChatPage = () => {
                         {activeGroup.tags.map((t, idx) => (
                           <span
                             key={idx}
-                            className="text-[10px] font-medium px-2 py-0.5 rounded bg-[#18181B] text-zinc-400 border border-[#27272A]"
+                            className="text-[10px] font-medium px-2 py-0.5 rounded bg-[#4A2A35] text-[#DDA081] border border-[#703344]"
                           >
                             #{t}
                           </span>
@@ -1396,19 +1396,19 @@ export const GroupsChatPage = () => {
               </div>
 
               {/* Members Roster Section */}
-              <div className="space-y-3 pt-4 border-t border-[#27272A]">
+              <div className="space-y-3 pt-4 border-t border-[#703344]">
                 <div className="flex items-center justify-between">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-400 flex items-center gap-1.5">
-                    <Users className="w-3.5 h-3.5 text-indigo-400" />
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-[#DDA081] flex items-center gap-1.5">
+                    <Users className="w-3.5 h-3.5 text-[#CB6B5A]" />
                     <span>Members ({activeGroup.members?.length || 1})</span>
                   </h4>
 
                   {activeGroup.type !== 'dm' && (
                     <button
                       onClick={() => setInviteModalOpen(true)}
-                      className="text-[11px] font-bold text-indigo-400 hover:text-indigo-300 flex items-center gap-1"
+                      className="text-[11px] font-bold text-[#CB6B5A] hover:text-[#DDA081] flex items-center gap-1 cursor-pointer"
                     >
-                      <Plus className="w-3 h-3" />
+                      <Plus className="w-3.5 h-3.5" />
                       <span>Invite</span>
                     </button>
                   )}
@@ -1426,7 +1426,7 @@ export const GroupsChatPage = () => {
                     return (
                       <div
                         key={idx}
-                        className="flex items-center justify-between gap-2 p-2 rounded-xl bg-[#18181B] border border-[#27272A]/80 hover:border-zinc-700 transition-colors"
+                        className="flex items-center justify-between gap-2 p-2 rounded-xl bg-[#4A2A35] border border-[#703344] hover:border-[#A84A4D]/40 transition-colors"
                       >
                         <div className="flex items-center gap-2.5 min-w-0">
                           <div className="relative flex-shrink-0">
@@ -1438,21 +1438,21 @@ export const GroupsChatPage = () => {
                                 }`
                               }
                               alt={memberUser.name}
-                              className="w-8 h-8 rounded-xl object-cover border border-[#27272A] bg-[#111113]"
+                              className="w-8 h-8 rounded-xl object-cover border border-[#703344] bg-[#281A21]"
                             />
                             <span
-                              className={`absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full ring-2 ring-[#18181B] ${
-                                isOnline ? 'bg-emerald-500' : 'bg-zinc-600'
+                              className={`absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full ring-2 ring-[#4A2A35] ${
+                                isOnline ? 'bg-[#5B8A68]' : 'bg-zinc-600'
                               }`}
                             />
                           </div>
 
                           <div className="min-w-0">
                             <div className="flex items-center gap-1">
-                              <p className="text-xs font-bold text-white truncate">{memberUser.name}</p>
-                              {isMe && <span className="text-[10px] text-zinc-500">(you)</span>}
+                              <p className="text-xs font-bold text-[#F6E8E2] truncate">{memberUser.name}</p>
+                              {isMe && <span className="text-[10px] text-[#DDA081]">(you)</span>}
                             </div>
-                            <p className="text-[10px] text-zinc-400 truncate">
+                            <p className="text-[10px] text-[#DDA081] truncate">
                               {memberUser.headline || memberUser.course || 'Student'}
                             </p>
                           </div>
@@ -1463,10 +1463,10 @@ export const GroupsChatPage = () => {
                           <span
                             className={`text-[9px] font-bold px-1.5 py-0.5 rounded uppercase ${
                               m.role === 'admin'
-                                ? 'bg-rose-950/60 text-rose-300 border border-rose-500/30'
+                                ? 'bg-[#C04A4D]/30 text-[#E07D82] border border-[#C04A4D]/40'
                                 : m.role === 'lead'
-                                ? 'bg-purple-950/60 text-purple-300 border border-purple-500/30'
-                                : 'bg-zinc-800 text-zinc-400'
+                                ? 'bg-[#703344] text-[#CB6B5A] border border-[#A84A4D]/40'
+                                : 'bg-[#281A21] text-[#DDA081]'
                             }`}
                           >
                             {m.role === 'lead' ? 'Lead' : m.role}
@@ -1474,15 +1474,15 @@ export const GroupsChatPage = () => {
 
                           {isGroupAdmin && !isMe && activeGroup.type !== 'dm' && (
                             <div className="relative group/opt">
-                              <button className="p-1 rounded text-zinc-500 hover:text-white">
+                              <button className="p-1 rounded text-[#DDA081] hover:text-[#F6E8E2] cursor-pointer">
                                 <MoreVertical className="w-3.5 h-3.5" />
                               </button>
 
-                              <div className="hidden group-hover/opt:block absolute right-0 top-6 w-32 bg-[#111113] border border-[#27272A] rounded-xl shadow-xl p-1 z-30 space-y-1">
+                              <div className="hidden group-hover/opt:block absolute right-0 top-6 w-32 bg-[#281A21] border border-[#703344] rounded-xl shadow-xl p-1 z-30 space-y-1">
                                 {m.role === 'member' && (
                                   <button
                                     onClick={() => handleUpdateRole(uId, 'admin')}
-                                    className="w-full text-left px-2 py-1 text-[10px] font-medium text-indigo-300 hover:bg-[#18181B] rounded"
+                                    className="w-full text-left px-2 py-1 text-[10px] font-medium text-[#CB6B5A] hover:bg-[#4A2A35] rounded cursor-pointer"
                                   >
                                     Make Admin
                                   </button>
@@ -1490,14 +1490,14 @@ export const GroupsChatPage = () => {
                                 {m.role === 'admin' && (
                                   <button
                                     onClick={() => handleUpdateRole(uId, 'member')}
-                                    className="w-full text-left px-2 py-1 text-[10px] font-medium text-zinc-300 hover:bg-[#18181B] rounded"
+                                    className="w-full text-left px-2 py-1 text-[10px] font-medium text-[#DDA081] hover:bg-[#4A2A35] rounded cursor-pointer"
                                   >
                                     Demote to Member
                                   </button>
                                 )}
                                 <button
                                   onClick={() => handleRemoveMember(uId, memberUser.name)}
-                                  className="w-full text-left px-2 py-1 text-[10px] font-medium text-rose-400 hover:bg-rose-500/10 rounded"
+                                  className="w-full text-left px-2 py-1 text-[10px] font-medium text-[#E07D82] hover:bg-[#C04A4D]/20 rounded cursor-pointer"
                                 >
                                   Remove Member
                                 </button>
@@ -1513,13 +1513,13 @@ export const GroupsChatPage = () => {
 
               {/* Danger Zone / Leave Actions */}
               {activeGroup.type !== 'dm' && (
-                <div className="pt-4 border-t border-[#27272A] space-y-2">
+                <div className="pt-4 border-t border-[#703344] space-y-2">
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={handleLeaveGroup}
                     icon={LogOut}
-                    className="w-full justify-center text-xs text-zinc-400 hover:text-rose-400 hover:border-rose-500/30"
+                    className="w-full justify-center text-xs text-[#DDA081] hover:text-[#E07D82] hover:border-[#C04A4D]/40"
                   >
                     Leave Group
                   </Button>
@@ -1530,7 +1530,7 @@ export const GroupsChatPage = () => {
                       size="sm"
                       onClick={handleDeleteGroup}
                       icon={Trash2}
-                      className="w-full justify-center text-xs text-rose-400 hover:bg-rose-500/10 border-rose-500/20"
+                      className="w-full justify-center text-xs text-[#E07D82] hover:bg-[#C04A4D]/20 border-[#C04A4D]/30"
                     >
                       Delete Group
                     </Button>

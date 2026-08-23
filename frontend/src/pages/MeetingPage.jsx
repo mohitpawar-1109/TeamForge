@@ -13,7 +13,7 @@ export const MeetingPage = () => {
         <button
           type="button"
           onClick={() => navigate(-1)}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#18181B] hover:bg-[#27272A] border border-[#27272A] text-xs font-bold text-zinc-300 hover:text-white transition-all cursor-pointer"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#4A2A35] hover:bg-[#703344] border border-[#703344] text-xs font-bold text-[#DDA081] hover:text-[#F6E8E2] transition-all cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Exit to Previous Page</span>

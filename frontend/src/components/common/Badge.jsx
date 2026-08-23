@@ -7,13 +7,16 @@ export const Badge = ({
   className = ''
 }) => {
   const variants = {
-    default: 'bg-[#18181B] text-zinc-300 border-[#27272A]',
-    brand: 'bg-indigo-950/60 text-indigo-300 border-indigo-500/30',
-    success: 'bg-emerald-950/60 text-emerald-300 border-emerald-500/30',
-    warning: 'bg-amber-950/60 text-amber-300 border-amber-500/30',
-    danger: 'bg-rose-950/60 text-rose-300 border-rose-500/30',
-    purple: 'bg-purple-950/60 text-purple-300 border-purple-500/30',
-    cyan: 'bg-cyan-950/60 text-cyan-300 border-cyan-500/30'
+    default: 'bg-[#4A2A35] text-[#DDA081] border-[#703344]',
+    brand: 'bg-[#703344] text-[#F6E8E2] border-[#A84A4D]/50',
+    terracotta: 'bg-[#A84A4D]/25 text-[#F6E8E2] border-[#A84A4D]',
+    coral: 'bg-[#CB6B5A]/20 text-[#CB6B5A] border-[#CB6B5A]/40',
+    peach: 'bg-[#4A2A35] text-[#DDA081] border-[#703344]',
+    success: 'bg-[#5B8A68]/20 text-[#86B190] border-[#5B8A68]/40',
+    warning: 'bg-[#D99443]/20 text-[#E5B079] border-[#D99443]/40',
+    danger: 'bg-[#C04A4D]/20 text-[#E07D82] border-[#C04A4D]/40',
+    purple: 'bg-[#703344]/40 text-[#DDA081] border-[#703344]',
+    cyan: 'bg-[#4A2A35] text-[#DDA081] border-[#703344]'
   };
 
   const sizes = {

@@ -163,19 +163,19 @@ export const VerifyOtpPage = () => {
         {/* Header */}
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center gap-2 mb-3">
-            <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-md shadow-indigo-500/20">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#A84A4D] to-[#CB6B5A] flex items-center justify-center text-[#F6E8E2] shadow-md shadow-[#A84A4D]/20">
               <ShieldCheck className="w-5 h-5" />
             </div>
           </Link>
-          <h2 className="text-2xl font-extrabold text-[#FAFAFA] tracking-tight">Verify your email</h2>
-          <p className="text-xs text-zinc-400 mt-1.5">
+          <h2 className="text-2xl font-extrabold text-[#F6E8E2] tracking-tight">Verify your email</h2>
+          <p className="text-xs text-[#DDA081] mt-1.5">
             We sent a 6-digit verification code to:{' '}
-            <span className="font-semibold text-indigo-300">{maskEmail(email)}</span>
+            <span className="font-semibold text-[#CB6B5A]">{maskEmail(email)}</span>
           </p>
         </div>
 
         {/* Card */}
-        <div className="bg-[#18181B] rounded-2xl border border-[#27272A] p-6 sm:p-8 shadow-soft">
+        <div className="bg-[#4A2A35] rounded-2xl border border-[#703344] p-6 sm:p-8 shadow-soft">
           <form onSubmit={handleVerify} className="space-y-6">
             {/* 6 Digit Inputs */}
             <div>
@@ -193,17 +193,17 @@ export const VerifyOtpPage = () => {
                     onKeyDown={(e) => handleKeyDown(index, e)}
                     className={`w-11 h-13 sm:w-12 sm:h-14 text-center text-xl font-extrabold rounded-xl border transition-all focus:outline-none ${
                       errorMessage
-                        ? 'border-rose-500/80 bg-rose-950/20 text-rose-200 focus:border-rose-500'
+                        ? 'border-[#C04A4D] bg-[#C04A4D]/20 text-[#E07D82] focus:border-[#C04A4D]'
                         : digit
-                        ? 'border-indigo-500 bg-indigo-950/20 text-[#FAFAFA]'
-                        : 'border-[#27272A] bg-[#111113] text-[#FAFAFA] focus:border-indigo-500 focus:bg-[#09090B]'
+                        ? 'border-[#A84A4D] bg-[#703344]/40 text-[#F6E8E2]'
+                        : 'border-[#703344] bg-[#281A21] text-[#F6E8E2] focus:border-[#CB6B5A] focus:bg-[#281A21]'
                     }`}
                   />
                 ))}
               </div>
 
               {errorMessage && (
-                <div className="flex items-center justify-center gap-1.5 mt-3 text-xs text-rose-400">
+                <div className="flex items-center justify-center gap-1.5 mt-3 text-xs text-[#E07D82]">
                   <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
                   <span>{errorMessage}</span>
                 </div>
@@ -211,21 +211,21 @@ export const VerifyOtpPage = () => {
             </div>
 
             {/* Expiration and Resend Info */}
-            <div className="flex items-center justify-between text-xs text-zinc-400 bg-[#111113] p-3 rounded-xl border border-[#27272A]">
-              <div className="flex items-center gap-1.5 text-zinc-400">
-                <Clock className="w-3.5 h-3.5 text-indigo-400" />
+            <div className="flex items-center justify-between text-xs text-[#DDA081] bg-[#281A21] p-3 rounded-xl border border-[#703344]">
+              <div className="flex items-center gap-1.5 text-[#DDA081]">
+                <Clock className="w-3.5 h-3.5 text-[#CB6B5A]" />
                 <span>Expires in 10 mins</span>
               </div>
 
               <div>
                 {cooldown > 0 ? (
-                  <span className="text-zinc-500 font-medium">Resend in {cooldown}s</span>
+                  <span className="text-[#DDA081]/70 font-medium">Resend in {cooldown}s</span>
                 ) : (
                   <button
                     type="button"
                     onClick={handleResend}
                     disabled={resending}
-                    className="text-indigo-400 hover:text-indigo-300 font-semibold inline-flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                    className="text-[#CB6B5A] hover:text-[#DDA081] font-semibold inline-flex items-center gap-1 cursor-pointer disabled:opacity-50"
                   >
                     <RefreshCw className={`w-3 h-3 ${resending ? 'animate-spin' : ''}`} />
                     <span>Resend OTP</span>
@@ -247,10 +247,10 @@ export const VerifyOtpPage = () => {
             </Button>
           </form>
 
-          <div className="mt-6 pt-5 border-t border-[#27272A] text-center">
+          <div className="mt-6 pt-5 border-t border-[#703344] text-center">
             <Link
               to="/forgot-password"
-              className="inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-indigo-400 transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs text-[#DDA081] hover:text-[#CB6B5A] transition-colors"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Use a different email</span>

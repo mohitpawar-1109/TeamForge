@@ -3,6 +3,41 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --color-bg: #281A21;
+    --color-surface: #4A2A35;
+    --color-surface-elevated: #703344;
+    --color-primary: #A84A4D;
+    --color-accent: #CB6B5A;
+    --color-accent-soft: #DDA081;
+    --color-text: #F6E8E2;
+    --color-border: #703344;
+    --color-muted: #B8826D;
+    --color-card: #4A2A35;
+    --color-hover: #703344;
+    --color-input: #281A21;
+    --color-overlay: rgba(40, 26, 33, 0.85);
+
+    --bg-primary: #281A21;
+    --bg-secondary: #4A2A35;
+    --bg-deep: #281A21;
+    --surface: #4A2A35;
+    --surface-hover: #703344;
+    --surface-card: #4A2A35;
+    --surface-elevated: #703344;
+    --border-primary: #703344;
+    --border-subtle: rgba(221, 160, 129, 0.15);
+    --accent-primary: #A84A4D;
+    --accent-bright: #CB6B5A;
+    --accent-secondary: #CB6B5A;
+    --accent-terracotta: #A84A4D;
+    --accent-highlight: #CB6B5A;
+    --text-primary: #F6E8E2;
+    --text-secondary: #DDA081;
+    --text-muted: #B8826D;
+    --shadow-soft: 0 8px 30px rgba(0, 0, 0, 0.35);
+  }
+
   html {
     scroll-behavior: smooth;
     text-rendering: optimizeLegibility;
@@ -12,14 +47,14 @@
   }
 
   body {
-    @apply bg-[#09090B] text-[#FAFAFA] font-sans selection:bg-indigo-600 selection:text-white min-h-screen;
-    background-color: #09090B;
-    color: #FAFAFA;
+    @apply bg-[#281A21] text-[#F6E8E2] font-sans selection:bg-[#A84A4D] selection:text-[#F6E8E2] min-h-screen;
+    background-color: #281A21;
+    color: #F6E8E2;
   }
 
-  /* Accessible focus indicators for keyboard navigation */
+  /* Accessible focus indicators with warm coral / terracotta accent */
   :focus-visible {
-    @apply outline-none ring-2 ring-indigo-500 ring-offset-2 ring-offset-[#09090B];
+    @apply outline-none ring-2 ring-[#CB6B5A] ring-offset-2 ring-offset-[#281A21];
   }
 
   button, a, input, textarea, select {
@@ -27,26 +62,26 @@
   }
 }
 
-/* Custom Sleek Dark Scrollbar */
+/* Custom Sleek Autumn Dusk Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #09090B;
+  background: #281A21;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #27272A;
+  background: #703344;
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #3F3F46;
+  background: #A84A4D;
 }
 
-/* Dark Skeleton Loading Shimmer */
+/* Autumn Dusk Skeleton Loading Shimmer */
 @keyframes darkShimmer {
   0% {
     background-position: -200% 0;
@@ -57,23 +92,23 @@
 }
 
 .skeleton-shimmer {
-  background: linear-gradient(90deg, #18181B 25%, #27272A 50%, #18181B 75%);
+  background: linear-gradient(90deg, #4A2A35 25%, #703344 50%, #4A2A35 75%);
   background-size: 200% 100%;
   animation: darkShimmer 1.5s infinite;
 }
 
-/* Dark Glassmorphism & UI Panels */
+/* Autumn Dusk Glassmorphism & UI Panels */
 .glass-panel {
-  background: rgba(24, 24, 27, 0.85);
+  background: rgba(74, 42, 53, 0.88);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(39, 39, 42, 0.8);
+  border: 1px solid rgba(112, 51, 68, 0.8);
 }
 
 .glass-card {
-  background: rgba(24, 24, 27, 0.95);
+  background: rgba(74, 42, 53, 0.95);
   backdrop-filter: blur(8px);
-  border: 1px solid #27272A;
+  border: 1px solid #703344;
 }
 
 /* Respect Reduced Motion Preferences */

@@ -4,10 +4,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Maximize2,
-  Play,
-  Volume2,
-  VolumeX,
-  Film,
   Image as ImageIcon
 } from 'lucide-react';
 
@@ -115,7 +111,7 @@ export const PostMedia = ({ media = [], singleImageUrl = '' }) => {
       {videoItems.map((video, idx) => (
         <div
           key={video.fileId || video.url || idx}
-          className="relative rounded-2xl overflow-hidden bg-black border border-[#27272A] shadow-md max-h-[480px] flex items-center justify-center group"
+          className="relative rounded-2xl overflow-hidden bg-black border border-[#703344] shadow-md max-h-[480px] flex items-center justify-center group"
         >
           <video
             src={video.url}
@@ -132,11 +128,11 @@ export const PostMedia = ({ media = [], singleImageUrl = '' }) => {
 
       {/* Image Gallery Grid */}
       {imageItems.length > 0 && (
-        <div className="rounded-2xl overflow-hidden border border-[#27272A] bg-[#111113]">
+        <div className="rounded-2xl overflow-hidden border border-[#703344] bg-[#281A21]">
           {imageItems.length === 1 && (
             <div
               onClick={() => openLightbox(0)}
-              className="relative max-h-[450px] overflow-hidden cursor-pointer group flex items-center justify-center bg-[#09090B]"
+              className="relative max-h-[450px] overflow-hidden cursor-pointer group flex items-center justify-center bg-[#281A21]"
             >
               <img
                 src={imageItems[0].url}
@@ -145,8 +141,8 @@ export const PostMedia = ({ media = [], singleImageUrl = '' }) => {
                 className="w-full h-auto max-h-[450px] object-contain transition-transform duration-300 group-hover:scale-[1.01]"
               />
               <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
-                <span className="px-3 py-1.5 rounded-xl bg-black/70 text-white text-xs font-semibold backdrop-blur-xs flex items-center gap-1.5">
-                  <Maximize2 className="w-3.5 h-3.5" />
+                <span className="px-3 py-1.5 rounded-xl bg-[#4A2A35]/90 text-[#F6E8E2] text-xs font-semibold backdrop-blur-xs flex items-center gap-1.5 border border-[#703344]">
+                  <Maximize2 className="w-3.5 h-3.5 text-[#CB6B5A]" />
                   <span>Click to expand</span>
                 </span>
               </div>
@@ -154,12 +150,12 @@ export const PostMedia = ({ media = [], singleImageUrl = '' }) => {
           )}
 
           {imageItems.length === 2 && (
-            <div className="grid grid-cols-2 gap-1.5 p-1.5 bg-[#111113]">
+            <div className="grid grid-cols-2 gap-1.5 p-1.5 bg-[#281A21]">
               {imageItems.map((img, idx) => (
                 <div
                   key={img.fileId || img.url || idx}
                   onClick={() => openLightbox(idx)}
-                  className="relative aspect-4/3 rounded-xl overflow-hidden cursor-pointer group bg-[#09090B]"
+                  className="relative aspect-4/3 rounded-xl overflow-hidden cursor-pointer group bg-[#281A21]"
                 >
                   <img
                     src={img.url}
@@ -176,10 +172,10 @@ export const PostMedia = ({ media = [], singleImageUrl = '' }) => {
           )}
 
           {imageItems.length === 3 && (
-            <div className="grid grid-cols-3 gap-1.5 p-1.5 bg-[#111113]">
+            <div className="grid grid-cols-3 gap-1.5 p-1.5 bg-[#281A21]">
               <div
                 onClick={() => openLightbox(0)}
-                className="col-span-2 aspect-4/3 rounded-xl overflow-hidden cursor-pointer group relative bg-[#09090B]"
+                className="col-span-2 aspect-4/3 rounded-xl overflow-hidden cursor-pointer group relative bg-[#281A21]"
               >
                 <img
                   src={imageItems[0].url}
@@ -197,7 +193,7 @@ export const PostMedia = ({ media = [], singleImageUrl = '' }) => {
                   <div
                     key={img.fileId || img.url || idx}
                     onClick={() => openLightbox(idx + 1)}
-                    className="relative rounded-xl overflow-hidden cursor-pointer group bg-[#09090B] h-full"
+                    className="relative rounded-xl overflow-hidden cursor-pointer group bg-[#281A21] h-full"
                   >
                     <img
                       src={img.url}
@@ -215,7 +211,7 @@ export const PostMedia = ({ media = [], singleImageUrl = '' }) => {
           )}
 
           {imageItems.length >= 4 && (
-            <div className="grid grid-cols-2 gap-1.5 p-1.5 bg-[#111113]">
+            <div className="grid grid-cols-2 gap-1.5 p-1.5 bg-[#281A21]">
               {imageItems.slice(0, 4).map((img, idx) => {
                 const isLast = idx === 3 && imageItems.length > 4;
                 const remainingCount = imageItems.length - 4;
@@ -224,7 +220,7 @@ export const PostMedia = ({ media = [], singleImageUrl = '' }) => {
                   <div
                     key={img.fileId || img.url || idx}
                     onClick={() => openLightbox(idx)}
-                    className="relative aspect-4/3 rounded-xl overflow-hidden cursor-pointer group bg-[#09090B]"
+                    className="relative aspect-4/3 rounded-xl overflow-hidden cursor-pointer group bg-[#281A21]"
                   >
                     <img
                       src={img.url}
@@ -233,7 +229,7 @@ export const PostMedia = ({ media = [], singleImageUrl = '' }) => {
                       className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                     />
                     {isLast ? (
-                      <div className="absolute inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center text-white font-black text-lg sm:text-xl">
+                      <div className="absolute inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center text-[#F6E8E2] font-black text-lg sm:text-xl">
                         +{remainingCount + 1}
                       </div>
                     ) : (
@@ -252,7 +248,7 @@ export const PostMedia = ({ media = [], singleImageUrl = '' }) => {
       {/* Lightbox Modal */}
       {lightboxOpen && imageItems.length > 0 && (
         <div
-          className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex items-center justify-center p-2 sm:p-6 animate-fadeIn"
+          className="fixed inset-0 z-50 bg-[#281A21]/95 backdrop-blur-md flex items-center justify-center p-2 sm:p-6 animate-fadeIn"
           onClick={closeLightbox}
         >
           {/* Top Bar Controls */}
@@ -260,8 +256,8 @@ export const PostMedia = ({ media = [], singleImageUrl = '' }) => {
             className="absolute top-4 left-4 right-4 flex items-center justify-between z-10"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-900/80 border border-zinc-800 text-xs font-semibold text-zinc-300">
-              <ImageIcon className="w-3.5 h-3.5 text-indigo-400" />
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#4A2A35]/90 border border-[#703344] text-xs font-semibold text-[#F6E8E2]">
+              <ImageIcon className="w-3.5 h-3.5 text-[#CB6B5A]" />
               <span>
                 {activeImageIndex + 1} / {imageItems.length}
               </span>
@@ -270,7 +266,7 @@ export const PostMedia = ({ media = [], singleImageUrl = '' }) => {
             <button
               type="button"
               onClick={closeLightbox}
-              className="p-2 rounded-full bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white transition-colors cursor-pointer"
+              className="p-2 rounded-full bg-[#4A2A35]/90 hover:bg-[#703344] border border-[#703344] text-[#DDA081] hover:text-[#F6E8E2] transition-colors cursor-pointer"
               title="Close (Esc)"
             >
               <X className="w-5 h-5" />
@@ -285,7 +281,7 @@ export const PostMedia = ({ media = [], singleImageUrl = '' }) => {
             <img
               src={imageItems[activeImageIndex]?.url}
               alt={imageItems[activeImageIndex]?.name || 'Enlarged media view'}
-              className="max-w-full max-h-[85vh] object-contain rounded-2xl shadow-2xl"
+              className="max-w-full max-h-[85vh] object-contain rounded-2xl shadow-2xl border border-[#703344]"
             />
           </div>
 
@@ -298,7 +294,7 @@ export const PostMedia = ({ media = [], singleImageUrl = '' }) => {
                   e.stopPropagation();
                   prevImage();
                 }}
-                className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 p-2.5 sm:p-3 rounded-full bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-700/60 text-white shadow-xl transition-all cursor-pointer hover:scale-110 active:scale-95"
+                className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 p-2.5 sm:p-3 rounded-full bg-[#4A2A35]/90 hover:bg-[#703344] border border-[#703344] text-[#F6E8E2] shadow-xl transition-all cursor-pointer hover:scale-110 active:scale-95"
                 title="Previous (Left Arrow)"
               >
                 <ChevronLeft className="w-6 h-6" />
@@ -310,7 +306,7 @@ export const PostMedia = ({ media = [], singleImageUrl = '' }) => {
                   e.stopPropagation();
                   nextImage();
                 }}
-                className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 p-2.5 sm:p-3 rounded-full bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-700/60 text-white shadow-xl transition-all cursor-pointer hover:scale-110 active:scale-95"
+                className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 p-2.5 sm:p-3 rounded-full bg-[#4A2A35]/90 hover:bg-[#703344] border border-[#703344] text-[#F6E8E2] shadow-xl transition-all cursor-pointer hover:scale-110 active:scale-95"
                 title="Next (Right Arrow)"
               >
                 <ChevronRight className="w-6 h-6" />

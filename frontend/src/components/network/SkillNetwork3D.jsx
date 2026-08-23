@@ -32,10 +32,10 @@ import { Badge } from '../common/Badge';
 
 // Entity Color System
 const ENTITY_COLORS = {
-  student: '#06b6d4', // Cyan
-  skill: '#a855f7',   // Purple
-  project: '#f59e0b', // Amber
-  team: '#10b981'     // Emerald
+  student: '#A84A4D', // Terracotta
+  skill: '#703344',   // Burgundy
+  project: '#CB6B5A', // Warm Coral
+  team: '#5B8A68'     // Muted Sage
 };
 
 // 3D Graph Scene
@@ -92,9 +92,9 @@ const GraphScene = ({
             />
           </bufferGeometry>
           <lineBasicMaterial
-            color="#6366f1"
+            color="#A84A4D"
             transparent
-            opacity={activeNodeId ? 0.15 : 0.25}
+            opacity={activeNodeId ? 0.2 : 0.35}
             blending={THREE.AdditiveBlending}
           />
         </lineSegments>
@@ -118,7 +118,7 @@ const GraphScene = ({
           });
         }
 
-        const baseColor = ENTITY_COLORS[node.type] || '#6366f1';
+        const baseColor = ENTITY_COLORS[node.type] || '#A84A4D';
         const nodeSize = node.size || 0.32;
 
         return (
@@ -143,8 +143,8 @@ const GraphScene = ({
             <mesh scale={isSelected ? 1.6 : isHovered ? 1.4 : isConnected ? 1.25 : 1}>
               <sphereGeometry args={[nodeSize, 22, 22]} />
               <meshStandardMaterial
-                color={isSelected ? '#ffffff' : isConnected ? '#38bdf8' : baseColor}
-                emissive={isSelected ? '#ffffff' : isConnected ? '#38bdf8' : baseColor}
+                color={isSelected ? '#F6E8E2' : isConnected ? '#CB6B5A' : baseColor}
+                emissive={isSelected ? '#F6E8E2' : isConnected ? '#CB6B5A' : baseColor}
                 emissiveIntensity={isSelected ? 0.9 : isConnected ? 0.6 : isHovered ? 0.5 : 0.25}
                 roughness={0.2}
                 metalness={0.4}
@@ -156,7 +156,7 @@ const GraphScene = ({
               <mesh rotation={[Math.PI / 2, 0, 0]}>
                 <ringGeometry args={[nodeSize * 1.3, nodeSize * 1.5, 24]} />
                 <meshBasicMaterial
-                  color={isSelected ? '#ffffff' : baseColor}
+                  color={isSelected ? '#F6E8E2' : baseColor}
                   transparent
                   opacity={0.7}
                   side={THREE.DoubleSide}
@@ -167,14 +167,14 @@ const GraphScene = ({
             {/* HTML Label - Always visible by default */}
             <Html distanceFactor={13} center position={[0, nodeSize + 0.45, 0]}>
               <div
-                className={`bg-[#18181B]/95 backdrop-blur-md px-3 py-1.5 rounded-xl shadow-2xl pointer-events-none text-center whitespace-nowrap transition-all duration-150 ${
+                className={`bg-[#281A21]/95 backdrop-blur-md px-3 py-1.5 rounded-xl shadow-2xl pointer-events-none text-center whitespace-nowrap transition-all duration-150 ${
                   isSelected
-                    ? 'border-2 border-white shadow-white/20 scale-110 z-20'
+                    ? 'border-2 border-[#F6E8E2] shadow-[#A84A4D]/40 scale-110 z-20'
                     : isHovered
-                    ? 'border border-zinc-400 shadow-lg scale-105 z-10'
+                    ? 'border border-[#CB6B5A] shadow-lg scale-105 z-10'
                     : isConnected
-                    ? 'border border-cyan-500/60 shadow-md'
-                    : 'border border-[#27272A]/80'
+                    ? 'border border-[#A84A4D]/60 shadow-md'
+                    : 'border border-[#703344]'
                 }`}
               >
                 <span
@@ -183,9 +183,9 @@ const GraphScene = ({
                 >
                   {node.type}
                 </span>
-                <p className="text-xs font-extrabold text-white">{node.name}</p>
+                <p className="text-xs font-extrabold text-[#F6E8E2]">{node.name}</p>
                 {node.subtitle && (
-                  <p className="text-[10px] text-zinc-400">{node.subtitle}</p>
+                  <p className="text-[10px] text-[#DDA081]">{node.subtitle}</p>
                 )}
               </div>
             </Html>
@@ -406,25 +406,25 @@ export const SkillNetwork3D = () => {
   }, [selectedNode, links, nodes]);
 
   return (
-    <div className="bg-[#18181B] border border-[#27272A] rounded-3xl overflow-hidden shadow-2xl relative flex flex-col h-[780px] max-h-[85vh]">
+    <div className="bg-[#4A2A35] border border-[#703344] rounded-3xl overflow-hidden shadow-2xl relative flex flex-col h-[780px] max-h-[85vh]">
       {/* Top Header & Toolbar */}
-      <div className="p-4 sm:p-5 bg-[#111113] border-b border-[#27272A] flex flex-wrap items-center justify-between gap-4 z-10">
+      <div className="p-4 sm:p-5 bg-[#281A21] border-b border-[#703344] flex flex-wrap items-center justify-between gap-4 z-10">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-indigo-950/80 border border-indigo-500/40 text-indigo-400 flex items-center justify-center shadow-inner">
+          <div className="w-10 h-10 rounded-2xl bg-[#703344] border border-[#A84A4D]/40 text-[#CB6B5A] flex items-center justify-center shadow-inner">
             <Compass className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-base font-extrabold text-[#FAFAFA] tracking-tight">
+            <h3 className="text-base font-extrabold text-[#F6E8E2] tracking-tight">
               Interactive 3D Entity Network
             </h3>
-            <p className="text-xs text-zinc-400">
+            <p className="text-xs text-[#DDA081]">
               {nodes.length} Nodes • {links.length} Relationships • Real-time Graph
             </p>
           </div>
         </div>
 
         {/* Entity Type Filter Tabs */}
-        <div className="flex items-center gap-1.5 bg-[#18181B] p-1 rounded-2xl border border-[#27272A] overflow-x-auto no-scrollbar">
+        <div className="flex items-center gap-1.5 bg-[#4A2A35] p-1 rounded-2xl border border-[#703344] overflow-x-auto no-scrollbar">
           {[
             { id: 'All', label: 'All' },
             { id: 'student', label: 'Students' },
@@ -434,10 +434,10 @@ export const SkillNetwork3D = () => {
             <button
               key={tab.id}
               onClick={() => setSelectedType(tab.id)}
-              className={`px-3 py-1 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+              className={`px-3 py-1 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
                 selectedType === tab.id
-                  ? 'bg-indigo-600 text-white shadow-xs'
-                  : 'text-zinc-400 hover:text-zinc-200'
+                  ? 'bg-[#A84A4D] text-[#F6E8E2] shadow-xs'
+                  : 'text-[#DDA081] hover:text-[#F6E8E2]'
               }`}
             >
               {tab.label}
@@ -448,23 +448,23 @@ export const SkillNetwork3D = () => {
         {/* Action Controls */}
         <div className="flex items-center gap-2">
           <div className="relative">
-            <Search className="w-3.5 h-3.5 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-3.5 h-3.5 text-[#DDA081] absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               placeholder="Search nodes..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-[#18181B] border border-[#27272A] rounded-xl pl-8 pr-3 py-1.5 text-xs text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-indigo-500/80 w-36 sm:w-48"
+              className="bg-[#281A21] border border-[#703344] rounded-xl pl-8 pr-3 py-1.5 text-xs text-[#F6E8E2] placeholder-[#DDA081]/60 focus:outline-none focus:border-[#CB6B5A] w-36 sm:w-48"
             />
           </div>
 
           <button
             type="button"
             onClick={() => setAutoRotate(!autoRotate)}
-            className={`p-2 rounded-xl text-xs font-bold border transition-all ${
+            className={`p-2 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
               autoRotate
-                ? 'bg-indigo-950/80 text-indigo-300 border-indigo-500/40'
-                : 'bg-[#18181B] text-zinc-400 border-[#27272A]'
+                ? 'bg-[#703344] text-[#F6E8E2] border-[#A84A4D]/40'
+                : 'bg-[#281A21] text-[#DDA081] border-[#703344]'
             }`}
             title="Toggle Auto-Rotation"
           >
@@ -474,7 +474,7 @@ export const SkillNetwork3D = () => {
           <button
             type="button"
             onClick={() => setViewMode(viewMode === '3D' ? '2D' : '3D')}
-            className="px-3 py-1.5 bg-[#18181B] hover:bg-[#27272A] text-zinc-300 rounded-xl text-xs font-bold border border-[#27272A] transition-all flex items-center gap-1.5"
+            className="px-3 py-1.5 bg-[#4A2A35] hover:bg-[#703344] text-[#F6E8E2] rounded-xl text-xs font-bold border border-[#703344] transition-all flex items-center gap-1.5 cursor-pointer"
           >
             {viewMode === '3D' ? <List className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
             <span>{viewMode === '3D' ? '2D List' : '3D Graph'}</span>
@@ -483,7 +483,7 @@ export const SkillNetwork3D = () => {
           <button
             type="button"
             onClick={handleResetCamera}
-            className="px-3 py-1.5 bg-[#27272A] hover:bg-[#3F3F46] text-zinc-200 rounded-xl text-xs font-bold transition-all"
+            className="px-3 py-1.5 bg-[#703344] hover:bg-[#A84A4D] text-[#F6E8E2] rounded-xl text-xs font-bold transition-all cursor-pointer"
           >
             Reset
           </button>
@@ -494,8 +494,8 @@ export const SkillNetwork3D = () => {
       <div className="flex-1 relative overflow-hidden">
         {loading ? (
           <div className="h-full flex flex-col items-center justify-center space-y-3">
-            <div className="w-10 h-10 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-            <p className="text-xs text-zinc-400 font-semibold">Constructing 3D Entity Topology...</p>
+            <div className="w-10 h-10 border-2 border-[#A84A4D] border-t-transparent rounded-full animate-spin" />
+            <p className="text-xs text-[#DDA081] font-semibold">Constructing 3D Entity Topology...</p>
           </div>
         ) : viewMode === '3D' ? (
           /* 3D WebGL Canvas */
@@ -506,8 +506,8 @@ export const SkillNetwork3D = () => {
               gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
             >
               <ambientLight intensity={0.65} />
-              <pointLight position={[12, 12, 12]} intensity={1.3} color="#818cf8" />
-              <pointLight position={[-12, -12, -12]} intensity={0.9} color="#c084fc" />
+              <pointLight position={[12, 12, 12]} intensity={1.3} color="#CB6B5A" />
+              <pointLight position={[-12, -12, -12]} intensity={0.9} color="#DDA081" />
               <Suspense fallback={null}>
                 <GraphScene
                   nodes={filteredNodes}
@@ -532,24 +532,24 @@ export const SkillNetwork3D = () => {
             </Canvas>
 
             {/* Bottom Legend */}
-            <div className="absolute bottom-4 left-4 z-10 bg-[#111113]/90 backdrop-blur-md border border-[#27272A] px-3.5 py-2 rounded-2xl shadow-xl flex items-center gap-3 text-[11px] font-bold">
-              <span className="text-zinc-500 uppercase text-[9px] font-black">Legend:</span>
+            <div className="absolute bottom-4 left-4 z-10 bg-[#281A21]/90 backdrop-blur-md border border-[#703344] px-3.5 py-2 rounded-2xl shadow-xl flex items-center gap-3 text-[11px] font-bold">
+              <span className="text-[#DDA081] uppercase text-[9px] font-black">Legend:</span>
               <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-xs" />
-                <span className="text-zinc-300">Students</span>
+                <span className="w-2.5 h-2.5 rounded-full bg-[#A84A4D] shadow-xs" />
+                <span className="text-[#F6E8E2]">Students</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-purple-400 shadow-xs" />
-                <span className="text-zinc-300">Skills</span>
+                <span className="w-2.5 h-2.5 rounded-full bg-[#703344] shadow-xs" />
+                <span className="text-[#F6E8E2]">Skills</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-xs" />
-                <span className="text-zinc-300">Projects</span>
+                <span className="w-2.5 h-2.5 rounded-full bg-[#CB6B5A] shadow-xs" />
+                <span className="text-[#F6E8E2]">Projects</span>
               </div>
             </div>
 
             {/* Interaction Hint */}
-            <div className="absolute bottom-4 right-4 z-10 hidden sm:block bg-[#111113]/80 backdrop-blur-sm border border-[#27272A] px-3 py-1.5 rounded-xl text-[10px] text-zinc-400">
+            <div className="absolute bottom-4 right-4 z-10 hidden sm:block bg-[#281A21]/80 backdrop-blur-sm border border-[#703344] px-3 py-1.5 rounded-xl text-[10px] text-[#DDA081]">
               Drag to rotate • Scroll to zoom • Click node to inspect
             </div>
           </div>
@@ -561,25 +561,25 @@ export const SkillNetwork3D = () => {
                 <div
                   key={n.id}
                   onClick={() => setSelectedNode(n)}
-                  className={`p-4 rounded-2xl bg-[#111113] border transition-all cursor-pointer ${
+                  className={`p-4 rounded-2xl bg-[#281A21] border transition-all cursor-pointer ${
                     selectedNode?.id === n.id
-                      ? 'border-indigo-500 shadow-md'
-                      : 'border-[#27272A] hover:border-zinc-600'
+                      ? 'border-[#A84A4D] shadow-md'
+                      : 'border-[#703344] hover:border-[#A84A4D]/60'
                   }`}
                 >
                   <div className="flex items-center justify-between gap-2 mb-2">
                     <span
                       className="px-2 py-0.5 rounded-md text-[10px] font-black uppercase"
                       style={{
-                        backgroundColor: `${ENTITY_COLORS[n.type]}20`,
+                        backgroundColor: `${ENTITY_COLORS[n.type]}30`,
                         color: ENTITY_COLORS[n.type]
                       }}
                     >
                       {n.type}
                     </span>
                   </div>
-                  <h4 className="text-sm font-bold text-white">{n.name}</h4>
-                  <p className="text-xs text-zinc-400 mt-0.5 truncate">{n.subtitle}</p>
+                  <h4 className="text-sm font-bold text-[#F6E8E2]">{n.name}</h4>
+                  <p className="text-xs text-[#DDA081] mt-0.5 truncate">{n.subtitle}</p>
                 </div>
               ))}
             </div>
@@ -588,13 +588,13 @@ export const SkillNetwork3D = () => {
 
         {/* Right Relationship Inspector Drawer (When node is clicked) */}
         {selectedNode && (
-          <div className="absolute top-0 right-0 bottom-0 w-80 sm:w-96 bg-[#111113]/98 backdrop-blur-xl border-l border-[#27272A] p-5 overflow-y-auto space-y-5 shadow-2xl z-20 animate-in slide-in-from-right-8 duration-200">
+          <div className="absolute top-0 right-0 bottom-0 w-80 sm:w-96 bg-[#281A21]/98 backdrop-blur-xl border-l border-[#703344] p-5 overflow-y-auto space-y-5 shadow-2xl z-20 animate-in slide-in-from-right-8 duration-200">
             {/* Header */}
-            <div className="flex items-start justify-between gap-3 pb-4 border-b border-[#27272A]">
+            <div className="flex items-start justify-between gap-3 pb-4 border-b border-[#703344]">
               <div className="flex items-center gap-3">
                 <div
-                  className="w-10 h-10 rounded-2xl flex items-center justify-center text-white font-bold shadow-md"
-                  style={{ backgroundColor: ENTITY_COLORS[selectedNode.type] || '#6366f1' }}
+                  className="w-10 h-10 rounded-2xl flex items-center justify-center text-[#F6E8E2] font-bold shadow-md"
+                  style={{ backgroundColor: ENTITY_COLORS[selectedNode.type] || '#A84A4D' }}
                 >
                   {selectedNode.type === 'student' ? (
                     <Users className="w-5 h-5" />
@@ -611,14 +611,14 @@ export const SkillNetwork3D = () => {
                   >
                     {selectedNode.type} Details
                   </span>
-                  <h4 className="text-base font-extrabold text-white">{selectedNode.name}</h4>
+                  <h4 className="text-base font-extrabold text-[#F6E8E2]">{selectedNode.name}</h4>
                 </div>
               </div>
 
               <button
                 type="button"
                 onClick={() => setSelectedNode(null)}
-                className="p-1.5 text-zinc-400 hover:text-white rounded-xl hover:bg-[#27272A]"
+                className="p-1.5 text-[#DDA081] hover:text-[#F6E8E2] rounded-xl hover:bg-[#4A2A35] cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -626,7 +626,7 @@ export const SkillNetwork3D = () => {
 
             {/* Entity Stats & Subtitle */}
             <div className="space-y-2">
-              <p className="text-xs text-zinc-300 leading-relaxed">{selectedNode.subtitle}</p>
+              <p className="text-xs text-[#F6E8E2]/90 leading-relaxed">{selectedNode.subtitle}</p>
               {selectedNode.experienceLevel && (
                 <Badge variant="brand">{selectedNode.experienceLevel} Level</Badge>
               )}
@@ -634,20 +634,20 @@ export const SkillNetwork3D = () => {
 
             {/* Connected Relationships */}
             <div className="space-y-3 pt-2">
-              <h5 className="text-xs font-bold uppercase tracking-wider text-zinc-400 flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+              <h5 className="text-xs font-bold uppercase tracking-wider text-[#DDA081] flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-[#CB6B5A]" />
                 <span>Connected Entities ({connectedEntities.length})</span>
               </h5>
 
               {connectedEntities.length === 0 ? (
-                <p className="text-xs text-zinc-500 italic">No direct connections discovered.</p>
+                <p className="text-xs text-[#DDA081]/70 italic">No direct connections discovered.</p>
               ) : (
                 <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
                   {connectedEntities.map((conn) => (
                     <div
                       key={conn.id}
                       onClick={() => setSelectedNode(conn)}
-                      className="p-2.5 rounded-xl bg-[#18181B] hover:bg-[#27272A] border border-[#27272A] transition-all cursor-pointer flex items-center justify-between gap-2"
+                      className="p-2.5 rounded-xl bg-[#4A2A35] hover:bg-[#703344] border border-[#703344] transition-all cursor-pointer flex items-center justify-between gap-2"
                     >
                       <div className="min-w-0">
                         <div className="flex items-center gap-1.5">
@@ -655,13 +655,13 @@ export const SkillNetwork3D = () => {
                             className="w-2 h-2 rounded-full"
                             style={{ backgroundColor: ENTITY_COLORS[conn.type] }}
                           />
-                          <span className="text-xs font-bold text-zinc-200 truncate">
+                          <span className="text-xs font-bold text-[#F6E8E2] truncate">
                             {conn.name}
                           </span>
                         </div>
-                        <span className="text-[10px] text-zinc-500 capitalize">{conn.type}</span>
+                        <span className="text-[10px] text-[#DDA081] capitalize">{conn.type}</span>
                       </div>
-                      <ArrowRight className="w-3.5 h-3.5 text-zinc-500" />
+                      <ArrowRight className="w-3.5 h-3.5 text-[#DDA081]" />
                     </div>
                   ))}
                 </div>
@@ -669,7 +669,7 @@ export const SkillNetwork3D = () => {
             </div>
 
             {/* Quick Actions Footer */}
-            <div className="pt-4 border-t border-[#27272A] space-y-2">
+            <div className="pt-4 border-t border-[#703344] space-y-2">
               {selectedNode.type === 'project' && (
                 <Link
                   to={`/projects/${selectedNode.raw?._id || ''}`}
@@ -677,7 +677,7 @@ export const SkillNetwork3D = () => {
                 >
                   <button
                     type="button"
-                    className="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition-all text-center"
+                    className="w-full py-2 bg-[#A84A4D] hover:bg-[#CB6B5A] text-[#F6E8E2] rounded-xl text-xs font-bold transition-all text-center cursor-pointer"
                   >
                     View Project Workspace
                   </button>
@@ -688,7 +688,7 @@ export const SkillNetwork3D = () => {
                 <Link to="/groups" className="w-full block">
                   <button
                     type="button"
-                    className="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition-all text-center flex items-center justify-center gap-1.5"
+                    className="w-full py-2 bg-[#A84A4D] hover:bg-[#CB6B5A] text-[#F6E8E2] rounded-xl text-xs font-bold transition-all text-center flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     <MessageSquare className="w-3.5 h-3.5" />
                     <span>Message Student</span>
@@ -699,7 +699,7 @@ export const SkillNetwork3D = () => {
               <button
                 type="button"
                 onClick={() => setSelectedNode(null)}
-                className="w-full py-2 bg-[#27272A] hover:bg-[#3F3F46] text-zinc-300 rounded-xl text-xs font-semibold transition-all"
+                className="w-full py-2 bg-[#703344] hover:bg-[#A84A4D] text-[#F6E8E2] rounded-xl text-xs font-semibold transition-all cursor-pointer"
               >
                 Close Inspector
               </button>

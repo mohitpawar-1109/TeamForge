@@ -45,8 +45,8 @@ const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#09090B]">
-        <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-[#281A21]">
+        <div className="w-8 h-8 border-4 border-[#A84A4D] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
