@@ -6,10 +6,13 @@ import { calculatePostMatch } from '../services/match.service.js';
 import { emitNotificationToUser } from '../socket/socket.js';
 import { notifyPostLike } from '../services/notification.service.js';
 
+import { uploadToImageKit, deleteFromImageKit } from '../config/imagekit.js';
+
 // @desc    Create a new post
 // @route   POST /api/posts
 // @access  Private
 export const createPost = async (req, res, next) => {
+  const uploadedFileIds = [];
   try {
     const {
       content,
@@ -24,11 +27,77 @@ export const createPost = async (req, res, next) => {
       currentMembers
     } = req.body;
 
-    if (!content || !content.trim()) {
+    // Process uploaded files from Multer
+    const mediaFiles = Array.isArray(req.files)
+      ? req.files
+      : (req.file ? [req.file] : (req.files && typeof req.files === 'object' ? Object.values(req.files).flat() : []));
+
+    const hasText = content && typeof content === 'string' && content.trim().length > 0;
+    const hasMedia = mediaFiles.length > 0 || (req.body.media && req.body.media.length > 0) || (image && typeof image === 'string' && image.trim().length > 0);
+
+    if (!hasText && !hasMedia) {
       return res.status(400).json({
         success: false,
-        message: 'Post content cannot be empty'
+        message: 'Add some text or attach an image/video'
       });
+    }
+
+    // Check media type mixing rules: Cannot mix images and videos in the same post
+    const imageFiles = mediaFiles.filter(f => f.mimetype.startsWith('image/'));
+    const videoFiles = mediaFiles.filter(f => f.mimetype.startsWith('video/'));
+
+    if (imageFiles.length > 0 && videoFiles.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'A post cannot contain both images and video. Please choose either multiple images or one video.'
+      });
+    }
+
+    if (videoFiles.length > 1) {
+      return res.status(400).json({
+        success: false,
+        message: 'Only 1 video is allowed per post.'
+      });
+    }
+
+    const uploadedMedia = [];
+
+    // Process and upload each file to ImageKit
+    for (const file of mediaFiles) {
+      const isImage = file.mimetype.startsWith('image/');
+      const isVideo = file.mimetype.startsWith('video/');
+
+      if (isImage && file.size > 25 * 1024 * 1024) {
+        return res.status(400).json({
+          success: false,
+          message: `Image "${file.originalname}" exceeds the 25MB size limit.`
+        });
+      }
+
+      if (isVideo && file.size > 100 * 1024 * 1024) {
+        return res.status(400).json({
+          success: false,
+          message: `Video "${file.originalname}" exceeds the 100MB size limit.`
+        });
+      }
+
+      const uploaded = await uploadToImageKit(file.buffer, file.originalname, file.mimetype);
+      uploadedMedia.push(uploaded);
+      if (uploaded.fileId) {
+        uploadedFileIds.push(uploaded.fileId);
+      }
+    }
+
+    // Handle existing media array if passed in JSON body
+    if (req.body.media) {
+      try {
+        const parsedMedia = typeof req.body.media === 'string' ? JSON.parse(req.body.media) : req.body.media;
+        if (Array.isArray(parsedMedia)) {
+          uploadedMedia.push(...parsedMedia.filter(m => m && m.url));
+        }
+      } catch {
+        // Ignore JSON parse errors
+      }
     }
 
     // Format tags if array or comma-separated string
@@ -75,10 +144,11 @@ export const createPost = async (req, res, next) => {
 
     const post = await Post.create({
       author: req.user._id,
-      content: content.trim(),
+      content: (content || '').trim(),
       type: postType,
       tags: formattedTags,
-      image: image || '',
+      image: image || (uploadedMedia.find(m => m.type === 'image')?.url || ''),
+      media: uploadedMedia,
       projectLink: projectLink ? projectLink.trim() : '',
       title: title ? title.trim() : '',
       requiredRoles: formattedRoles,
@@ -100,7 +170,15 @@ export const createPost = async (req, res, next) => {
       data: populatedPost
     });
   } catch (error) {
-    next(error);
+    console.error('[Create Post Error]:', error);
+    // Cleanup uploaded ImageKit files if DB creation failed
+    for (const fileId of uploadedFileIds) {
+      deleteFromImageKit(fileId).catch(() => {});
+    }
+    return res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to create post'
+    });
   }
 };
 

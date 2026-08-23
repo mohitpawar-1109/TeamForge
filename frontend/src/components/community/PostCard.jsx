@@ -29,6 +29,7 @@ import { postAPI, teamRequestAPI } from '../../services/api';
 import { POST_TYPES } from './PostTypeSelector';
 import { CommentsDrawer } from './CommentsDrawer';
 import { Badge } from '../common/Badge';
+import { PostMedia } from './PostMedia';
 
 export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
   const { user } = useAuth();
@@ -689,17 +690,8 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
         </div>
       )}
 
-      {/* Optional Attached Image */}
-      {post.image && (
-        <div className="mb-4 rounded-2xl overflow-hidden border border-[#27272A] max-h-96 bg-[#111113] flex items-center justify-center">
-          <img
-            src={post.image}
-            alt="Post attachment"
-            className="w-full h-auto object-cover hover:scale-[1.01] transition-transform duration-300"
-            onError={(e) => { e.target.style.display = 'none'; }}
-          />
-        </div>
-      )}
+      {/* Attached Media (Images & Video with Lightbox & Player) */}
+      <PostMedia media={post.media} singleImageUrl={post.image} />
 
       {/* Post Tags Chips */}
       {post.tags && post.tags.length > 0 && (

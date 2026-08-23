@@ -15,12 +15,13 @@ import {
   createComment
 } from '../controllers/comment.controller.js';
 import { protect } from '../middleware/auth.middleware.js';
+import { uploadMedia, handleUploadError } from '../middleware/upload.middleware.js';
 
 const router = express.Router();
 
 router.route('/')
   .get(getPosts)
-  .post(protect, createPost);
+  .post(protect, uploadMedia, handleUploadError, createPost);
 
 router.get('/:id/matches', protect, getPostMatches);
 

@@ -1,13 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Send,
   Link as LinkIcon,
   Image as ImageIcon,
+  Video as VideoIcon,
   Tag,
   X,
   Sparkles,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Loader2,
+  FileText,
+  AlertCircle
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
@@ -17,7 +21,7 @@ import { Button } from '../common/Button';
 
 export const CreatePost = ({ onPostCreated }) => {
   const { user } = useAuth();
-  const { success, error } = useToast();
+  const { success, error, info } = useToast();
 
   const [content, setContent] = useState('');
   const [type, setType] = useState('TEXT');
@@ -35,7 +39,120 @@ export const CreatePost = ({ onPostCreated }) => {
   const [showExtras, setShowExtras] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const selectedTypeConfig = POST_TYPES.find(t => t.id === type) || POST_TYPES[0];
+  // Dedicated Media Upload State
+  const [mediaItems, setMediaItems] = useState([]); // [{ file, previewUrl, type: 'image'|'video', name, size }]
+  const [mediaMode, setMediaMode] = useState(null); // 'image' | 'video' | null
+  const imageInputRef = useRef(null);
+  const videoInputRef = useRef(null);
+
+  const selectedTypeConfig = POST_TYPES.find((t) => t.id === type) || POST_TYPES[0];
+
+  // Cleanup object URLs on unmount
+  useEffect(() => {
+    return () => {
+      mediaItems.forEach((m) => {
+        if (m.previewUrl) URL.revokeObjectURL(m.previewUrl);
+      });
+    };
+  }, [mediaItems]);
+
+  const handleImageSelect = (e) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+
+    // Reset the input value so the same file can be picked again if needed
+    e.target.value = '';
+
+    const allowedMimeTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+    const maxImageSize = 25 * 1024 * 1024; // 25MB
+    const maxImagesTotal = 6;
+
+    // If previously in video mode, clear video attachments
+    let currentImages = mediaMode === 'image' ? [...mediaItems] : [];
+    if (mediaMode === 'video' && mediaItems.length > 0) {
+      mediaItems.forEach((m) => m.previewUrl && URL.revokeObjectURL(m.previewUrl));
+      currentImages = [];
+      info('Switched to image upload mode (video removed).');
+    }
+
+    for (const file of files) {
+      if (!allowedMimeTypes.includes(file.type) && !file.type.startsWith('image/')) {
+        error(`"${file.name}" is not a supported image format (JPG, PNG, WEBP, GIF).`);
+        continue;
+      }
+
+      if (file.size > maxImageSize) {
+        error(`"${file.name}" exceeds the 25MB size limit.`);
+        continue;
+      }
+
+      if (currentImages.length >= maxImagesTotal) {
+        error(`You can attach a maximum of ${maxImagesTotal} images per post.`);
+        break;
+      }
+
+      const previewUrl = URL.createObjectURL(file);
+      currentImages.push({
+        file,
+        previewUrl,
+        type: 'image',
+        name: file.name,
+        size: (file.size / (1024 * 1024)).toFixed(2)
+      });
+    }
+
+    setMediaItems(currentImages);
+    setMediaMode(currentImages.length > 0 ? 'image' : null);
+  };
+
+  const handleVideoSelect = (e) => {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+
+    e.target.value = '';
+    const file = files[0];
+
+    const allowedMimeTypes = ['video/mp4', 'video/webm', 'video/quicktime', 'video/x-matroska'];
+    const maxVideoSize = 100 * 1024 * 1024; // 100MB
+
+    if (!allowedMimeTypes.includes(file.type) && !file.type.startsWith('video/')) {
+      error(`"${file.name}" is not a supported video format (MP4, WEBM, MOV).`);
+      return;
+    }
+
+    if (file.size > maxVideoSize) {
+      error(`Video exceeds the 100MB size limit (${(file.size / (1024 * 1024)).toFixed(1)}MB).`);
+      return;
+    }
+
+    // Clean up existing media
+    mediaItems.forEach((m) => m.previewUrl && URL.revokeObjectURL(m.previewUrl));
+
+    const previewUrl = URL.createObjectURL(file);
+    setMediaItems([
+      {
+        file,
+        previewUrl,
+        type: 'video',
+        name: file.name,
+        size: (file.size / (1024 * 1024)).toFixed(1)
+      }
+    ]);
+    setMediaMode('video');
+    info('Video attached (1 video per post).');
+  };
+
+  const handleRemoveMedia = (index) => {
+    const itemToRemove = mediaItems[index];
+    if (itemToRemove?.previewUrl) {
+      URL.revokeObjectURL(itemToRemove.previewUrl);
+    }
+    const updated = mediaItems.filter((_, idx) => idx !== index);
+    setMediaItems(updated);
+    if (updated.length === 0) {
+      setMediaMode(null);
+    }
+  };
 
   const handleAddRole = (roleToAdd) => {
     const clean = (roleToAdd || roleInput).trim();
@@ -46,7 +163,7 @@ export const CreatePost = ({ onPostCreated }) => {
   };
 
   const handleRemoveRole = (roleToRemove) => {
-    setRequiredRoles(requiredRoles.filter(r => r !== roleToRemove));
+    setRequiredRoles(requiredRoles.filter((r) => r !== roleToRemove));
   };
 
   const handleAddSkill = (skillToAdd) => {
@@ -58,7 +175,7 @@ export const CreatePost = ({ onPostCreated }) => {
   };
 
   const handleRemoveSkill = (skillToRemove) => {
-    setRequiredSkills(requiredSkills.filter(s => s !== skillToRemove));
+    setRequiredSkills(requiredSkills.filter((s) => s !== skillToRemove));
   };
 
   const handleAddTag = (e) => {
@@ -71,7 +188,7 @@ export const CreatePost = ({ onPostCreated }) => {
   };
 
   const handleRemoveTag = (tagToRemove) => {
-    setTags(tags.filter(t => t !== tagToRemove));
+    setTags(tags.filter((t) => t !== tagToRemove));
   };
 
   const handleSuggestedTagClick = (sTag) => {
@@ -83,25 +200,64 @@ export const CreatePost = ({ onPostCreated }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!content.trim()) {
-      error('Please write something in your post.');
+
+    const hasText = content.trim().length > 0;
+    const hasMedia = mediaItems.length > 0;
+
+    if (!hasText && !hasMedia) {
+      error('Add some text or attach an image/video');
       return;
     }
 
     setLoading(true);
     try {
-      const res = await postAPI.createPost({
-        content: content.trim(),
-        type,
-        tags,
-        projectLink: projectLink.trim(),
-        image: imageUrl.trim(),
-        title: title.trim(),
-        requiredRoles,
-        requiredSkills,
-        teamSize: Number(teamSize) || 4,
-        currentMembers: Number(currentMembers) || 1
-      });
+      let payload;
+
+      if (mediaItems.length > 0) {
+        const formData = new FormData();
+        formData.append('content', content.trim());
+        formData.append('type', type);
+        if (title.trim()) formData.append('title', title.trim());
+        if (projectLink.trim()) formData.append('projectLink', projectLink.trim());
+        if (imageUrl.trim()) formData.append('image', imageUrl.trim());
+        formData.append('teamSize', String(Number(teamSize) || 4));
+        formData.append('currentMembers', String(Number(currentMembers) || 1));
+
+        tags.forEach((t) => {
+          if (t && t.trim()) formData.append('tags', t.trim());
+        });
+
+        requiredRoles.forEach((r) => {
+          if (r && r.trim()) formData.append('requiredRoles', r.trim());
+        });
+
+        requiredSkills.forEach((s) => {
+          if (s && s.trim()) formData.append('requiredSkills', s.trim());
+        });
+
+        mediaItems.forEach((item) => {
+          if (item.file) {
+            formData.append('media', item.file);
+          }
+        });
+
+        payload = formData;
+      } else {
+        payload = {
+          content: content.trim(),
+          type,
+          tags,
+          projectLink: projectLink.trim(),
+          image: imageUrl.trim(),
+          title: title.trim(),
+          requiredRoles,
+          requiredSkills,
+          teamSize: Number(teamSize) || 4,
+          currentMembers: Number(currentMembers) || 1
+        };
+      }
+
+      const res = await postAPI.createPost(payload);
 
       if (res.data.success) {
         success('Post published to Community feed! 🎉');
@@ -115,12 +271,16 @@ export const CreatePost = ({ onPostCreated }) => {
         setTagInput('');
         setProjectLink('');
         setImageUrl('');
+        mediaItems.forEach((m) => m.previewUrl && URL.revokeObjectURL(m.previewUrl));
+        setMediaItems([]);
+        setMediaMode(null);
         setShowExtras(false);
         if (onPostCreated) {
           onPostCreated(res.data.data);
         }
       }
     } catch (err) {
+      console.error('[Publish Post Failed]:', err);
       error(err.response?.data?.message || 'Failed to publish post. Please try again.');
     } finally {
       setLoading(false);
@@ -131,6 +291,23 @@ export const CreatePost = ({ onPostCreated }) => {
 
   return (
     <div className="bg-[#18181B] rounded-3xl border border-[#27272A] p-5 sm:p-6 shadow-soft transition-all">
+      {/* Hidden File Inputs */}
+      <input
+        ref={imageInputRef}
+        type="file"
+        multiple
+        accept="image/jpeg,image/png,image/webp,image/gif"
+        className="hidden"
+        onChange={handleImageSelect}
+      />
+      <input
+        ref={videoInputRef}
+        type="file"
+        accept="video/mp4,video/webm,video/quicktime,video/x-matroska"
+        className="hidden"
+        onChange={handleVideoSelect}
+      />
+
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Author Header & Post Type Selector */}
         <div className="space-y-3">
@@ -166,17 +343,110 @@ export const CreatePost = ({ onPostCreated }) => {
           </div>
         </div>
 
-        {/* Main Content Area */}
+        {/* Main Content Textarea */}
         <div className="relative">
           <textarea
             rows={3}
             value={content}
             onChange={(e) => setContent(e.target.value)}
             maxLength={1000}
-            placeholder={selectedTypeConfig.placeholder}
+            placeholder={
+              mediaMode === 'image'
+                ? 'Add a caption for your images (optional)...'
+                : mediaMode === 'video'
+                ? 'Add a description for your video (optional)...'
+                : selectedTypeConfig.placeholder
+            }
             className="w-full px-4 py-3 text-sm bg-[#111113] border border-[#27272A] text-[#FAFAFA] rounded-2xl focus:bg-[#09090B] focus:border-indigo-500 focus:outline-none transition-all placeholder:text-zinc-500 resize-y min-h-[90px]"
           />
         </div>
+
+        {/* Selected Media Previews Section */}
+        {mediaItems.length > 0 && (
+          <div className="p-3.5 bg-[#111113] rounded-2xl border border-[#27272A] space-y-3 animate-fadeIn">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-xs font-bold text-zinc-300">
+                {mediaMode === 'image' ? (
+                  <>
+                    <ImageIcon className="w-4 h-4 text-indigo-400" />
+                    <span>
+                      Attached Images ({mediaItems.length}/6)
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <VideoIcon className="w-4 h-4 text-purple-400" />
+                    <span>Attached Video Demo</span>
+                  </>
+                )}
+              </div>
+
+              {mediaMode === 'image' && mediaItems.length < 6 && (
+                <button
+                  type="button"
+                  onClick={() => imageInputRef.current?.click()}
+                  className="text-xs font-bold text-indigo-400 hover:text-indigo-300 transition-colors"
+                >
+                  + Add More
+                </button>
+              )}
+            </div>
+
+            {/* Images Grid Preview */}
+            {mediaMode === 'image' && (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                {mediaItems.map((item, idx) => (
+                  <div
+                    key={idx}
+                    className="relative group rounded-xl overflow-hidden aspect-video bg-black/40 border border-zinc-800"
+                  >
+                    <img
+                      src={item.previewUrl}
+                      alt={item.name}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-90 p-2 flex flex-col justify-between">
+                      <div className="flex justify-end">
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveMedia(idx)}
+                          className="p-1 rounded-lg bg-black/70 hover:bg-rose-600 text-white transition-colors"
+                          title="Remove image"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                      <div className="text-[10px] text-zinc-300 truncate">
+                        <span className="font-semibold">{item.size} MB</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Video Preview */}
+            {mediaMode === 'video' && mediaItems[0] && (
+              <div className="relative rounded-xl overflow-hidden bg-black border border-zinc-800 max-h-64 flex flex-col items-center">
+                <video
+                  src={mediaItems[0].previewUrl}
+                  controls
+                  className="max-h-56 w-full object-contain"
+                />
+                <div className="w-full px-3 py-1.5 bg-zinc-900/90 flex items-center justify-between text-xs text-zinc-300">
+                  <span className="truncate max-w-xs">{mediaItems[0].name} ({mediaItems[0].size} MB)</span>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveMedia(0)}
+                    className="text-xs font-bold text-rose-400 hover:text-rose-300"
+                  >
+                    Remove Video
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Team Builder Panel for LOOKING_FOR_TEAMMATES */}
         {type === 'LOOKING_FOR_TEAMMATES' && (
@@ -440,7 +710,7 @@ export const CreatePost = ({ onPostCreated }) => {
             className="inline-flex items-center gap-1 text-xs font-semibold text-zinc-400 hover:text-indigo-400 transition-colors"
           >
             <LinkIcon className="w-3.5 h-3.5" />
-            <span>{showExtras ? 'Hide Links & Media' : '+ Add Project URL or Image'}</span>
+            <span>{showExtras ? 'Hide URL Link' : '+ Add Project / Hackathon URL'}</span>
             {showExtras ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
           </button>
 
@@ -459,44 +729,72 @@ export const CreatePost = ({ onPostCreated }) => {
                   className="w-full px-3 py-1.5 text-xs bg-[#18181B] border border-[#27272A] text-[#FAFAFA] rounded-xl focus:border-indigo-500 focus:outline-none"
                 />
               </div>
-
-              <div>
-                <label className="block text-[11px] font-bold text-zinc-300 mb-1 flex items-center gap-1">
-                  <ImageIcon className="w-3 h-3 text-zinc-400" />
-                  <span>Image URL (Optional)</span>
-                </label>
-                <input
-                  type="url"
-                  placeholder="https://images.unsplash.com/... or screenshot URL"
-                  value={imageUrl}
-                  onChange={(e) => setImageUrl(e.target.value)}
-                  className="w-full px-3 py-1.5 text-xs bg-[#18181B] border border-[#27272A] text-[#FAFAFA] rounded-xl focus:border-indigo-500 focus:outline-none"
-                />
-              </div>
             </div>
           )}
         </div>
 
-        {/* Footer Actions */}
-        <div className="flex items-center justify-between pt-3 border-t border-[#27272A]">
-          <div className="flex items-center gap-2 text-xs text-zinc-500">
-            <Sparkles className="w-4 h-4 text-indigo-400" />
-            <span className="hidden sm:inline">Connect with campus innovators</span>
+        {/* Footer Actions: Image, Video Buttons & Publish */}
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-[#27272A]">
+          <div className="flex items-center gap-2">
+            {/* 📷 Image Button */}
+            <button
+              type="button"
+              onClick={() => imageInputRef.current?.click()}
+              className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer shadow-xs active:scale-95 ${
+                mediaMode === 'image'
+                  ? 'bg-indigo-950/70 text-indigo-300 border-indigo-500/50'
+                  : 'bg-[#111113] hover:bg-[#27272A] text-zinc-300 hover:text-indigo-400 border-[#27272A]'
+              }`}
+              title="Attach Images (JPG, PNG, WEBP, GIF up to 25MB, max 6 images)"
+            >
+              <ImageIcon className="w-4 h-4 text-indigo-400" />
+              <span>Image</span>
+              {mediaMode === 'image' && mediaItems.length > 0 && (
+                <span className="ml-0.5 px-1.5 py-0.2 rounded-full bg-indigo-600 text-white text-[10px]">
+                  {mediaItems.length}
+                </span>
+              )}
+            </button>
+
+            {/* 🎥 Video Button */}
+            <button
+              type="button"
+              onClick={() => videoInputRef.current?.click()}
+              className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer shadow-xs active:scale-95 ${
+                mediaMode === 'video'
+                  ? 'bg-purple-950/70 text-purple-300 border-purple-500/50'
+                  : 'bg-[#111113] hover:bg-[#27272A] text-zinc-300 hover:text-purple-400 border-[#27272A]'
+              }`}
+              title="Attach Video (MP4, WEBM, MOV up to 100MB, 1 video per post)"
+            >
+              <VideoIcon className="w-4 h-4 text-purple-400" />
+              <span>Video</span>
+              {mediaMode === 'video' && (
+                <span className="ml-0.5 px-1.5 py-0.2 rounded-full bg-purple-600 text-white text-[10px]">
+                  1
+                </span>
+              )}
+            </button>
+
+            <span className="text-[11px] text-zinc-500 hidden md:inline">
+              Max 25MB image • 100MB video
+            </span>
           </div>
 
           <Button
             variant="gradient"
             size="md"
-            icon={Send}
+            icon={loading ? Loader2 : Send}
             loading={loading}
-            disabled={!content.trim()}
+            disabled={loading || (!content.trim() && mediaItems.length === 0)}
             type="submit"
             className="shadow-sm shadow-indigo-500/20"
           >
-            Post to Feed
+            {loading ? 'Uploading & Publishing...' : 'Post to Feed'}
           </Button>
         </div>
       </form>
     </div>
   );
 };
+export default CreatePost;

@@ -8,8 +8,8 @@ const postSchema = new mongoose.Schema({
   },
   content: {
     type: String,
-    required: [true, 'Post content is required'],
-    trim: true
+    trim: true,
+    default: ''
   },
   type: {
     type: String,
@@ -31,6 +31,37 @@ const postSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
+  media: [{
+    type: {
+      type: String,
+      enum: ['image', 'video'],
+      default: 'image'
+    },
+    url: {
+      type: String,
+      required: true
+    },
+    thumbnailUrl: {
+      type: String,
+      default: ''
+    },
+    name: {
+      type: String,
+      default: ''
+    },
+    size: {
+      type: Number,
+      default: 0
+    },
+    mimeType: {
+      type: String,
+      default: ''
+    },
+    fileId: {
+      type: String,
+      default: ''
+    }
+  }],
   projectLink: {
     type: String,
     default: '',
