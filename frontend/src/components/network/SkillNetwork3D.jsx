@@ -1,7 +1,7 @@
 import React, { useRef, useMemo, useState, useEffect, Suspense, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { OrbitControls, Html } from '@react-three/drei';
+import { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
 import {
   Sparkles,
@@ -50,53 +50,45 @@ import { Badge } from '../common/Badge';
 // COLOR PALETTE (Futuristic Neon Aesthetic)
 // ==========================================
 const ENTITY_COLORS = {
-  student: '#06b6d4',  // Cyan/Teal
-  skill: '#a855f7',    // Purple/Violet
-  project: '#f59e0b',  // Gold/Orange
-  gap: '#f43f5e',      // Pink/Red (Skill Gap)
+  student: '#06b6d4',  // Glowing Cyan/Blue
+  skill: '#a855f7',    // Glowing Purple/Violet
+  project: '#f59e0b',  // Glowing Gold/Orange
+  gap: '#f43f5e',      // Glowing Pink/Red (Missing Skill Gap)
   team: '#10b981'      // Emerald
 };
 
-// Subtle, Professional Node Size Hierarchy
-const NODE_RADII = {
-  project: 0.46,   // Project > Student > Skill > Skill Gap
-  student: 0.38,
-  skill: 0.30,
-  gap: 0.24
-};
-
-// Gravitational Core Anchors for Major Skill Hubs (Tightly clustered for 60-75% screen occupancy)
+// Deterministic Cluster Anchors for Major Skill Hubs
 const SKILL_ANCHORS = {
-  react: [-3.2, 1.8, 0.4],
-  nodejs: [3.2, 1.6, -0.6],
-  python: [-1.8, -2.8, 1.4],
-  machinelearning: [2.5, -2.5, 1.2],
-  aiml: [2.5, -2.5, 1.2],
-  fastapi: [0.4, -3.2, -1.0],
-  typescript: [-2.8, 0.2, -2.0],
-  javascript: [-1.8, 2.8, -1.4],
-  mongodb: [2.0, 2.5, 1.8],
-  docker: [3.4, -0.8, -2.0],
-  figma: [-3.4, -1.4, 1.0],
-  uiux: [-3.4, -1.4, 1.0],
-  tailwind: [-0.8, 3.0, 1.4],
-  webrtc: [1.0, 0.8, 3.0],
-  nextjs: [-2.2, 1.4, 2.2],
-  graphql: [1.4, 2.8, -1.8]
+  react: [-4.2, 2.2, 0.5],
+  nodejs: [4.2, 2.0, -0.8],
+  python: [-2.2, -3.5, 1.8],
+  machinelearning: [3.0, -3.2, 1.5],
+  aiml: [3.0, -3.2, 1.5],
+  fastapi: [0.5, -4.2, -1.2],
+  typescript: [-3.5, 0.2, -2.5],
+  javascript: [-2.2, 3.5, -1.8],
+  mongodb: [2.5, 3.2, 2.2],
+  docker: [4.2, -1.0, -2.5],
+  figma: [-4.2, -1.8, 1.2],
+  uiux: [-4.2, -1.8, 1.2],
+  tailwind: [-1.0, 3.8, 1.8],
+  webrtc: [1.2, 1.0, 3.8],
+  nextjs: [-2.8, 1.8, 2.8],
+  graphql: [1.8, 3.5, -2.2]
 };
 
 // ==========================================
 // ATMOSPHERIC BACKGROUND PARTICLES
 // ==========================================
-const SpaceParticles = ({ count = 160 }) => {
+const SpaceParticles = ({ count = 180 }) => {
   const pointsRef = useRef();
 
   const positions = useMemo(() => {
     const p = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
-      p[i * 3] = (Math.random() - 0.5) * 30;
-      p[i * 3 + 1] = (Math.random() - 0.5) * 30;
-      p[i * 3 + 2] = (Math.random() - 0.5) * 30;
+      p[i * 3] = (Math.random() - 0.5) * 36;
+      p[i * 3 + 1] = (Math.random() - 0.5) * 36;
+      p[i * 3 + 2] = (Math.random() - 0.5) * 36;
     }
     return p;
   }, [count]);
@@ -118,10 +110,10 @@ const SpaceParticles = ({ count = 160 }) => {
         />
       </bufferGeometry>
       <pointsMaterial
-        size={0.05}
+        size={0.055}
         color="#818cf8"
         transparent
-        opacity={0.25}
+        opacity={0.3}
         blending={THREE.AdditiveBlending}
       />
     </points>
@@ -166,40 +158,38 @@ const GraphNode3D = ({
 }) => {
   const meshRef = useRef();
   const ringRef = useRef();
-  const baseScale = node.radius || NODE_RADII[node.type] || 0.32;
+  const baseScale = node.radius || (node.type === 'skill' ? 0.38 : node.type === 'project' ? 0.44 : 0.30);
   const targetScale = useRef(new THREE.Vector3(1, 1, 1));
   const currentScale = useRef(new THREE.Vector3(1, 1, 1));
 
+  // Determine node color
   const color = ENTITY_COLORS[node.type] || '#6366f1';
 
-  // Smooth lerp scale inside useFrame without React setState
+  // Smooth lerp scale and rotation inside useFrame without React setState
   useFrame((state, delta) => {
     if (!meshRef.current) return;
 
-    // Professional subtle scale increase
-    const mult = isSelected ? 1.35 : isHovered ? 1.2 : isConnected ? 1.12 : isDimmed ? 0.88 : 1.0;
+    // Target scale calculation
+    const mult = isSelected ? 1.45 : isHovered ? 1.25 : isConnected ? 1.15 : isDimmed ? 0.85 : 1.0;
     targetScale.current.set(mult, mult, mult);
 
-    // Lerp scale smoothly (0.08 damping)
-    currentScale.current.lerp(targetScale.current, 0.08);
+    // Lerp scale smoothly (0.1 damping)
+    currentScale.current.lerp(targetScale.current, 0.1);
     meshRef.current.scale.copy(currentScale.current);
 
     // Subtle gentle spin for orbit ring if present
     if (ringRef.current) {
-      ringRef.current.rotation.z += delta * 0.25;
+      ringRef.current.rotation.z += delta * 0.4;
     }
   });
 
   // Calculate material opacity and emissive intensity
-  const opacity = isSelected ? 1.0 : isConnected ? 0.9 : isDimmed ? 0.3 : 0.95;
-  const emissiveIntensity = isSelected ? 0.95 : isHovered ? 0.8 : isConnected ? 0.55 : isDimmed ? 0.12 : 0.4;
-
-  // Orbit ring is only shown on selected node or high-importance project nodes (NOT all nodes)
-  const showRing = isSelected || isHovered || (node.type === 'project' && !isDimmed);
+  const opacity = isSelected ? 1.0 : isConnected ? 0.85 : isDimmed ? 0.35 : 0.95;
+  const emissiveIntensity = isSelected ? 0.9 : isHovered ? 0.75 : isConnected ? 0.55 : isDimmed ? 0.12 : 0.38;
 
   return (
     <group position={[node.x, node.y, node.z]}>
-      {/* 3D Sphere */}
+      {/* Clickable hit-sphere */}
       <mesh
         ref={meshRef}
         onClick={(e) => {
@@ -220,47 +210,39 @@ const GraphNode3D = ({
           color={color}
           emissive={color}
           emissiveIntensity={emissiveIntensity}
-          roughness={0.18}
-          metalness={0.45}
+          roughness={0.2}
+          metalness={0.4}
           transparent
           opacity={opacity}
         />
       </mesh>
 
-      {/* Subtle, Thin, Elegant Orbit Ring (Only on Selected / Project) */}
-      {showRing && (
+      {/* Orbit / Halo Ring for Selected, Hovered, or Important Hub Nodes */}
+      {(isSelected || isHovered || node.type === 'skill' || node.type === 'gap') && (
         <mesh
           ref={ringRef}
           rotation={[Math.PI / 3, 0, 0]}
         >
-          <torusGeometry args={[baseScale * 1.45, 0.008, 16, 32]} />
+          <torusGeometry args={[baseScale * 1.55, 0.015, 16, 32]} />
           <meshBasicMaterial
             color={color}
             transparent
-            opacity={isSelected ? 0.85 : isHovered ? 0.65 : 0.3}
+            opacity={isSelected ? 0.9 : isHovered ? 0.7 : isDimmed ? 0.15 : 0.45}
           />
         </mesh>
       )}
 
-      {/* Small Contextual Hover Tooltip attached right above node (Zero flutter) */}
-      {isHovered && !isSelected && (
-        <Html distanceFactor={10} center position={[0, baseScale + 0.32, 0]} pointerEvents="none">
-          <div className="bg-[#09090F]/95 backdrop-blur-md border border-white/15 px-3 py-1.5 rounded-xl shadow-2xl pointer-events-none text-left whitespace-nowrap animate-in fade-in zoom-in-95 duration-100">
-            <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: color }} />
-              <span className="text-xs font-extrabold text-white">{node.name}</span>
-            </div>
-            <p className="text-[10px] text-zinc-400 mt-0.5">
-              {node.type === 'student'
-                ? `${node.primarySkill} • ${node.scorePercentage || '92%'}`
-                : node.type === 'skill'
-                ? `${node.userCount || 1} Students`
-                : node.type === 'project'
-                ? `${node.category || 'Project'}`
-                : 'Skill Gap'}
-            </p>
-          </div>
-        </Html>
+      {/* Subtle outer glow sphere for Selected/Hovered */}
+      {(isSelected || isHovered) && (
+        <mesh>
+          <sphereGeometry args={[baseScale * 1.35, 24, 24]} />
+          <meshBasicMaterial
+            color={color}
+            transparent
+            opacity={isSelected ? 0.25 : 0.15}
+            side={THREE.BackSide}
+          />
+        </mesh>
       )}
     </group>
   );
@@ -291,47 +273,18 @@ const GraphScene = ({
 
   const activeNodeId = selectedNode?.id || hoveredNode?.id;
 
-  // Calculate Relational Cascade (Student <-> Skills <-> Projects)
-  const { connectedNodeIds, activeLinkIds } = useMemo(() => {
-    if (!activeNodeId) return { connectedNodeIds: new Set(), activeLinkIds: new Set() };
-
-    const cNodeIds = new Set();
-    const aLinkIds = new Set();
-
-    // 1st degree direct connections
+  // Connected node IDs lookup
+  const connectedNodeIds = useMemo(() => {
+    if (!activeNodeId) return new Set();
+    const set = new Set();
     links.forEach((l) => {
       const srcId = typeof l.source === 'object' ? l.source.id : l.source;
       const tgtId = typeof l.target === 'object' ? l.target.id : l.target;
-
-      if (srcId === activeNodeId) {
-        cNodeIds.add(tgtId);
-        aLinkIds.add(l.id);
-      }
-      if (tgtId === activeNodeId) {
-        cNodeIds.add(srcId);
-        aLinkIds.add(l.id);
-      }
+      if (srcId === activeNodeId) set.add(tgtId);
+      if (tgtId === activeNodeId) set.add(srcId);
     });
-
-    // 2nd degree cascade (if student selected, also illuminate projects connected to their skills)
-    if (selectedNode?.type === 'student') {
-      links.forEach((l) => {
-        const srcId = typeof l.source === 'object' ? l.source.id : l.source;
-        const tgtId = typeof l.target === 'object' ? l.target.id : l.target;
-
-        if (cNodeIds.has(srcId) && l.relation === 'requires') {
-          cNodeIds.add(tgtId);
-          aLinkIds.add(l.id);
-        }
-        if (cNodeIds.has(tgtId) && l.relation === 'requires') {
-          cNodeIds.add(srcId);
-          aLinkIds.add(l.id);
-        }
-      });
-    }
-
-    return { connectedNodeIds: cNodeIds, activeLinkIds: aLinkIds };
-  }, [activeNodeId, selectedNode, links]);
+    return set;
+  }, [activeNodeId, links]);
 
   // Dynamic Line Segments
   const { activeLines, bgLines } = useMemo(() => {
@@ -346,7 +299,10 @@ const GraphScene = ({
       const tgt = nodeMap.get(tgtId);
 
       if (src && tgt) {
-        if (activeLinkIds.has(l.id)) {
+        const isConnectedToActive =
+          activeNodeId && (srcId === activeNodeId || tgtId === activeNodeId);
+
+        if (isConnectedToActive) {
           activePos.push(src.x, src.y, src.z, tgt.x, tgt.y, tgt.z);
         } else {
           bgPos.push(src.x, src.y, src.z, tgt.x, tgt.y, tgt.z);
@@ -358,13 +314,13 @@ const GraphScene = ({
       activeLines: new Float32Array(activePos),
       bgLines: new Float32Array(bgPos)
     };
-  }, [nodes, links, activeLinkIds]);
+  }, [nodes, links, activeNodeId]);
 
   return (
     <group ref={groupRef}>
-      <SpaceParticles count={160} />
+      <SpaceParticles count={180} />
 
-      {/* Inactive background connection lines (Very subtle low opacity) */}
+      {/* Inactive background connection lines */}
       {bgLines.length > 0 && (
         <lineSegments>
           <bufferGeometry>
@@ -378,13 +334,13 @@ const GraphScene = ({
           <lineBasicMaterial
             color="#6366f1"
             transparent
-            opacity={activeNodeId ? 0.05 : 0.14}
+            opacity={activeNodeId ? 0.08 : 0.22}
             blending={THREE.AdditiveBlending}
           />
         </lineSegments>
       )}
 
-      {/* Active illuminated connection lines */}
+      {/* Active highlighted connection lines */}
       {activeLines.length > 0 && (
         <lineSegments>
           <bufferGeometry>
@@ -398,13 +354,13 @@ const GraphScene = ({
           <lineBasicMaterial
             color="#38bdf8"
             transparent
-            opacity={0.95}
+            opacity={0.9}
             blending={THREE.AdditiveBlending}
           />
         </lineSegments>
       )}
 
-      {/* 3D Glowing Spheres with Zero Hover Fluttering */}
+      {/* 3D Spheres with zero jitter */}
       {nodes.map((node) => {
         const isSelected = selectedNode?.id === node.id;
         const isHovered = hoveredNode?.id === node.id;
@@ -431,7 +387,7 @@ const GraphScene = ({
 };
 
 // ==========================================
-// MAIN COMPONENT EXPORT
+// MAIN SKILL NETWORK 3D COMPONENT
 // ==========================================
 export const SkillNetwork3D = () => {
   const navigate = useNavigate();
@@ -452,14 +408,9 @@ export const SkillNetwork3D = () => {
   const [autoRotate, setAutoRotate] = useState(true);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
-  // AI Team Recommendations Modal
-  const [aiMatchesModalOpen, setAiMatchesModalOpen] = useState(false);
-  const [aiMatches, setAiMatches] = useState([]);
-  const [loadingMatches, setLoadingMatches] = useState(false);
-
   const controlsRef = useRef();
 
-  // Escape key closes details panel
+  // Listen to Escape key to clear selected node
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
@@ -478,7 +429,7 @@ export const SkillNetwork3D = () => {
     return () => mq.removeEventListener('change', handler);
   }, []);
 
-  // 1. Fetch Real Data & Build Deterministic Spatial Network
+  // 1. Fetch Real Data and Generate Deterministic Coordinates
   const loadGraphData = async () => {
     try {
       setLoading(true);
@@ -496,7 +447,7 @@ export const SkillNetwork3D = () => {
       const studentNodes = [];
 
       // A. Process Students & Skills
-      users.slice(0, 20).forEach((u, uIdx) => {
+      users.slice(0, 24).forEach((u, uIdx) => {
         const uId = `user-${u._id || uIdx}`;
         const uSkills = (u.skills || [])
           .map((s) => (typeof s === 'string' ? s : s.name))
@@ -523,8 +474,7 @@ export const SkillNetwork3D = () => {
           college: u.college || 'Institute of Technology',
           availability: u.availability || 'Available for collaboration',
           projectsCount: (u.pastProjectsCount || 0) + 1,
-          pastProjects: u.pastProjects || ['TeamForge', 'Backend Authentication System'],
-          whyMatch: uSkills.length > 0 ? `Strong ${uSkills.slice(0, 2).join(' & ')} proficiency matching active projects.` : 'High collaborative synergy.',
+          pastProjects: u.pastProjects || ['TeamForge', 'Backend Platform'],
           raw: u,
           x: 0,
           y: 0,
@@ -542,9 +492,9 @@ export const SkillNetwork3D = () => {
           if (!skillMap.has(sKey)) {
             const anchor =
               SKILL_ANCHORS[sNormalized] || [
-                ((skillMap.size * 2.1) % 7) - 3.5,
-                Math.sin(skillMap.size) * 3.2,
-                Math.cos(skillMap.size) * 2.8
+                ((skillMap.size * 2.3) % 9) - 4.5,
+                Math.sin(skillMap.size) * 3.8,
+                Math.cos(skillMap.size) * 3.2
               ];
 
             skillMap.set(sKey, {
@@ -584,7 +534,7 @@ export const SkillNetwork3D = () => {
       });
 
       // B. Process Projects and Missing Skill Gaps
-      projects.slice(0, 12).forEach((p, pIdx) => {
+      projects.slice(0, 16).forEach((p, pIdx) => {
         const pId = `proj-${p._id || pIdx}`;
         const pSkills = p.requiredSkills || [];
         const teamMembers = p.members || [];
@@ -594,7 +544,7 @@ export const SkillNetwork3D = () => {
         );
         const coveredSkillSet = new Set([...leadSkills, ...memberSkills]);
 
-        // Detect missing skills
+        // Find missing skills
         const missingSkills = pSkills.filter((sk) => !coveredSkillSet.has(sk.toLowerCase()));
 
         // Calculate project coordinate near its required skills
@@ -612,13 +562,13 @@ export const SkillNetwork3D = () => {
         });
 
         if (countedAnchors > 0) {
-          pX = (pX / countedAnchors) * 1.25 + (pIdx % 2 === 0 ? 1.3 : -1.3);
-          pY = (pY / countedAnchors) * 1.25 + (pIdx % 3 === 0 ? 1.1 : -1.1);
-          pZ = (pZ / countedAnchors) * 1.25 + 1.4;
+          pX = (pX / countedAnchors) * 1.3 + (pIdx % 2 === 0 ? 1.6 : -1.6);
+          pY = (pY / countedAnchors) * 1.3 + (pIdx % 3 === 0 ? 1.4 : -1.4);
+          pZ = (pZ / countedAnchors) * 1.3 + 1.8;
         } else {
-          pX = ((pIdx * 2.8) % 8) - 4;
-          pY = Math.cos(pIdx) * 3.8;
-          pZ = Math.sin(pIdx) * 2.8;
+          pX = ((pIdx * 3.5) % 10) - 5;
+          pY = Math.cos(pIdx) * 4.5;
+          pZ = Math.sin(pIdx) * 3.5;
         }
 
         const projectNode = {
@@ -653,9 +603,9 @@ export const SkillNetwork3D = () => {
           if (!skillMap.has(sKey)) {
             const anchor =
               SKILL_ANCHORS[sNormalized] || [
-                ((skillMap.size * 2.1) % 7) - 3.5,
-                Math.sin(skillMap.size) * 3.2,
-                Math.cos(skillMap.size) * 2.8
+                ((skillMap.size * 2.3) % 9) - 4.5,
+                Math.sin(skillMap.size) * 3.8,
+                Math.cos(skillMap.size) * 3.2
               ];
 
             skillMap.set(sKey, {
@@ -690,17 +640,16 @@ export const SkillNetwork3D = () => {
           const gapNode = {
             id: gapId,
             type: 'gap',
-            name: `${gapName}`,
+            name: `${gapName} (Gap)`,
             skillName: gapName,
             projectTitle: projectNode.name,
             projectDbId: p._id,
             reason: `Required by ${projectNode.name} but not covered by current team members`,
-            proficiencyRequired: 'Advanced',
-            coveragePct: '20%',
+            proficiencyRequired: 'Intermediate/Advanced',
             subtitle: `Skill Gap in ${projectNode.name}`,
-            x: projectNode.x + Math.cos(gIdx * 2.5) * 1.15,
-            y: projectNode.y + Math.sin(gIdx * 2.5) * 1.15,
-            z: projectNode.z + 0.6
+            x: projectNode.x + Math.cos(gIdx * 2.5) * 1.5,
+            y: projectNode.y + Math.sin(gIdx * 2.5) * 1.5,
+            z: projectNode.z + 0.8
           };
 
           rawNodes.push(gapNode);
@@ -722,21 +671,21 @@ export const SkillNetwork3D = () => {
         rawNodes.push(s);
       });
 
-      // D. Cluster Student nodes in dense orbit around their primary skill hub
+      // D. Deterministically position Student nodes in stable orbit around their primary skill hub
       studentNodes.forEach((st, idx) => {
         const primarySkillName = st.primarySkill?.trim();
         const hub = skillMap.get(primarySkillName) || skillMap.values().next().value;
 
         if (hub) {
           const angle = (idx / studentNodes.length) * Math.PI * 2 * 3;
-          const orbitRadius = 1.1 + (idx % 3) * 0.35;
+          const orbitRadius = 1.35 + (idx % 3) * 0.4;
           st.x = hub.x + Math.cos(angle) * orbitRadius;
           st.y = hub.y + Math.sin(angle) * orbitRadius;
-          st.z = hub.z + (idx % 2 === 0 ? 0.5 : -0.5);
+          st.z = hub.z + (idx % 2 === 0 ? 0.6 : -0.6);
         } else {
-          st.x = ((idx * 1.8) % 6) - 3;
-          st.y = Math.sin(idx) * 2.5;
-          st.z = Math.cos(idx) * 1.8;
+          st.x = ((idx * 2) % 8) - 4;
+          st.y = Math.sin(idx) * 3;
+          st.z = Math.cos(idx) * 2;
         }
       });
 
@@ -813,41 +762,6 @@ export const SkillNetwork3D = () => {
       .slice(0, 4);
   }, [selectedNode, nodes]);
 
-  // Trigger "Find Best Team Matches" AI Engine
-  const handleFindBestTeamMatches = async () => {
-    setAiMatchesModalOpen(true);
-    try {
-      setLoadingMatches(true);
-      const res = await userAPI.getUsers();
-      const allUsers = res.data?.data || [];
-      const userSkills = currentUser?.skills || ['React', 'Node.js'];
-
-      const ranked = allUsers
-        .filter((u) => u._id !== currentUser?._id)
-        .map((u, idx) => {
-          const theirSkills = (u.skills || []).map((s) => (typeof s === 'string' ? s : s.name));
-          const common = theirSkills.filter((s) => userSkills.includes(s));
-          const complementary = theirSkills.filter((s) => !userSkills.includes(s));
-          const matchPct = Math.min(98, Math.max(78, 84 + common.length * 4 + (idx % 7)));
-
-          return {
-            user: u,
-            matchScore: matchPct,
-            matchedSkills: common.slice(0, 3),
-            complementarySkills: complementary.slice(0, 3)
-          };
-        })
-        .sort((a, b) => b.matchScore - a.matchScore)
-        .slice(0, 5);
-
-      setAiMatches(ranked);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoadingMatches(false);
-    }
-  };
-
   // Stable handlers
   const handleSelectNode = useCallback((node) => {
     setSelectedNode(node);
@@ -862,88 +776,53 @@ export const SkillNetwork3D = () => {
     }
   }, []);
 
-  // Stats
-  const studentCount = nodes.filter((n) => n.type === 'student').length;
-  const skillCount = nodes.filter((n) => n.type === 'skill').length;
-  const projectCount = nodes.filter((n) => n.type === 'project').length;
-  const gapCount = nodes.filter((n) => n.type === 'gap').length;
-
   return (
-    <div className="space-y-5">
-      {/* 1. TOP INFORMATION BAR (Inside the Graph Container) */}
-      <div className="p-4 sm:p-5 rounded-3xl bg-[#09090F] border border-zinc-800 shadow-2xl relative overflow-hidden">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-black uppercase text-indigo-400 tracking-wider">
-                SKILL NETWORK
-              </span>
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-[11px] font-bold text-emerald-400">Live Network</span>
+    <div className="space-y-6">
+      {/* 1. TOP HEADER & COMPACT CONTROL BAR */}
+      <div className="p-6 rounded-3xl bg-[#09090F] border border-zinc-800 shadow-2xl relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div className="space-y-1.5">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-950/80 border border-indigo-500/30 text-indigo-300 text-xs font-bold uppercase tracking-wider">
+              <Brain className="w-3.5 h-3.5 text-indigo-400" />
+              <span>Talent Intelligence Network</span>
             </div>
-            <p className="text-xs text-zinc-300 font-semibold">
-              {studentCount} Students • {skillCount} Skills • {projectCount} Projects • {gapCount} Skill Gaps
+            <h1 className="text-2xl sm:text-3xl font-black text-[#FAFAFA] tracking-tight">
+              Interactive 3D Skill & Talent Graph
+            </h1>
+            <p className="text-xs sm:text-sm text-zinc-400 max-w-2xl leading-relaxed">
+              Explore real student profiles, technical skill hubs, and active project skill gaps in an interactive 3D universe.
             </p>
           </div>
 
-          {/* Action Controls & Search */}
-          <div className="flex flex-wrap items-center gap-2.5">
-            <div className="relative w-48 sm:w-60">
-              <Search className="w-3.5 h-3.5 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-              <input
-                type="text"
-                placeholder="Search..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-[#111118] border border-zinc-800 focus:border-indigo-500 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white placeholder-zinc-500 focus:outline-none"
-              />
-              {searchQuery && (
-                <button
-                  type="button"
-                  onClick={() => setSearchQuery('')}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white"
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              )}
-            </div>
-
-            <button
-              type="button"
-              onClick={handleFindBestTeamMatches}
-              className="px-3 py-1.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-1.5 cursor-pointer active:scale-95 whitespace-nowrap"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-              <span>Find Best Team Matches</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                if (controlsRef.current) controlsRef.current.reset();
-                setSelectedNode(null);
-              }}
-              className="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap"
-            >
-              Reset View
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setViewMode(viewMode === '3D' ? '2D' : '3D')}
-              className="px-3 py-1.5 bg-[#111118] hover:bg-zinc-800 text-zinc-300 rounded-xl text-xs font-bold border border-zinc-800 transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
-            >
-              {viewMode === '3D' ? <List className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-              <span>{viewMode === '3D' ? '2D List' : '3D'}</span>
-            </button>
+          {/* Search Bar */}
+          <div className="relative w-full lg:w-80">
+            <Search className="w-4 h-4 text-zinc-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Search students, skills, projects..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-[#111118] border border-zinc-800 focus:border-indigo-500 rounded-2xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-zinc-500 focus:outline-none shadow-inner"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
         </div>
 
-        {/* Filter Controls */}
-        <div className="mt-4 pt-3.5 border-t border-zinc-800/80 flex items-center justify-between gap-3 overflow-x-auto no-scrollbar">
-          <div className="flex items-center gap-1.5">
+        {/* Filter Tabs & Controls */}
+        <div className="mt-6 pt-5 border-t border-zinc-800/80 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
             {[
-              { id: 'All', label: 'All' },
+              { id: 'All', label: 'All Entities' },
               { id: 'student', label: 'Students' },
               { id: 'skill', label: 'Skills' },
               { id: 'project', label: 'Projects' },
@@ -953,7 +832,7 @@ export const SkillNetwork3D = () => {
                 key={tab.id}
                 type="button"
                 onClick={() => setSelectedFilter(tab.id)}
-                className={`px-3 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
                   selectedFilter === tab.id
                     ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
                     : 'text-zinc-400 hover:text-white bg-[#111118] border border-zinc-800'
@@ -964,18 +843,40 @@ export const SkillNetwork3D = () => {
             ))}
           </div>
 
-          <button
-            type="button"
-            onClick={() => setAutoRotate(!autoRotate)}
-            className={`p-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
-              autoRotate
-                ? 'bg-indigo-950/80 text-indigo-300 border-indigo-500/40'
-                : 'bg-[#111118] text-zinc-400 border-zinc-800'
-            }`}
-            title="Toggle Auto-Rotation"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${autoRotate ? 'animate-spin-slow' : ''}`} />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setAutoRotate(!autoRotate)}
+              className={`p-2 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+                autoRotate
+                  ? 'bg-indigo-950/80 text-indigo-300 border-indigo-500/40'
+                  : 'bg-[#111118] text-zinc-400 border-zinc-800'
+              }`}
+              title="Toggle Auto-Rotation"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${autoRotate ? 'animate-spin-slow' : ''}`} />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                if (controlsRef.current) controlsRef.current.reset();
+                setSelectedNode(null);
+              }}
+              className="px-3.5 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 rounded-xl text-xs font-bold transition-all cursor-pointer"
+            >
+              Reset View
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setViewMode(viewMode === '3D' ? '2D' : '3D')}
+              className="px-3.5 py-1.5 bg-[#111118] hover:bg-zinc-800 text-zinc-300 rounded-xl text-xs font-bold border border-zinc-800 transition-all flex items-center gap-1.5 cursor-pointer"
+            >
+              {viewMode === '3D' ? <List className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+              <span>{viewMode === '3D' ? '2D Explorer' : '3D Graph'}</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -985,7 +886,7 @@ export const SkillNetwork3D = () => {
           <div className="h-full flex flex-col items-center justify-center space-y-3">
             <div className="w-10 h-10 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
             <p className="text-xs text-zinc-400 font-semibold">
-              Initializing 3D Talent Intelligence Network...
+              Rendering Talent Intelligence Graph...
             </p>
           </div>
         ) : viewMode === '3D' ? (
@@ -997,13 +898,13 @@ export const SkillNetwork3D = () => {
             }}
           >
             <Canvas
-              camera={{ position: [0, 0, 11], fov: 46 }}
+              camera={{ position: [0, 0, 12], fov: 48 }}
               dpr={[1, 1.5]}
               gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
               onPointerMissed={() => setSelectedNode(null)}
             >
-              <ambientLight intensity={0.75} />
-              <pointLight position={[12, 12, 12]} intensity={1.5} color="#818cf8" />
+              <ambientLight intensity={0.7} />
+              <pointLight position={[12, 12, 12]} intensity={1.4} color="#818cf8" />
               <pointLight position={[-12, -12, -12]} intensity={0.9} color="#c084fc" />
               <Suspense fallback={null}>
                 <GraphScene
@@ -1023,14 +924,36 @@ export const SkillNetwork3D = () => {
                   dampingFactor={0.05}
                   rotateSpeed={0.6}
                   zoomSpeed={0.8}
-                  minDistance={3.2}
-                  maxDistance={22}
+                  minDistance={3.5}
+                  maxDistance={24}
                 />
               </Suspense>
             </Canvas>
 
+            {/* Hover Tooltip (Rendered outside 3D group to eliminate all pointer fluttering) */}
+            {hoveredNode && !selectedNode && (
+              <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 pointer-events-none bg-[#111118]/95 backdrop-blur-md border border-white/15 px-4 py-2 rounded-2xl shadow-2xl text-center animate-in fade-in zoom-in-95 duration-100">
+                <div className="flex items-center gap-2 justify-center">
+                  <span
+                    className="w-2 h-2 rounded-full"
+                    style={{ backgroundColor: ENTITY_COLORS[hoveredNode.type] || '#6366f1' }}
+                  />
+                  <span className="text-xs font-extrabold text-white">{hoveredNode.name}</span>
+                </div>
+                <p className="text-[11px] text-zinc-400 mt-0.5">
+                  {hoveredNode.type === 'student'
+                    ? `${hoveredNode.primarySkill} • Click for full profile`
+                    : hoveredNode.type === 'skill'
+                    ? `${hoveredNode.userCount || 1} Students • Click to inspect`
+                    : hoveredNode.type === 'project'
+                    ? `${hoveredNode.category} • Click for details`
+                    : `${hoveredNode.reason}`}
+                </p>
+              </div>
+            )}
+
             {/* Bottom Legend */}
-            <div className="absolute bottom-4 left-4 z-10 bg-[#09090F]/90 backdrop-blur-md border border-zinc-800 px-3.5 py-2 rounded-2xl shadow-xl flex items-center gap-3 text-[11px] font-bold">
+            <div className="absolute bottom-4 left-4 z-10 bg-[#111118]/90 backdrop-blur-md border border-zinc-800 px-3.5 py-2 rounded-2xl shadow-xl flex items-center gap-3 text-[11px] font-bold">
               <span className="text-zinc-500 uppercase text-[9px] font-black">Legend:</span>
               <div className="flex items-center gap-1.5">
                 <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-xs" />
@@ -1050,8 +973,8 @@ export const SkillNetwork3D = () => {
               </div>
             </div>
 
-            <div className="absolute bottom-4 right-4 z-10 hidden sm:block bg-[#09090F]/80 backdrop-blur-sm border border-zinc-800 px-3 py-1.5 rounded-xl text-[10px] text-zinc-400">
-              Drag to rotate • Scroll to zoom • Click node to open intelligence panel
+            <div className="absolute bottom-4 right-4 z-10 hidden sm:block bg-[#111118]/80 backdrop-blur-sm border border-zinc-800 px-3 py-1.5 rounded-xl text-[10px] text-zinc-400">
+              Drag to rotate • Scroll to zoom • Click node to open details panel
             </div>
           </div>
         ) : (
@@ -1066,9 +989,9 @@ export const SkillNetwork3D = () => {
                   <div
                     key={n.id}
                     onClick={() => setSelectedNode(n)}
-                    className={`p-4 rounded-2xl bg-[#09090F] border transition-all cursor-pointer ${
+                    className={`p-4 rounded-2xl bg-[#111118] border transition-all cursor-pointer ${
                       isSelected
-                        ? 'border-indigo-500 shadow-lg shadow-indigo-500/10 bg-[#14141E]'
+                        ? 'border-indigo-500 shadow-lg shadow-indigo-500/10 bg-[#181822]'
                         : 'border-zinc-800 hover:border-zinc-700'
                     }`}
                   >
@@ -1111,9 +1034,9 @@ export const SkillNetwork3D = () => {
           </div>
         )}
 
-        {/* 3. PERSISTENT CONTEXTUAL DETAILS PANEL */}
+        {/* 3. PERSISTENT CONTEXTUAL DETAILS PANEL (Desktop Right Drawer / Mobile Bottom Sheet) */}
         {selectedNode && (
-          <div className="absolute z-30 bg-[#09090F]/98 backdrop-blur-2xl border-zinc-800 shadow-2xl p-5 sm:p-6 overflow-y-auto space-y-5 animate-in duration-200 w-full sm:w-96 max-h-[82vh] sm:max-h-full bottom-0 sm:bottom-0 right-0 sm:top-0 rounded-t-3xl sm:rounded-none sm:border-l border-t sm:border-t-0">
+          <div className="absolute z-30 bg-[#09090F]/98 backdrop-blur-2xl border-zinc-800 shadow-2xl p-5 sm:p-6 overflow-y-auto space-y-5 animate-in duration-200 w-full sm:w-96 max-h-[80vh] sm:max-h-full bottom-0 sm:bottom-0 right-0 sm:top-0 rounded-t-3xl sm:rounded-none sm:border-l border-t sm:border-t-0">
             {/* Header */}
             <div className="flex items-start justify-between gap-3 pb-4 border-b border-zinc-800">
               <div className="flex items-center gap-3">
@@ -1136,7 +1059,7 @@ export const SkillNetwork3D = () => {
                     className="text-[10px] font-black uppercase tracking-wider block"
                     style={{ color: ENTITY_COLORS[selectedNode.type] }}
                   >
-                    {selectedNode.type === 'gap' ? 'SKILL GAP' : selectedNode.type.toUpperCase()}
+                    {selectedNode.type === 'gap' ? 'Skill Gap' : selectedNode.type} Details
                   </span>
                   <h4 className="text-base font-extrabold text-white truncate">
                     {selectedNode.name}
@@ -1149,14 +1072,14 @@ export const SkillNetwork3D = () => {
                 type="button"
                 onClick={() => setSelectedNode(null)}
                 className="p-1.5 text-zinc-400 hover:text-white rounded-xl hover:bg-zinc-800 transition-colors cursor-pointer"
-                title="Close (Esc)"
+                title="Close Panel (Esc)"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* ========================================================================= */}
-            {/* 1. STUDENT DETAILS PANEL (Exact specification #7)                         */}
+            {/* 1. STUDENT DETAILS PANEL (Exact layout from requirement #5)              */}
             {/* ========================================================================= */}
             {selectedNode.type === 'student' && (
               <div className="space-y-4">
@@ -1178,36 +1101,48 @@ export const SkillNetwork3D = () => {
                     <div className="flex items-center gap-1.5 mt-1">
                       <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                       <span className="text-[10px] font-semibold text-emerald-400">
-                        Available
+                        {selectedNode.availability}
                       </span>
                     </div>
                   </div>
                 </div>
 
-                {/* AI Match Score */}
-                <div className="p-3 bg-gradient-to-r from-indigo-950/70 to-purple-950/70 rounded-2xl border border-indigo-500/30 flex items-center justify-between">
-                  <div>
-                    <span className="text-[10px] font-bold text-indigo-300 uppercase tracking-wider block">
-                      AI Match Score
-                    </span>
-                    <span className="text-lg font-black text-emerald-400 flex items-center gap-1 mt-0.5">
-                      <Star className="w-4 h-4 fill-emerald-400" />
-                      {selectedNode.scorePercentage || '92%'}
-                    </span>
-                  </div>
-                  <span className="px-2.5 py-1 rounded-xl text-[10px] font-black bg-emerald-950 text-emerald-300 border border-emerald-500/30">
-                    Top Match
+                {/* Match Score */}
+                <div className="p-3 bg-gradient-to-r from-indigo-950/60 to-purple-950/60 rounded-2xl border border-indigo-500/30 flex items-center justify-between">
+                  <span className="text-xs font-bold text-indigo-300 uppercase tracking-wider">
+                    Match Score
+                  </span>
+                  <span className="text-lg font-black text-emerald-400 flex items-center gap-1">
+                    <Star className="w-4 h-4 fill-emerald-400" />
+                    {selectedNode.scorePercentage || '92%'}
                   </span>
                 </div>
 
-                {/* TOP SKILLS with Progress Bars */}
+                {/* Top Skills Pills */}
                 <div className="space-y-2">
                   <h6 className="text-xs font-bold uppercase tracking-wider text-zinc-400">
                     Top Skills
                   </h6>
+                  <div className="flex flex-wrap gap-1.5">
+                    {(selectedNode.skills || []).map((sk) => (
+                      <span
+                        key={sk}
+                        className="px-2.5 py-1 rounded-xl text-xs font-semibold bg-purple-950/60 text-purple-300 border border-purple-500/30"
+                      >
+                        {sk}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Skill Strength Bars */}
+                <div className="space-y-2">
+                  <h6 className="text-xs font-bold uppercase tracking-wider text-zinc-400">
+                    Skill Strength
+                  </h6>
                   <div className="space-y-2">
-                    {(selectedNode.skills || ['React', 'Node.js', 'MongoDB']).slice(0, 4).map((sk, idx) => {
-                      const score = Math.max(72, 92 - idx * 6);
+                    {(selectedNode.skills || []).slice(0, 4).map((sk, idx) => {
+                      const score = Math.max(70, 92 - idx * 6);
                       return (
                         <div key={sk} className="space-y-1">
                           <div className="flex items-center justify-between text-xs">
@@ -1226,13 +1161,13 @@ export const SkillNetwork3D = () => {
                   </div>
                 </div>
 
-                {/* PROJECTS */}
+                {/* Projects */}
                 <div className="space-y-2 pt-2 border-t border-zinc-800">
                   <h6 className="text-xs font-bold uppercase tracking-wider text-zinc-400">
                     Projects
                   </h6>
                   <div className="space-y-1">
-                    {(selectedNode.pastProjects || ['TeamForge', 'Backend Authentication System']).map((proj, idx) => (
+                    {(selectedNode.pastProjects || ['TeamForge', 'Backend Platform']).map((proj, idx) => (
                       <p key={idx} className="text-xs text-zinc-300 flex items-center gap-1.5">
                         <span className="text-zinc-500">•</span>
                         <span>{proj}</span>
@@ -1241,39 +1176,35 @@ export const SkillNetwork3D = () => {
                   </div>
                 </div>
 
-                {/* MATCH ANALYSIS */}
-                <div className="space-y-2 pt-2 border-t border-zinc-800">
-                  <h6 className="text-xs font-bold uppercase tracking-wider text-zinc-400">
-                    Match Analysis
-                  </h6>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="space-y-1">
-                      {(selectedNode.skills || ['React', 'Node.js']).slice(0, 3).map((sk) => (
-                        <p key={sk} className="flex items-center gap-1 text-xs text-zinc-200">
+                {/* Matching Skills & Skill Gaps */}
+                <div className="grid grid-cols-2 gap-3 pt-2 border-t border-zinc-800">
+                  <div>
+                    <h6 className="text-[11px] font-bold uppercase text-emerald-400 mb-1">
+                      Matching Skills
+                    </h6>
+                    <div className="space-y-0.5 text-xs text-zinc-300">
+                      {(selectedNode.skills || []).slice(0, 3).map((sk) => (
+                        <p key={sk} className="flex items-center gap-1 text-[11px]">
                           <span className="text-emerald-400 font-bold">✓</span>
                           <span>{sk}</span>
                         </p>
                       ))}
                     </div>
-                    <div className="space-y-1">
+                  </div>
+
+                  <div>
+                    <h6 className="text-[11px] font-bold uppercase text-rose-400 mb-1">
+                      Skill Gaps
+                    </h6>
+                    <div className="space-y-0.5 text-xs text-zinc-300">
                       {['Python', 'Machine Learning'].map((gap) => (
-                        <p key={gap} className="flex items-center gap-1 text-xs text-zinc-400">
+                        <p key={gap} className="flex items-center gap-1 text-[11px] text-zinc-400">
                           <span className="text-rose-400">•</span>
                           <span>{gap}</span>
                         </p>
                       ))}
                     </div>
                   </div>
-                </div>
-
-                {/* WHY THIS MATCH? */}
-                <div className="p-3 bg-indigo-950/40 rounded-2xl border border-indigo-500/20 space-y-1">
-                  <span className="text-[10px] font-black uppercase tracking-wider text-indigo-300">
-                    Why This Match?
-                  </span>
-                  <p className="text-xs text-zinc-300 italic leading-relaxed">
-                    "{selectedNode.whyMatch || 'Strong frontend/backend overlap with your project requirements.'}"
-                  </p>
                 </div>
 
                 {/* Action Buttons */}
@@ -1302,14 +1233,14 @@ export const SkillNetwork3D = () => {
             )}
 
             {/* ========================================================================= */}
-            {/* 2. SKILL DETAILS PANEL (Specification #8)                                 */}
+            {/* 2. SKILL DETAILS PANEL                                                    */}
             {/* ========================================================================= */}
             {selectedNode.type === 'skill' && (
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-2">
                   <div className="p-3 bg-[#111118] rounded-2xl border border-zinc-800 text-center">
                     <span className="text-[10px] text-zinc-500 uppercase font-bold block">
-                      Students Available
+                      Talent Pool
                     </span>
                     <span className="text-base font-black text-cyan-400 mt-0.5 block">
                       {selectedNode.userCount || 1} Students
@@ -1318,15 +1249,15 @@ export const SkillNetwork3D = () => {
 
                   <div className="p-3 bg-[#111118] rounded-2xl border border-zinc-800 text-center">
                     <span className="text-[10px] text-zinc-500 uppercase font-bold block">
-                      Demand Level
+                      Average Score
                     </span>
                     <span className="text-base font-black text-purple-400 mt-0.5 block">
-                      High
+                      {selectedNode.avgPercentage || '84%'}
                     </span>
                   </div>
                 </div>
 
-                {/* Top Students */}
+                {/* Top Matching Students */}
                 <div className="space-y-2">
                   <h6 className="text-xs font-bold uppercase tracking-wider text-zinc-400">
                     Top Students
@@ -1357,7 +1288,7 @@ export const SkillNetwork3D = () => {
                 {/* Related Projects */}
                 <div className="space-y-2 pt-2 border-t border-zinc-800">
                   <h6 className="text-xs font-bold uppercase tracking-wider text-zinc-400">
-                    Related Projects ({connectedProjects.length})
+                    Projects Requiring {selectedNode.name} ({connectedProjects.length})
                   </h6>
                   <div className="space-y-1.5 max-h-36 overflow-y-auto pr-1">
                     {connectedProjects.map((p) => (
@@ -1373,18 +1304,14 @@ export const SkillNetwork3D = () => {
                   </div>
                 </div>
 
-                <div className="p-3 bg-purple-950/30 rounded-2xl border border-purple-500/20 text-xs text-purple-200">
-                  <span className="font-bold">Skill Gap:</span> {connectedProjects.length || 3} active projects currently require {selectedNode.name} developers.
-                </div>
-
-                <div className="pt-2">
+                <div className="pt-3 border-t border-zinc-800">
                   <Link to="/community" className="w-full block">
                     <button
                       type="button"
                       className="w-full py-2.5 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
                     >
                       <Users className="w-4 h-4" />
-                      <span>Find Students</span>
+                      <span>Find {selectedNode.name} Developers</span>
                     </button>
                   </Link>
                 </div>
@@ -1392,7 +1319,7 @@ export const SkillNetwork3D = () => {
             )}
 
             {/* ========================================================================= */}
-            {/* 3. PROJECT DETAILS PANEL (Specification #9)                               */}
+            {/* 3. PROJECT DETAILS PANEL                                                  */}
             {/* ========================================================================= */}
             {selectedNode.type === 'project' && (
               <div className="space-y-4">
@@ -1403,10 +1330,10 @@ export const SkillNetwork3D = () => {
                 <div className="grid grid-cols-2 gap-2">
                   <div className="p-3 bg-[#111118] rounded-2xl border border-zinc-800 text-center">
                     <span className="text-[10px] text-zinc-500 uppercase font-bold block">
-                      Team Members
+                      Team Size
                     </span>
                     <span className="text-base font-black text-amber-400 mt-0.5 block">
-                      {selectedNode.memberCount || 1} / {selectedNode.teamSize || 4}
+                      {selectedNode.memberCount || 1} / {selectedNode.teamSize || 4} Members
                     </span>
                   </div>
 
@@ -1420,37 +1347,29 @@ export const SkillNetwork3D = () => {
                   </div>
                 </div>
 
-                {/* Skill Coverage Bars */}
+                {/* Required Skills */}
                 <div className="space-y-2">
                   <h6 className="text-xs font-bold uppercase tracking-wider text-zinc-400">
-                    Skill Coverage
+                    Required Skills
                   </h6>
-                  <div className="space-y-2">
-                    {(selectedNode.requiredSkills || ['React', 'Node.js', 'Python']).map((sk, idx) => {
-                      const covPct = idx === 0 ? 90 : idx === 1 ? 80 : 25;
-                      return (
-                        <div key={sk} className="space-y-1">
-                          <div className="flex items-center justify-between text-xs">
-                            <span className="font-semibold text-zinc-200">{sk}</span>
-                            <span className="text-amber-400 font-bold">{covPct}%</span>
-                          </div>
-                          <div className="w-full bg-zinc-800 h-1.5 rounded-full overflow-hidden">
-                            <div
-                              className="bg-gradient-to-r from-amber-500 to-orange-500 h-full rounded-full"
-                              style={{ width: `${covPct}%` }}
-                            />
-                          </div>
-                        </div>
-                      );
-                    })}
+                  <div className="flex flex-wrap gap-1.5">
+                    {(selectedNode.requiredSkills || []).map((sk) => (
+                      <span
+                        key={sk}
+                        className="px-2.5 py-1 rounded-xl text-xs font-semibold bg-amber-950/60 text-amber-300 border border-amber-500/30"
+                      >
+                        {sk}
+                      </span>
+                    ))}
                   </div>
                 </div>
 
-                {/* Missing Skills */}
+                {/* Missing Skills / Gaps */}
                 {selectedNode.missingSkills?.length > 0 && (
-                  <div className="space-y-1.5 pt-2 border-t border-zinc-800">
-                    <h6 className="text-xs font-bold uppercase tracking-wider text-rose-400">
-                      Missing Skills:
+                  <div className="space-y-2 pt-2 border-t border-zinc-800">
+                    <h6 className="text-xs font-bold uppercase tracking-wider text-rose-400 flex items-center gap-1.5">
+                      <AlertTriangle className="w-3.5 h-3.5 text-rose-400" />
+                      <span>Skill Gaps Detected ({selectedNode.missingSkills.length})</span>
                     </h6>
                     <div className="flex flex-wrap gap-1.5">
                       {selectedNode.missingSkills.map((gap) => (
@@ -1465,55 +1384,71 @@ export const SkillNetwork3D = () => {
                   </div>
                 )}
 
-                {/* AI Recommendation */}
-                <div className="p-3 bg-amber-950/30 rounded-2xl border border-amber-500/20 space-y-1 text-xs text-amber-200">
-                  <span className="font-bold">AI Recommendation:</span>
-                  <p className="text-[11px] text-amber-300 leading-snug">
-                    "Add a Python/ML developer to achieve 100% project team coverage."
-                  </p>
-                </div>
-
                 {/* Actions */}
-                <div className="pt-2 border-t border-zinc-800">
-                  {selectedNode.raw?._id ? (
-                    <Link to={`/projects/${selectedNode.raw._id}/team`} className="w-full block">
-                      <button
-                        type="button"
-                        className="w-full py-2.5 px-4 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
-                      >
-                        <FolderKanban className="w-4 h-4" />
-                        <span>View Project Workspace</span>
-                      </button>
-                    </Link>
-                  ) : null}
+                <div className="pt-3 border-t border-zinc-800 space-y-2">
+                  {selectedNode.raw?._id && (
+                    <>
+                      <Link to={`/projects/${selectedNode.raw._id}/matches`} className="w-full block">
+                        <button
+                          type="button"
+                          className="w-full py-2.5 px-4 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                        >
+                          <Sparkles className="w-4 h-4" />
+                          <span>Find Team Members</span>
+                        </button>
+                      </Link>
+
+                      <Link to={`/projects/${selectedNode.raw._id}/team`} className="w-full block">
+                        <button
+                          type="button"
+                          className="w-full py-2.5 px-4 bg-[#111118] hover:bg-zinc-800 text-zinc-200 hover:text-white rounded-xl text-xs font-bold border border-zinc-800 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                        >
+                          <FolderKanban className="w-4 h-4" />
+                          <span>View Project Workspace</span>
+                        </button>
+                      </Link>
+                    </>
+                  )}
                 </div>
               </div>
             )}
 
             {/* ========================================================================= */}
-            {/* 4. SKILL GAP DETAILS PANEL (Specification #10)                            */}
+            {/* 4. MISSING SKILL / GAP DETAILS PANEL                                      */}
             {/* ========================================================================= */}
             {selectedNode.type === 'gap' && (
               <div className="space-y-4">
                 <div className="p-3.5 bg-rose-950/40 rounded-2xl border border-rose-500/30 space-y-1">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-black uppercase tracking-wider text-rose-300">
-                      Status: Uncovered
+                  <span className="text-[10px] font-black uppercase tracking-wider text-rose-300">
+                    Why Missing
+                  </span>
+                  <p className="text-xs text-rose-200 leading-relaxed">{selectedNode.reason}</p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="p-3 bg-[#111118] rounded-2xl border border-zinc-800 text-center">
+                    <span className="text-[10px] text-zinc-500 uppercase font-bold block">
+                      Proficiency Required
                     </span>
-                    <span className="text-xs font-bold text-rose-400">Required: Advanced</span>
+                    <span className="text-xs font-bold text-white mt-1 block">
+                      {selectedNode.proficiencyRequired || 'Intermediate'}
+                    </span>
                   </div>
-                  <p className="text-xs text-rose-200 leading-relaxed mt-1">{selectedNode.reason}</p>
+
+                  <div className="p-3 bg-[#111118] rounded-2xl border border-zinc-800 text-center">
+                    <span className="text-[10px] text-zinc-500 uppercase font-bold block">
+                      Project
+                    </span>
+                    <span className="text-xs font-bold text-amber-300 mt-1 block truncate">
+                      {selectedNode.projectTitle}
+                    </span>
+                  </div>
                 </div>
 
-                <div className="p-3 bg-[#111118] rounded-2xl border border-zinc-800 flex items-center justify-between">
-                  <span className="text-xs font-bold text-zinc-400">Current team coverage:</span>
-                  <span className="text-sm font-black text-rose-400">18%</span>
-                </div>
-
-                {/* Potential Matches */}
+                {/* Best Matching Students for this Gap */}
                 <div className="space-y-2 pt-2 border-t border-zinc-800">
                   <h6 className="text-xs font-bold uppercase tracking-wider text-zinc-400">
-                    Potential Matches ({gapMatchingStudents.length})
+                    Best Matching Candidates ({gapMatchingStudents.length})
                   </h6>
                   {gapMatchingStudents.length === 0 ? (
                     <p className="text-xs text-zinc-500 italic">
@@ -1544,6 +1479,7 @@ export const SkillNetwork3D = () => {
                   )}
                 </div>
 
+                {/* Recommended Action */}
                 <div className="pt-3 border-t border-zinc-800">
                   {selectedNode.projectDbId ? (
                     <Link to={`/projects/${selectedNode.projectDbId}/matches`} className="w-full block">
@@ -1552,119 +1488,25 @@ export const SkillNetwork3D = () => {
                         className="w-full py-2.5 px-4 bg-gradient-to-r from-rose-600 to-purple-600 hover:from-rose-500 hover:to-purple-500 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
                       >
                         <UserPlus className="w-4 h-4" />
-                        <span>Find Candidate</span>
+                        <span>Recruit Candidate to Fill Gap</span>
                       </button>
                     </Link>
-                  ) : null}
+                  ) : (
+                    <Link to="/community" className="w-full block">
+                      <button
+                        type="button"
+                        className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition-all text-center cursor-pointer"
+                      >
+                        Find Candidates
+                      </button>
+                    </Link>
+                  )}
                 </div>
               </div>
             )}
           </div>
         )}
       </div>
-
-      {/* 4. AI TEAM RECOMMENDATIONS MODAL DIALOG (Specification #13) */}
-      {aiMatchesModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="bg-[#111118] border border-zinc-800 rounded-3xl p-6 max-w-xl w-full shadow-2xl space-y-6 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
-
-            <div className="flex items-start justify-between gap-4 relative z-10">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 text-white flex items-center justify-center shadow-lg shadow-purple-600/30">
-                  <Sparkles className="w-6 h-6 text-amber-300" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-black text-white tracking-tight">
-                    AI TEAM RECOMMENDATIONS
-                  </h3>
-                  <p className="text-xs text-zinc-400">
-                    Optimized team compositions based on skill coverage and compatibility.
-                  </p>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setAiMatchesModalOpen(false)}
-                className="p-1.5 rounded-xl text-zinc-400 hover:text-white hover:bg-zinc-800"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {loadingMatches ? (
-              <div className="py-12 flex flex-col items-center justify-center space-y-3">
-                <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-                <p className="text-xs text-zinc-400">Computing compatibility matrix...</p>
-              </div>
-            ) : (
-              <div className="space-y-3 max-h-96 overflow-y-auto pr-1 relative z-10">
-                {aiMatches.map((m, idx) => (
-                  <div
-                    key={m.user._id || idx}
-                    className="p-4 rounded-2xl bg-[#09090F] border border-zinc-800 hover:border-indigo-500/40 transition-all space-y-2.5"
-                  >
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-3">
-                        <span className="text-xs font-black text-indigo-400">#{idx + 1}</span>
-                        <img
-                          src={m.user.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${m.user.name}`}
-                          alt={m.user.name}
-                          className="w-9 h-9 rounded-xl object-cover bg-zinc-800 border border-zinc-700"
-                        />
-                        <div>
-                          <h4 className="text-sm font-extrabold text-white">{m.user.name}</h4>
-                          <p className="text-xs text-zinc-400 truncate">{m.user.headline || 'Developer'}</p>
-                        </div>
-                      </div>
-
-                      <span className="px-3 py-1 rounded-xl text-xs font-black bg-emerald-950 text-emerald-300 border border-emerald-500/30">
-                        {m.matchScore}% Match
-                      </span>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2 pt-1 border-t border-zinc-800/80 text-xs">
-                      {(m.matchedSkills || []).map((sk) => (
-                        <span key={sk} className="text-emerald-400 font-semibold flex items-center gap-1">
-                          <span>{sk}</span>
-                          <span>✓</span>
-                        </span>
-                      ))}
-                      {(m.complementarySkills || []).map((sk) => (
-                        <span key={sk} className="text-indigo-400 font-semibold flex items-center gap-1">
-                          <span>{sk}</span>
-                          <span>✓</span>
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            <div className="pt-2 border-t border-zinc-800 flex justify-between items-center">
-              <Link to="/projects/create">
-                <button
-                  type="button"
-                  onClick={() => setAiMatchesModalOpen(false)}
-                  className="py-2 px-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-xl text-xs font-bold transition-all cursor-pointer"
-                >
-                  Create Team
-                </button>
-              </Link>
-
-              <button
-                type="button"
-                onClick={() => setAiMatchesModalOpen(false)}
-                className="py-2 px-4 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-xl text-xs font-bold transition-all cursor-pointer"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
