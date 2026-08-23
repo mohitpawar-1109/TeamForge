@@ -2,18 +2,30 @@ import axios from 'axios';
 
 const API = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
-  timeout: 15000,
-  headers: {
-    'Content-Type': 'application/json'
-  }
+  timeout: 30000
 });
 
-// Auto JWT Injection
+// Auto JWT Injection & FormData Header Handling
 API.interceptors.request.use((config) => {
   const token = localStorage.getItem('teamforge_token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+
+  // If payload is FormData, do NOT force application/json.
+  // Allow Axios/browser to set multipart/form-data with unique boundary automatically.
+  if (config.data instanceof FormData) {
+    if (config.headers) {
+      delete config.headers['Content-Type'];
+      delete config.headers['content-type'];
+    }
+  } else {
+    // For regular JSON objects, ensure Content-Type is application/json
+    if (config.headers && !config.headers['Content-Type']) {
+      config.headers['Content-Type'] = 'application/json';
+    }
+  }
+
   return config;
 }, (error) => {
   return Promise.reject(error);

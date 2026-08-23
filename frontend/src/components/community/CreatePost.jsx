@@ -236,11 +236,48 @@ export const CreatePost = ({ onPostCreated }) => {
           if (s && s.trim()) formData.append('requiredSkills', s.trim());
         });
 
-        mediaItems.forEach((item) => {
-          if (item.file) {
-            formData.append('media', item.file);
+        for (const item of mediaItems) {
+          if (!item.file || !(item.file instanceof File)) {
+            error(`Invalid file selected: ${item.name || 'Unknown'}`);
+            setLoading(false);
+            return;
           }
-        });
+
+          if (item.type === 'image' && item.file.size < 100) {
+            error(`Image "${item.name}" is corrupted or too small.`);
+            setLoading(false);
+            return;
+          }
+
+          if (item.type === 'video' && item.file.size < 1024) {
+            error(`Video "${item.name}" is corrupted or too small.`);
+            setLoading(false);
+            return;
+          }
+
+          console.log('[COMMUNITY UPLOAD FILE]', {
+            name: item.file.name,
+            type: item.file.type,
+            size: item.file.size,
+            instanceofFile: item.file instanceof File
+          });
+
+          formData.append('media', item.file, item.file.name);
+        }
+
+        for (const [key, value] of formData.entries()) {
+          console.log(
+            '[COMMUNITY FORMDATA]',
+            key,
+            value instanceof File
+              ? {
+                  name: value.name,
+                  type: value.type,
+                  size: value.size
+                }
+              : value
+          );
+        }
 
         payload = formData;
       } else {
@@ -259,6 +296,7 @@ export const CreatePost = ({ onPostCreated }) => {
       }
 
       const res = await postAPI.createPost(payload);
+      console.log('[CREATE POST RESPONSE]', res.data);
 
       if (res.data.success) {
         success('Post published to Community feed! 🎉');
@@ -277,7 +315,7 @@ export const CreatePost = ({ onPostCreated }) => {
         setMediaMode(null);
         setShowExtras(false);
         if (onPostCreated) {
-          onPostCreated(res.data.data);
+          onPostCreated(res.data.data || res.data.post);
         }
       }
     } catch (err) {

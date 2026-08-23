@@ -37,8 +37,8 @@ router.route('/')
   .post(
     protect,
     uploadMedia,
-    handleUploadError,
     validateMediaFiles,
+    handleUploadError,
     createPost
   );
 

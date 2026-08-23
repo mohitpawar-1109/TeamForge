@@ -40,13 +40,20 @@ export const createPost = async (req, res, next) => {
       }))
     );
 
-    // Process uploaded files from Multer
     const mediaFiles = Array.isArray(req.files)
       ? req.files
       : (req.file ? [req.file] : (req.files && typeof req.files === 'object' ? Object.values(req.files).flat() : []));
 
+    console.log('[COMMUNITY MULTER FILE]', mediaFiles.map(file => ({
+      fieldname: file.fieldname,
+      originalname: file.originalname,
+      mimetype: file.mimetype,
+      size: file.size,
+      bufferSize: file.buffer?.length
+    })));
+
     const hasText = content && typeof content === 'string' && content.trim().length > 0;
-    const hasMedia = mediaFiles.length > 0 || (req.body.media && req.body.media.length > 0) || (image && typeof image === 'string' && image.trim().length > 0);
+    const hasMedia = mediaFiles.length > 0;
 
     if (!hasText && !hasMedia) {
       return res.status(400).json({
@@ -55,94 +62,76 @@ export const createPost = async (req, res, next) => {
       });
     }
 
-    // Check media type mixing rules: Cannot mix images and videos in the same post
-    const imageFiles = mediaFiles.filter(f => f.mimetype.startsWith('image/'));
-    const videoFiles = mediaFiles.filter(f => f.mimetype.startsWith('video/'));
-
-    if (imageFiles.length > 0 && videoFiles.length > 0) {
-      return res.status(400).json({
-        success: false,
-        message: 'A post cannot contain both images and video. Please choose either multiple images or one video.'
-      });
-    }
-
-    if (videoFiles.length > 1) {
-      return res.status(400).json({
-        success: false,
-        message: 'Only 1 video is allowed per post.'
-      });
-    }
-
-    const uploadedMedia = [];
-
-    // Process and upload each file to ImageKit
+    // Defensive file checks: no tiny placeholder/test blobs (minimum 100B for images, 1KB for video)
     for (const file of mediaFiles) {
-      const isImage = file.mimetype.startsWith('image/');
-      const isVideo = file.mimetype.startsWith('video/');
+      const isImg = file.mimetype.startsWith('image/');
+      const isVid = file.mimetype.startsWith('video/');
 
-      if (isImage && file.size > 25 * 1024 * 1024) {
+      if (!file.buffer || file.buffer.length === 0) {
+        return res.status(400).json({
+          success: false,
+          message: `"${file.originalname}" has an empty buffer.`
+        });
+      }
+
+      if (isImg && file.size < 100) {
+        return res.status(400).json({
+          success: false,
+          message: `"${file.originalname}" is an invalid/too small image (${file.size} bytes).`
+        });
+      }
+
+      if (isVid && file.size < 1024) {
+        return res.status(400).json({
+          success: false,
+          message: `"${file.originalname}" is an invalid/too small video (${file.size} bytes).`
+        });
+      }
+
+      if (isImg && file.size > 25 * 1024 * 1024) {
         return res.status(400).json({
           success: false,
           message: `Image "${file.originalname}" exceeds the 25MB size limit.`
         });
       }
 
-      if (isVideo && file.size > 100 * 1024 * 1024) {
+      if (isVid && file.size > 100 * 1024 * 1024) {
         return res.status(400).json({
           success: false,
           message: `Video "${file.originalname}" exceeds the 100MB size limit.`
         });
       }
-
-      const uploaded = await uploadToImageKit(file.buffer, file.originalname, file.mimetype);
-      uploadedMedia.push(uploaded);
-      if (uploaded.fileId) {
-        uploadedFileIds.push(uploaded.fileId);
-      }
     }
 
-    // Handle existing media array if passed in JSON body
-    if (req.body.media) {
+    const uploadedMedia = [];
+
+    // Process and upload each file to ImageKit
+    for (const file of mediaFiles) {
       try {
-        const parsedMedia = typeof req.body.media === 'string' ? JSON.parse(req.body.media) : req.body.media;
-        if (Array.isArray(parsedMedia)) {
-          uploadedMedia.push(...parsedMedia.filter(m => m && m.url));
-        } else if (parsedMedia && parsedMedia.url) {
-          uploadedMedia.push(parsedMedia);
+        const uploaded = await uploadToImageKit(file.buffer, file.originalname, file.mimetype);
+        if (!uploaded || !uploaded.url || !uploaded.fileId) {
+          throw new Error(`ImageKit upload returned invalid response for ${file.originalname}`);
         }
-      } catch {
-        if (typeof req.body.media === 'string' && req.body.media.trim().startsWith('http')) {
-          uploadedMedia.push({
-            type: /\.(mp4|webm|mov|mkv)$/i.test(req.body.media) ? 'video' : 'image',
-            url: req.body.media.trim(),
-            name: 'Attachment'
-          });
+
+        uploadedMedia.push(uploaded);
+        uploadedFileIds.push(uploaded.fileId);
+
+        console.log('[COMMUNITY IMAGEKIT UPLOAD]', {
+          name: uploaded.name,
+          url: uploaded.url,
+          fileId: uploaded.fileId,
+          size: uploaded.size
+        });
+      } catch (uploadErr) {
+        console.error(`❌ [ImageKit Upload Failed for ${file.originalname}]:`, uploadErr);
+        // Rollback any previously uploaded files for this post
+        for (const fileId of uploadedFileIds) {
+          await deleteFromImageKit(fileId).catch(() => {});
         }
-      }
-    }
-
-    // Support legacy and alias fields: image, imageUrl, mediaUrl, attachments
-    if (Array.isArray(req.body.attachments)) {
-      uploadedMedia.push(...req.body.attachments.filter(a => a && a.url));
-    }
-
-    const otherUrls = [
-      req.body.image,
-      req.body.imageUrl,
-      req.body.mediaUrl
-    ].filter(url => typeof url === 'string' && url.trim().length > 0);
-
-    for (const urlStr of otherUrls) {
-      const cleanUrl = urlStr.trim();
-      if (cleanUrl.startsWith('http') || cleanUrl.startsWith('data:')) {
-        if (!uploadedMedia.some(m => m.url === cleanUrl)) {
-          const isVid = /\.(mp4|webm|mov|mkv)$/i.test(cleanUrl);
-          uploadedMedia.push({
-            type: isVid ? 'video' : 'image',
-            url: cleanUrl,
-            name: 'Attachment'
-          });
-        }
+        return res.status(500).json({
+          success: false,
+          message: `Failed to upload "${file.originalname}" to storage: ${uploadErr.message}`
+        });
       }
     }
 
@@ -187,7 +176,7 @@ export const createPost = async (req, res, next) => {
 
     const validTypes = ['TEXT', 'PROJECT', 'HACKATHON', 'QUESTION', 'ACHIEVEMENT', 'LOOKING_FOR_TEAMMATES'];
     const postType = validTypes.includes(type) ? type : 'TEXT';
-    const primaryImage = uploadedMedia.find(m => m.type === 'image')?.url || (image && typeof image === 'string' ? image.trim() : '');
+    const primaryImage = uploadedMedia.find(m => m.type === 'image')?.url || '';
 
     const post = await Post.create({
       author: req.user._id,
@@ -211,7 +200,7 @@ export const createPost = async (req, res, next) => {
       .populate('author', 'name email headline avatar college course year')
       .populate('members', 'name email headline avatar college course year');
 
-    console.log('[POST CREATED]', {
+    console.log('[COMMUNITY POST MEDIA SAVED]', {
       id: populatedPost._id,
       mediaCount: populatedPost.media?.length || 0,
       media: populatedPost.media?.map(m => ({
@@ -228,10 +217,10 @@ export const createPost = async (req, res, next) => {
       post: populatedPost
     });
   } catch (error) {
-    console.error('[Create Post Error]:', error);
+    console.error('❌ [Create Post Error]:', error);
     // Cleanup uploaded ImageKit files if DB creation failed
     for (const fileId of uploadedFileIds) {
-      deleteFromImageKit(fileId).catch(() => {});
+      await deleteFromImageKit(fileId).catch(() => {});
     }
     return res.status(500).json({
       success: false,

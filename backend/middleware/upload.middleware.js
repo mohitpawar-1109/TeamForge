@@ -81,22 +81,46 @@ export const validateMediaFiles = (req, res, next) => {
     });
   }
 
-  // Image limit: 25MB each
+  // Image limit: 25MB each, minimum 100 bytes
   for (const file of images) {
+    if (!file.buffer || file.buffer.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: `"${file.originalname}" is empty or has an invalid buffer.`
+      });
+    }
+    if (file.size < 100) {
+      return res.status(400).json({
+        success: false,
+        message: `"${file.originalname}" is too small (${file.size} bytes). Please select a valid image.`
+      });
+    }
     if (file.size > 25 * 1024 * 1024) {
       return res.status(400).json({
         success: false,
-        message: `"${file.originalname}" is larger than the 25MB image limit.`,
+        message: `"${file.originalname}" is larger than the 25MB image limit.`
       });
     }
   }
 
-  // Video limit: 100MB
+  // Video limit: 100MB, minimum 1KB (1024 bytes)
   for (const file of videos) {
+    if (!file.buffer || file.buffer.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: `"${file.originalname}" is empty or has an invalid buffer.`
+      });
+    }
+    if (file.size < 1024) {
+      return res.status(400).json({
+        success: false,
+        message: `"${file.originalname}" is too small (${file.size} bytes). Please select a valid video.`
+      });
+    }
     if (file.size > 100 * 1024 * 1024) {
       return res.status(400).json({
         success: false,
-        message: `"${file.originalname}" is larger than the 100MB video limit.`,
+        message: `"${file.originalname}" is larger than the 100MB video limit.`
       });
     }
   }
