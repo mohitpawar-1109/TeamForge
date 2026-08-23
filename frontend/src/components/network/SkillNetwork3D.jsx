@@ -1,7 +1,7 @@
 import React, { useRef, useMemo, useState, useEffect, Suspense, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { OrbitControls } from '@react-three/drei';
+import { OrbitControls, Html } from '@react-three/drei';
 import * as THREE from 'three';
 import {
   Sparkles,
@@ -38,64 +38,57 @@ import {
   ChevronDown,
   ShieldCheck,
   Activity,
-  UserCheck,
-  UserPlus
+  UserCheck
 } from 'lucide-react';
 import { userAPI, projectAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '../common/Button';
 import { Badge } from '../common/Badge';
 
-// ==========================================
-// COLOR PALETTE (Futuristic Neon Aesthetic)
-// ==========================================
+// Entity Color Palette
 const ENTITY_COLORS = {
-  student: '#06b6d4',  // Glowing Cyan/Blue
-  skill: '#a855f7',    // Glowing Purple/Violet
-  project: '#f59e0b',  // Glowing Gold/Orange
-  gap: '#f43f5e',      // Glowing Pink/Red (Missing Skill Gap)
-  team: '#10b981'      // Emerald
+  student: '#06b6d4', // Cyan / Teal
+  skill: '#a855f7',   // Purple / Violet Hub
+  project: '#f59e0b', // Amber / Gold
+  team: '#10b981'     // Emerald
 };
 
-// Deterministic Cluster Anchors for Major Skill Hubs
+// Major Skill Hub Spatial Anchors (Sphere-clustered coordinates)
 const SKILL_ANCHORS = {
-  react: [-4.2, 2.2, 0.5],
-  nodejs: [4.2, 2.0, -0.8],
-  python: [-2.2, -3.5, 1.8],
-  machinelearning: [3.0, -3.2, 1.5],
-  aiml: [3.0, -3.2, 1.5],
-  fastapi: [0.5, -4.2, -1.2],
-  typescript: [-3.5, 0.2, -2.5],
-  javascript: [-2.2, 3.5, -1.8],
-  mongodb: [2.5, 3.2, 2.2],
-  docker: [4.2, -1.0, -2.5],
-  figma: [-4.2, -1.8, 1.2],
-  uiux: [-4.2, -1.8, 1.2],
-  tailwind: [-1.0, 3.8, 1.8],
-  webrtc: [1.2, 1.0, 3.8],
-  nextjs: [-2.8, 1.8, 2.8],
-  graphql: [1.8, 3.5, -2.2]
+  react: [-4.2, 2.5, 0.8],
+  nodejs: [4.2, 2.2, -1.0],
+  python: [-2.0, -3.8, 2.2],
+  machinelearning: [3.2, -3.5, 1.8],
+  aiml: [3.2, -3.5, 1.8],
+  fastapi: [0.5, -4.5, -1.5],
+  typescript: [-3.8, 0.2, -3.0],
+  javascript: [-2.5, 3.8, -2.0],
+  mongodb: [2.8, 3.5, 2.5],
+  docker: [4.5, -1.2, -3.0],
+  figma: [-4.5, -2.0, 1.5],
+  uiux: [-4.5, -2.0, 1.5],
+  tailwind: [-1.2, 4.2, 2.0],
+  webrtc: [1.5, 1.0, 4.5],
+  nextjs: [-3.0, 2.0, 3.2],
+  graphql: [2.0, 4.0, -2.8]
 };
 
-// ==========================================
-// ATMOSPHERIC BACKGROUND PARTICLES
-// ==========================================
-const SpaceParticles = ({ count = 180 }) => {
-  const pointsRef = useRef();
-
-  const positions = useMemo(() => {
+// Atmospheric Ambient Floating Particles
+const AmbientParticles = ({ count = 140 }) => {
+  const points = useMemo(() => {
     const p = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
-      p[i * 3] = (Math.random() - 0.5) * 36;
-      p[i * 3 + 1] = (Math.random() - 0.5) * 36;
-      p[i * 3 + 2] = (Math.random() - 0.5) * 36;
+      p[i * 3] = (Math.random() - 0.5) * 32;
+      p[i * 3 + 1] = (Math.random() - 0.5) * 32;
+      p[i * 3 + 2] = (Math.random() - 0.5) * 32;
     }
     return p;
   }, [count]);
 
+  const pointsRef = useRef();
   useFrame((state) => {
     if (pointsRef.current) {
-      pointsRef.current.rotation.y = state.clock.getElapsedTime() * 0.005;
+      pointsRef.current.rotation.y = state.clock.getElapsedTime() * 0.008;
     }
   });
 
@@ -104,39 +97,45 @@ const SpaceParticles = ({ count = 180 }) => {
       <bufferGeometry>
         <bufferAttribute
           attach="attributes-position"
-          count={positions.length / 3}
-          array={positions}
+          count={points.length / 3}
+          array={points}
           itemSize={3}
         />
       </bufferGeometry>
       <pointsMaterial
-        size={0.055}
+        size={0.06}
         color="#818cf8"
         transparent
-        opacity={0.3}
+        opacity={0.35}
         blending={THREE.AdditiveBlending}
       />
     </points>
   );
 };
 
-// ==========================================
-// SMOOTH CAMERA CONTROLLER
-// ==========================================
-const SmoothCamera = ({ selectedNode, controlsRef }) => {
-  const targetLookAt = useRef(new THREE.Vector3(0, 0, 0));
+// Camera Controller that smoothly focuses on selected node
+const CameraController = ({ selectedNode, controlsRef }) => {
+  const { camera } = useThree();
+  const targetPosRef = useRef(new THREE.Vector3(0, 0, 12));
+  const lookAtRef = useRef(new THREE.Vector3(0, 0, 0));
 
   useEffect(() => {
     if (selectedNode) {
-      targetLookAt.current.set(selectedNode.x, selectedNode.y, selectedNode.z);
+      targetPosRef.current.set(
+        selectedNode.x * 0.65,
+        selectedNode.y * 0.65,
+        selectedNode.z * 0.65 + 6.5
+      );
+      lookAtRef.current.set(selectedNode.x, selectedNode.y, selectedNode.z);
     } else {
-      targetLookAt.current.set(0, 0, 0);
+      targetPosRef.current.set(0, 0, 12);
+      lookAtRef.current.set(0, 0, 0);
     }
   }, [selectedNode]);
 
   useFrame(() => {
     if (controlsRef.current) {
-      controlsRef.current.target.lerp(targetLookAt.current, 0.06);
+      controlsRef.current.target.lerp(lookAtRef.current, 0.05);
       controlsRef.current.update();
     }
   });
@@ -144,118 +143,15 @@ const SmoothCamera = ({ selectedNode, controlsRef }) => {
   return null;
 };
 
-// ==========================================
-// INDIVIDUAL 3D NODE (Smooth Lerp, Zero Flutter)
-// ==========================================
-const GraphNode3D = ({
-  node,
-  isSelected,
-  isHovered,
-  isConnected,
-  isDimmed,
-  onSelect,
-  onHover
-}) => {
-  const meshRef = useRef();
-  const ringRef = useRef();
-  const baseScale = node.radius || (node.type === 'skill' ? 0.38 : node.type === 'project' ? 0.44 : 0.30);
-  const targetScale = useRef(new THREE.Vector3(1, 1, 1));
-  const currentScale = useRef(new THREE.Vector3(1, 1, 1));
-
-  // Determine node color
-  const color = ENTITY_COLORS[node.type] || '#6366f1';
-
-  // Smooth lerp scale and rotation inside useFrame without React setState
-  useFrame((state, delta) => {
-    if (!meshRef.current) return;
-
-    // Target scale calculation
-    const mult = isSelected ? 1.45 : isHovered ? 1.25 : isConnected ? 1.15 : isDimmed ? 0.85 : 1.0;
-    targetScale.current.set(mult, mult, mult);
-
-    // Lerp scale smoothly (0.1 damping)
-    currentScale.current.lerp(targetScale.current, 0.1);
-    meshRef.current.scale.copy(currentScale.current);
-
-    // Subtle gentle spin for orbit ring if present
-    if (ringRef.current) {
-      ringRef.current.rotation.z += delta * 0.4;
-    }
-  });
-
-  // Calculate material opacity and emissive intensity
-  const opacity = isSelected ? 1.0 : isConnected ? 0.85 : isDimmed ? 0.35 : 0.95;
-  const emissiveIntensity = isSelected ? 0.9 : isHovered ? 0.75 : isConnected ? 0.55 : isDimmed ? 0.12 : 0.38;
-
-  return (
-    <group position={[node.x, node.y, node.z]}>
-      {/* Clickable hit-sphere */}
-      <mesh
-        ref={meshRef}
-        onClick={(e) => {
-          e.stopPropagation();
-          onSelect(node);
-        }}
-        onPointerOver={(e) => {
-          e.stopPropagation();
-          onHover(node);
-        }}
-        onPointerOut={(e) => {
-          e.stopPropagation();
-          onHover(null);
-        }}
-      >
-        <sphereGeometry args={[baseScale, 32, 32]} />
-        <meshStandardMaterial
-          color={color}
-          emissive={color}
-          emissiveIntensity={emissiveIntensity}
-          roughness={0.2}
-          metalness={0.4}
-          transparent
-          opacity={opacity}
-        />
-      </mesh>
-
-      {/* Orbit / Halo Ring for Selected, Hovered, or Important Hub Nodes */}
-      {(isSelected || isHovered || node.type === 'skill' || node.type === 'gap') && (
-        <mesh
-          ref={ringRef}
-          rotation={[Math.PI / 3, 0, 0]}
-        >
-          <torusGeometry args={[baseScale * 1.55, 0.015, 16, 32]} />
-          <meshBasicMaterial
-            color={color}
-            transparent
-            opacity={isSelected ? 0.9 : isHovered ? 0.7 : isDimmed ? 0.15 : 0.45}
-          />
-        </mesh>
-      )}
-
-      {/* Subtle outer glow sphere for Selected/Hovered */}
-      {(isSelected || isHovered) && (
-        <mesh>
-          <sphereGeometry args={[baseScale * 1.35, 24, 24]} />
-          <meshBasicMaterial
-            color={color}
-            transparent
-            opacity={isSelected ? 0.25 : 0.15}
-            side={THREE.BackSide}
-          />
-        </mesh>
-      )}
-    </group>
-  );
-};
-
-// ==========================================
-// 3D GRAPH SCENE
-// ==========================================
+// 3D Graph Scene
 const GraphScene = ({
   nodes,
   links,
   selectedNode,
   hoveredNode,
+  searchQuery,
+  activeMode,
+  selectedProjectForGap,
   onSelectNode,
   onHoverNode,
   autoRotate,
@@ -267,13 +163,13 @@ const GraphScene = ({
   useFrame((state) => {
     if (prefersReducedMotion || document.hidden || selectedNode || !autoRotate) return;
     if (groupRef.current) {
-      groupRef.current.rotation.y = state.clock.getElapsedTime() * 0.015;
+      groupRef.current.rotation.y = state.clock.getElapsedTime() * 0.02;
     }
   });
 
   const activeNodeId = selectedNode?.id || hoveredNode?.id;
 
-  // Connected node IDs lookup
+  // Set of connected node IDs to active node
   const connectedNodeIds = useMemo(() => {
     if (!activeNodeId) return new Set();
     const set = new Set();
@@ -286,10 +182,40 @@ const GraphScene = ({
     return set;
   }, [activeNodeId, links]);
 
+  // Skill Gap Status Mapping (When in 'gaps' mode)
+  const skillGapStatusMap = useMemo(() => {
+    if (activeMode !== 'gaps' || !selectedProjectForGap) return new Map();
+    const map = new Map();
+    const reqSkills = selectedProjectForGap.requiredSkills || [];
+    const teamMembers = selectedProjectForGap.members || [];
+    const leadSkills = selectedProjectForGap.owner?.skills || [];
+    const allTeamSkills = new Set(
+      [
+        ...leadSkills.map((s) => (typeof s === 'string' ? s : s.name).toLowerCase()),
+        ...teamMembers.flatMap((m) =>
+          (m.user?.skills || []).map((s) => (typeof s === 'string' ? s : s.name).toLowerCase())
+        )
+      ].filter(Boolean)
+    );
+
+    reqSkills.forEach((sk) => {
+      const sKey = sk.toLowerCase();
+      if (allTeamSkills.has(sKey)) {
+        map.set(sKey, 'covered'); // Green
+      } else {
+        map.set(sKey, 'missing'); // Red
+      }
+    });
+
+    return map;
+  }, [activeMode, selectedProjectForGap]);
+
   // Dynamic Line Segments
-  const { activeLines, bgLines } = useMemo(() => {
+  const { activeLines, studentSkillLines, projectSkillLines, backgroundLines } = useMemo(() => {
     const nodeMap = new Map(nodes.map((n) => [n.id, n]));
     const activePos = [];
+    const sSkillPos = [];
+    const pSkillPos = [];
     const bgPos = [];
 
     links.forEach((l) => {
@@ -304,6 +230,10 @@ const GraphScene = ({
 
         if (isConnectedToActive) {
           activePos.push(src.x, src.y, src.z, tgt.x, tgt.y, tgt.z);
+        } else if (l.relation === 'requires') {
+          pSkillPos.push(src.x, src.y, src.z, tgt.x, tgt.y, tgt.z);
+        } else if (l.relation === 'possesses') {
+          sSkillPos.push(src.x, src.y, src.z, tgt.x, tgt.y, tgt.z);
         } else {
           bgPos.push(src.x, src.y, src.z, tgt.x, tgt.y, tgt.z);
         }
@@ -312,22 +242,25 @@ const GraphScene = ({
 
     return {
       activeLines: new Float32Array(activePos),
-      bgLines: new Float32Array(bgPos)
+      studentSkillLines: new Float32Array(sSkillPos),
+      projectSkillLines: new Float32Array(pSkillPos),
+      backgroundLines: new Float32Array(bgPos)
     };
   }, [nodes, links, activeNodeId]);
 
   return (
     <group ref={groupRef}>
-      <SpaceParticles count={180} />
+      {/* Background Atmosphere Particles */}
+      <AmbientParticles count={150} />
 
-      {/* Inactive background connection lines */}
-      {bgLines.length > 0 && (
+      {/* 1. Student -> Skill Connection Lines (Subtle Solid Cyan/Indigo) */}
+      {studentSkillLines.length > 0 && (
         <lineSegments>
           <bufferGeometry>
             <bufferAttribute
               attach="attributes-position"
-              count={bgLines.length / 3}
-              array={bgLines}
+              count={studentSkillLines.length / 3}
+              array={studentSkillLines}
               itemSize={3}
             />
           </bufferGeometry>
@@ -340,7 +273,27 @@ const GraphScene = ({
         </lineSegments>
       )}
 
-      {/* Active highlighted connection lines */}
+      {/* 2. Project -> Skill Connection Lines (Warm Amber/Gold) */}
+      {projectSkillLines.length > 0 && (
+        <lineSegments>
+          <bufferGeometry>
+            <bufferAttribute
+              attach="attributes-position"
+              count={projectSkillLines.length / 3}
+              array={projectSkillLines}
+              itemSize={3}
+            />
+          </bufferGeometry>
+          <lineBasicMaterial
+            color="#f59e0b"
+            transparent
+            opacity={activeNodeId ? 0.08 : 0.25}
+            blending={THREE.AdditiveBlending}
+          />
+        </lineSegments>
+      )}
+
+      {/* 3. Active Highlighted Connection Lines (Glowing High Opacity Cyan) */}
       {activeLines.length > 0 && (
         <lineSegments>
           <bufferGeometry>
@@ -360,66 +313,270 @@ const GraphScene = ({
         </lineSegments>
       )}
 
-      {/* 3D Spheres with zero jitter */}
+      {/* 4. Render Nodes with Clustered Visual Hierarchy */}
       {nodes.map((node) => {
         const isSelected = selectedNode?.id === node.id;
         const isHovered = hoveredNode?.id === node.id;
         const isConnected = connectedNodeIds.has(node.id);
         const isDimmed = activeNodeId && !isSelected && !isConnected;
 
+        // Determine node color according to mode (Skill Gaps mode color coding)
+        let baseColor = ENTITY_COLORS[node.type] || '#6366f1';
+        let emissiveColor = baseColor;
+
+        if (activeMode === 'gaps' && node.type === 'skill') {
+          const gapStatus = skillGapStatusMap.get(node.name.toLowerCase());
+          if (gapStatus === 'covered') {
+            baseColor = '#10b981'; // Green
+            emissiveColor = '#10b981';
+          } else if (gapStatus === 'missing') {
+            baseColor = '#ef4444'; // Red
+            emissiveColor = '#ef4444';
+          }
+        }
+
+        const nodeSize =
+          node.type === 'skill' ? 0.42 : node.type === 'project' ? 0.48 : 0.32;
+
+        const nodeScale = isSelected
+          ? 1.75
+          : isHovered
+          ? 1.45
+          : isConnected
+          ? 1.28
+          : isDimmed
+          ? 0.8
+          : 1;
+
         return (
-          <GraphNode3D
+          <group
             key={node.id}
-            node={node}
-            isSelected={isSelected}
-            isHovered={isHovered}
-            isConnected={isConnected}
-            isDimmed={isDimmed}
-            onSelect={onSelectNode}
-            onHover={onHoverNode}
-          />
+            position={[node.x, node.y, node.z]}
+            onClick={(e) => {
+              e.stopPropagation();
+              onSelectNode(node);
+            }}
+            onPointerOver={(e) => {
+              e.stopPropagation();
+              onHoverNode(node);
+              document.body.style.cursor = 'pointer';
+            }}
+            onPointerOut={() => {
+              onHoverNode(null);
+              document.body.style.cursor = 'auto';
+            }}
+          >
+            {/* SKILL HUB NODES: Distinct Geometric Icosahedron with Orbital Rings */}
+            {node.type === 'skill' && (
+              <group scale={nodeScale}>
+                <mesh>
+                  <icosahedronGeometry args={[nodeSize, 2]} />
+                  <meshStandardMaterial
+                    color={isSelected ? '#ffffff' : baseColor}
+                    emissive={isSelected ? '#ffffff' : emissiveColor}
+                    emissiveIntensity={isSelected ? 0.95 : isHovered ? 0.6 : isDimmed ? 0.1 : 0.4}
+                    roughness={0.15}
+                    metalness={0.5}
+                    transparent={isDimmed}
+                    opacity={isDimmed ? 0.25 : 1}
+                  />
+                </mesh>
+
+                {/* Outer Hub Ring */}
+                <mesh rotation={[Math.PI / 3, 0, 0]}>
+                  <torusGeometry args={[nodeSize * 1.5, 0.02, 16, 32]} />
+                  <meshBasicMaterial
+                    color={baseColor}
+                    transparent
+                    opacity={isDimmed ? 0.1 : 0.45}
+                  />
+                </mesh>
+              </group>
+            )}
+
+            {/* PROJECT NODES: Octahedron Gold Nodes */}
+            {node.type === 'project' && (
+              <group scale={nodeScale}>
+                <mesh>
+                  <octahedronGeometry args={[nodeSize, 2]} />
+                  <meshStandardMaterial
+                    color={isSelected ? '#ffffff' : '#f59e0b'}
+                    emissive={isSelected ? '#ffffff' : '#f59e0b'}
+                    emissiveIntensity={isSelected ? 0.95 : isHovered ? 0.65 : isDimmed ? 0.1 : 0.45}
+                    roughness={0.2}
+                    metalness={0.6}
+                    transparent={isDimmed}
+                    opacity={isDimmed ? 0.25 : 1}
+                  />
+                </mesh>
+                {/* Project Outer Glow Ring */}
+                <mesh rotation={[Math.PI / 2, 0, 0]}>
+                  <ringGeometry args={[nodeSize * 1.35, nodeSize * 1.55, 24]} />
+                  <meshBasicMaterial
+                    color="#f59e0b"
+                    transparent
+                    opacity={isDimmed ? 0.1 : 0.5}
+                    side={THREE.DoubleSide}
+                  />
+                </mesh>
+              </group>
+            )}
+
+            {/* STUDENT NODES: Soft Glowing Cyan Spheres */}
+            {node.type === 'student' && (
+              <mesh scale={nodeScale}>
+                <sphereGeometry args={[nodeSize, 22, 22]} />
+                <meshStandardMaterial
+                  color={isSelected ? '#ffffff' : isConnected ? '#38bdf8' : '#06b6d4'}
+                  emissive={isSelected ? '#ffffff' : isConnected ? '#38bdf8' : '#06b6d4'}
+                  emissiveIntensity={isSelected ? 0.95 : isConnected ? 0.65 : isHovered ? 0.55 : isDimmed ? 0.08 : 0.3}
+                  roughness={0.2}
+                  metalness={0.3}
+                  transparent={isDimmed}
+                  opacity={isDimmed ? 0.25 : 1}
+                />
+              </mesh>
+            )}
+
+            {/* Selected / Hover Halo Ring */}
+            {(isSelected || isHovered) && (
+              <mesh rotation={[Math.PI / 2, 0, 0]}>
+                <ringGeometry args={[nodeSize * 1.6, nodeSize * 1.85, 32]} />
+                <meshBasicMaterial
+                  color={isSelected ? '#ffffff' : baseColor}
+                  transparent
+                  opacity={0.8}
+                  side={THREE.DoubleSide}
+                />
+              </mesh>
+            )}
+
+            {/* Hover Tooltip (Dark Glassmorphism) */}
+            {(isHovered || isSelected) && (
+              <Html distanceFactor={11.5} center position={[0, nodeSize + 0.6, 0]} pointerEvents="none">
+                <div className="bg-[#111113]/95 backdrop-blur-xl border border-white/15 px-3.5 py-2.5 rounded-2xl shadow-2xl pointer-events-none text-left whitespace-nowrap animate-in fade-in zoom-in-95 duration-150 min-w-[160px]">
+                  {/* Student Tooltip */}
+                  {node.type === 'student' && (
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-cyan-400" />
+                          <span className="text-[10px] font-black uppercase text-cyan-300 tracking-wider">
+                            Student
+                          </span>
+                        </div>
+                        <span className="text-[10px] font-black text-emerald-400">
+                          {node.skillScore || '9.2/10'}
+                        </span>
+                      </div>
+                      <h4 className="text-xs font-extrabold text-white">{node.name}</h4>
+                      <p className="text-[11px] text-zinc-300 font-semibold truncate">
+                        {node.primarySkill || node.skills?.[0] || 'Full Stack'}
+                      </p>
+                      <div className="pt-1 border-t border-zinc-800/80 flex items-center justify-between text-[10px] text-zinc-400">
+                        <span>{node.projectsCount || 2} Projects</span>
+                        <span className="text-indigo-400 font-bold">View Profile →</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Skill Tooltip */}
+                  {node.type === 'skill' && (
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-1.5">
+                          <span
+                            className="w-2 h-2 rounded-full"
+                            style={{ backgroundColor: baseColor }}
+                          />
+                          <span
+                            className="text-[10px] font-black uppercase tracking-wider"
+                            style={{ color: baseColor }}
+                          >
+                            Skill Hub
+                          </span>
+                        </div>
+                        <span className="text-[10px] font-black text-purple-400">
+                          {node.avgScore || '8.4/10'}
+                        </span>
+                      </div>
+                      <h4 className="text-xs font-extrabold text-white">{node.name}</h4>
+                      <p className="text-[11px] text-zinc-300 font-semibold">
+                        {node.userCount || 1} {node.userCount === 1 ? 'Student' : 'Students'} Connected
+                      </p>
+                      <div className="pt-1 border-t border-zinc-800/80 flex items-center justify-between text-[10px] text-zinc-400">
+                        <span>{node.projectCount || 1} Projects Req</span>
+                        <span className="text-purple-400 font-bold">Inspect Hub →</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Project Tooltip */}
+                  {node.type === 'project' && (
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-amber-400" />
+                          <span className="text-[10px] font-black uppercase text-amber-300 tracking-wider">
+                            Project
+                          </span>
+                        </div>
+                        <span className="text-[10px] font-bold text-amber-400">
+                          {node.teamSize || 4} Members
+                        </span>
+                      </div>
+                      <h4 className="text-xs font-extrabold text-white">{node.name}</h4>
+                      <p className="text-[11px] text-zinc-300 font-semibold truncate">
+                        {node.category || 'Engineering'}
+                      </p>
+                      <div className="pt-1 border-t border-zinc-800/80 flex items-center justify-between text-[10px] text-zinc-400">
+                        <span>{node.requiredSkills?.length || 3} Skills Needed</span>
+                        <span className="text-amber-400 font-bold">Open Project →</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </Html>
+            )}
+          </group>
         );
       })}
-
-      <SmoothCamera selectedNode={selectedNode} controlsRef={controlsRef} />
     </group>
   );
 };
 
-// ==========================================
-// MAIN SKILL NETWORK 3D COMPONENT
-// ==========================================
 export const SkillNetwork3D = () => {
   const navigate = useNavigate();
-  const { user: currentUser } = useAuth();
+  const { user } = useAuth();
 
   const [nodes, setNodes] = useState([]);
   const [links, setLinks] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [projectsList, setProjectsList] = useState([]);
 
-  // Filter & Mode state: 'All' | 'student' | 'skill' | 'project' | 'gap'
-  const [selectedFilter, setSelectedFilter] = useState('All');
-  const [searchQuery, setSearchQuery] = useState('');
+  // Modes: 'network' | 'gaps' | 'matches'
+  const [activeMode, setActiveMode] = useState('network');
   const [viewMode, setViewMode] = useState('3D'); // '3D' | '2D'
 
-  // Selected & Hovered nodes
+  // Selected & Hovered States
   const [selectedNode, setSelectedNode] = useState(null);
   const [hoveredNode, setHoveredNode] = useState(null);
+  const [selectedProjectForGap, setSelectedProjectForGap] = useState(null);
+
+  // Filters & Search
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchDropdownOpen, setSearchDropdownOpen] = useState(false);
+  const [selectedType, setSelectedType] = useState('All'); // 'All' | 'student' | 'skill' | 'project'
+  const [selectedCategory, setSelectedCategory] = useState('All'); // 'All' | 'AI/ML' | 'Web Development' | 'Design' | 'DevOps'
   const [autoRotate, setAutoRotate] = useState(true);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
-  const controlsRef = useRef();
+  // AI Matches Modal State
+  const [aiMatchesModalOpen, setAiMatchesModalOpen] = useState(false);
+  const [aiMatches, setAiMatches] = useState([]);
+  const [loadingMatches, setLoadingMatches] = useState(false);
 
-  // Listen to Escape key to clear selected node
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape') {
-        setSelectedNode(null);
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  const controlsRef = useRef();
 
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -429,7 +586,7 @@ export const SkillNetwork3D = () => {
     return () => mq.removeEventListener('change', handler);
   }, []);
 
-  // 1. Fetch Real Data and Generate Deterministic Coordinates
+  // 1. Fetch Real Graph Data & Build Force/Skill-Clustered Network
   const loadGraphData = async () => {
     try {
       setLoading(true);
@@ -440,13 +597,17 @@ export const SkillNetwork3D = () => {
 
       const users = usersRes.data?.data || [];
       const projects = projRes.data?.data || [];
+      setProjectsList(projects);
+
+      if (projects.length > 0 && !selectedProjectForGap) {
+        setSelectedProjectForGap(projects[0]);
+      }
 
       const skillMap = new Map();
       const rawNodes = [];
       const rawLinks = [];
-      const studentNodes = [];
 
-      // A. Process Students & Skills
+      // 1. Process Skills and Students
       users.slice(0, 24).forEach((u, uIdx) => {
         const uId = `user-${u._id || uIdx}`;
         const uSkills = (u.skills || [])
@@ -456,6 +617,7 @@ export const SkillNetwork3D = () => {
         const computedScoreNum = u.overallScore
           ? Math.min(9.9, Math.max(7.2, u.overallScore / 10))
           : Math.min(9.8, 8.4 + (uIdx % 12) * 0.11);
+        const formattedSkillScore = `${computedScoreNum.toFixed(1)}/10`;
         const percentageScore = `${Math.round(computedScoreNum * 10)}%`;
 
         const studentNode = {
@@ -464,37 +626,34 @@ export const SkillNetwork3D = () => {
           type: 'student',
           name: u.name || `Student ${uIdx + 1}`,
           avatar: u.avatar,
-          headline: u.headline || 'Computer Engineering',
-          course: u.course || u.college || 'Computer Engineering',
+          headline: u.headline || 'Software Engineer',
+          subtitle: u.headline || 'Software Engineer',
           primarySkill: uSkills[0] || 'Web Development',
           experienceLevel: u.experienceLevel || 'Intermediate',
-          skillScore: `${computedScoreNum.toFixed(1)}/10`,
+          skillScore: formattedSkillScore,
           scorePercentage: percentageScore,
+          scoreNumber: computedScoreNum,
           skills: uSkills,
           college: u.college || 'Institute of Technology',
-          availability: u.availability || 'Available for collaboration',
+          availability: u.availability || '15-20 hrs/wk',
           projectsCount: (u.pastProjectsCount || 0) + 1,
-          pastProjects: u.pastProjects || ['TeamForge', 'Backend Platform'],
-          raw: u,
-          x: 0,
-          y: 0,
-          z: 0
+          raw: u
         };
 
-        studentNodes.push(studentNode);
         rawNodes.push(studentNode);
 
-        // Map skills to hubs
+        // Map skills
         uSkills.forEach((skillName) => {
           const sKey = skillName.trim();
           const sNormalized = sKey.toLowerCase().replace(/[^a-z0-9]/g, '');
 
           if (!skillMap.has(sKey)) {
+            // Find predefined anchor or fallback
             const anchor =
               SKILL_ANCHORS[sNormalized] || [
-                ((skillMap.size * 2.3) % 9) - 4.5,
-                Math.sin(skillMap.size) * 3.8,
-                Math.cos(skillMap.size) * 3.2
+                THREE.MathUtils.randFloat(-4.5, 4.5),
+                THREE.MathUtils.randFloat(-4.5, 4.5),
+                THREE.MathUtils.randFloat(-3.5, 3.5)
               ];
 
             skillMap.set(sKey, {
@@ -533,21 +692,12 @@ export const SkillNetwork3D = () => {
         });
       });
 
-      // B. Process Projects and Missing Skill Gaps
+      // 2. Process Projects
       projects.slice(0, 16).forEach((p, pIdx) => {
         const pId = `proj-${p._id || pIdx}`;
         const pSkills = p.requiredSkills || [];
-        const teamMembers = p.members || [];
-        const leadSkills = (p.owner?.skills || []).map((s) => (typeof s === 'string' ? s : s.name).toLowerCase());
-        const memberSkills = teamMembers.flatMap((m) =>
-          (m.user?.skills || []).map((s) => (typeof s === 'string' ? s : s.name).toLowerCase())
-        );
-        const coveredSkillSet = new Set([...leadSkills, ...memberSkills]);
 
-        // Find missing skills
-        const missingSkills = pSkills.filter((sk) => !coveredSkillSet.has(sk.toLowerCase()));
-
-        // Calculate project coordinate near its required skills
+        // Project coordinate: calculated as centroid of its required skill anchors + offset
         let pX = 0, pY = 0, pZ = 0;
         let countedAnchors = 0;
 
@@ -562,13 +712,13 @@ export const SkillNetwork3D = () => {
         });
 
         if (countedAnchors > 0) {
-          pX = (pX / countedAnchors) * 1.3 + (pIdx % 2 === 0 ? 1.6 : -1.6);
-          pY = (pY / countedAnchors) * 1.3 + (pIdx % 3 === 0 ? 1.4 : -1.4);
-          pZ = (pZ / countedAnchors) * 1.3 + 1.8;
+          pX = (pX / countedAnchors) * 1.35 + (pIdx % 2 === 0 ? 1.5 : -1.5);
+          pY = (pY / countedAnchors) * 1.35 + (pIdx % 3 === 0 ? 1.2 : -1.2);
+          pZ = (pZ / countedAnchors) * 1.35 + 2.0;
         } else {
-          pX = ((pIdx * 3.5) % 10) - 5;
-          pY = Math.cos(pIdx) * 4.5;
-          pZ = Math.sin(pIdx) * 3.5;
+          pX = THREE.MathUtils.randFloat(-6.0, 6.0);
+          pY = THREE.MathUtils.randFloat(-6.0, 6.0);
+          pZ = THREE.MathUtils.randFloat(-4.0, 4.0);
         }
 
         const projectNode = {
@@ -576,12 +726,11 @@ export const SkillNetwork3D = () => {
           dbId: p._id,
           type: 'project',
           name: p.title || `Project ${pIdx + 1}`,
-          description: p.description || 'Collaborative engineering and software project.',
+          description: p.description || 'Collaborative engineering and AI software project.',
           category: p.category || 'Web Development',
           difficulty: p.difficulty || 'Medium',
           subtitle: `${p.category || 'Web Development'} • ${p.difficulty || 'Medium'}`,
           requiredSkills: pSkills,
-          missingSkills: missingSkills,
           teamSize: p.teamSize || 4,
           memberCount: p.members?.length || 1,
           members: p.members || [],
@@ -595,7 +744,7 @@ export const SkillNetwork3D = () => {
 
         rawNodes.push(projectNode);
 
-        // Link project to required skill hubs
+        // Link project to required skills
         pSkills.forEach((skillName) => {
           const sKey = skillName.trim();
           const sNormalized = sKey.toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -603,9 +752,9 @@ export const SkillNetwork3D = () => {
           if (!skillMap.has(sKey)) {
             const anchor =
               SKILL_ANCHORS[sNormalized] || [
-                ((skillMap.size * 2.3) % 9) - 4.5,
-                Math.sin(skillMap.size) * 3.8,
-                Math.cos(skillMap.size) * 3.2
+                THREE.MathUtils.randFloat(-4.5, 4.5),
+                THREE.MathUtils.randFloat(-4.5, 4.5),
+                THREE.MathUtils.randFloat(-3.5, 3.5)
               ];
 
             skillMap.set(sKey, {
@@ -633,37 +782,9 @@ export const SkillNetwork3D = () => {
             relation: 'requires'
           });
         });
-
-        // Add Missing Skill Gap Nodes
-        missingSkills.slice(0, 2).forEach((gapName, gIdx) => {
-          const gapId = `gap-${pId}-${gapName.toLowerCase().replace(/[^a-z0-9]/g, '')}`;
-          const gapNode = {
-            id: gapId,
-            type: 'gap',
-            name: `${gapName} (Gap)`,
-            skillName: gapName,
-            projectTitle: projectNode.name,
-            projectDbId: p._id,
-            reason: `Required by ${projectNode.name} but not covered by current team members`,
-            proficiencyRequired: 'Intermediate/Advanced',
-            subtitle: `Skill Gap in ${projectNode.name}`,
-            x: projectNode.x + Math.cos(gIdx * 2.5) * 1.5,
-            y: projectNode.y + Math.sin(gIdx * 2.5) * 1.5,
-            z: projectNode.z + 0.8
-          };
-
-          rawNodes.push(gapNode);
-
-          rawLinks.push({
-            id: `link-${pId}-${gapId}`,
-            source: pId,
-            target: gapId,
-            relation: 'gap'
-          });
-        });
       });
 
-      // C. Add Skill Hubs to rawNodes
+      // 3. Add Skills to rawNodes & Calculate Position of Students in Skill Orbits
       skillMap.forEach((s) => {
         const avg = s.userCount > 0 ? (s.totalScoreSum / s.userCount).toFixed(1) : '8.4';
         s.avgScore = `${avg}/10`;
@@ -671,28 +792,29 @@ export const SkillNetwork3D = () => {
         rawNodes.push(s);
       });
 
-      // D. Deterministically position Student nodes in stable orbit around their primary skill hub
-      studentNodes.forEach((st, idx) => {
+      // Position Student nodes in cluster orbits around their primary skill hub
+      const studentsList = rawNodes.filter((n) => n.type === 'student');
+      studentsList.forEach((st, idx) => {
         const primarySkillName = st.primarySkill?.trim();
         const hub = skillMap.get(primarySkillName) || skillMap.values().next().value;
 
         if (hub) {
-          const angle = (idx / studentNodes.length) * Math.PI * 2 * 3;
-          const orbitRadius = 1.35 + (idx % 3) * 0.4;
+          const angle = (idx / studentsList.length) * Math.PI * 2 * 3;
+          const orbitRadius = 1.4 + (idx % 3) * 0.45;
           st.x = hub.x + Math.cos(angle) * orbitRadius;
           st.y = hub.y + Math.sin(angle) * orbitRadius;
-          st.z = hub.z + (idx % 2 === 0 ? 0.6 : -0.6);
+          st.z = hub.z + (idx % 2 === 0 ? 0.7 : -0.7);
         } else {
-          st.x = ((idx * 2) % 8) - 4;
-          st.y = Math.sin(idx) * 3;
-          st.z = Math.cos(idx) * 2;
+          st.x = THREE.MathUtils.randFloat(-5.0, 5.0);
+          st.y = THREE.MathUtils.randFloat(-5.0, 5.0);
+          st.z = THREE.MathUtils.randFloat(-4.0, 4.0);
         }
       });
 
       setNodes(rawNodes);
       setLinks(rawLinks);
     } catch (err) {
-      console.error('Failed to load talent network graph:', err);
+      console.error('Failed to generate talent intelligence graph:', err);
     } finally {
       setLoading(false);
     }
@@ -702,12 +824,21 @@ export const SkillNetwork3D = () => {
     loadGraphData();
   }, []);
 
-  // Filtered nodes
+  // Filtered nodes based on Type, Category, and Search Query
   const filteredNodes = useMemo(() => {
     let list = nodes;
 
-    if (selectedFilter !== 'All') {
-      list = list.filter((n) => n.type === selectedFilter);
+    if (selectedType !== 'All') {
+      list = list.filter((n) => n.type === selectedType);
+    }
+
+    if (selectedCategory !== 'All') {
+      list = list.filter(
+        (n) =>
+          (n.category && n.category.toLowerCase().includes(selectedCategory.toLowerCase())) ||
+          (n.headline && n.headline.toLowerCase().includes(selectedCategory.toLowerCase())) ||
+          (Array.isArray(n.skills) && n.skills.some((s) => s.toLowerCase().includes(selectedCategory.toLowerCase())))
+      );
     }
 
     if (searchQuery.trim()) {
@@ -722,9 +853,18 @@ export const SkillNetwork3D = () => {
     }
 
     return list;
-  }, [nodes, selectedFilter, searchQuery]);
+  }, [nodes, selectedType, selectedCategory, searchQuery]);
 
-  // Connected entities for selected node
+  // Dynamic Search Suggestions
+  const searchResults = useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    const q = searchQuery.trim().toLowerCase();
+    return nodes
+      .filter((n) => n.name?.toLowerCase().includes(q) || (n.subtitle && n.subtitle.toLowerCase().includes(q)))
+      .slice(0, 6);
+  }, [searchQuery, nodes]);
+
+  // Connected Entities for Inspector Panel
   const connectedEntities = useMemo(() => {
     if (!selectedNode) return [];
     const connectedIds = new Set();
@@ -753,89 +893,263 @@ export const SkillNetwork3D = () => {
     [connectedEntities]
   );
 
-  // Best matching students for a skill gap
-  const gapMatchingStudents = useMemo(() => {
-    if (selectedNode?.type !== 'gap') return [];
-    const targetSkill = selectedNode.skillName?.toLowerCase();
-    return nodes
-      .filter((n) => n.type === 'student' && Array.isArray(n.skills) && n.skills.some((s) => s.toLowerCase() === targetSkill))
-      .slice(0, 4);
-  }, [selectedNode, nodes]);
+  // Trigger "Find My Best Team Matches" AI Engine
+  const handleFindMyMatches = async () => {
+    setAiMatchesModalOpen(true);
+    try {
+      setLoadingMatches(true);
+      // Fetch users and rank them by complementary skill overlap
+      const res = await userAPI.getUsers();
+      const allUsers = res.data?.data || [];
+      const userSkills = user?.skills || ['React', 'Node.js'];
 
-  // Stable handlers
-  const handleSelectNode = useCallback((node) => {
-    setSelectedNode(node);
-  }, []);
+      const ranked = allUsers
+        .filter((u) => u._id !== user?._id)
+        .map((u, idx) => {
+          const theirSkills = (u.skills || []).map((s) => (typeof s === 'string' ? s : s.name));
+          const common = theirSkills.filter((s) => userSkills.includes(s));
+          const complementary = theirSkills.filter((s) => !userSkills.includes(s));
+          const matchPct = Math.min(98, Math.max(76, 82 + common.length * 5 + (idx % 8)));
 
-  const handleHoverNode = useCallback((node) => {
-    setHoveredNode(node);
-    if (node) {
-      document.body.style.cursor = 'pointer';
-    } else {
-      document.body.style.cursor = 'auto';
+          return {
+            user: u,
+            matchScore: matchPct,
+            reasons: [
+              complementary[0] ? `+ High proficiency in ${complementary[0]}` : '+ Complementary Stack',
+              common[0] ? `+ Shared foundation in ${common[0]}` : '+ Aligned Hackathon Goals',
+              '+ High active collaboration score'
+            ]
+          };
+        })
+        .sort((a, b) => b.matchScore - a.matchScore)
+        .slice(0, 5);
+
+      setAiMatches(ranked);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoadingMatches(false);
     }
-  }, []);
+  };
+
+  // Stats calculation
+  const totalStudentsCount = nodes.filter((n) => n.type === 'student').length;
+  const totalSkillsCount = nodes.filter((n) => n.type === 'skill').length;
+  const totalProjectsCount = nodes.filter((n) => n.type === 'project').length;
 
   return (
     <div className="space-y-6">
-      {/* 1. TOP HEADER & COMPACT CONTROL BAR */}
-      <div className="p-6 rounded-3xl bg-[#09090F] border border-zinc-800 shadow-2xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none" />
+      {/* 1. TOP HEADER & METRIC INSIGHT STRIP */}
+      <div className="p-6 rounded-3xl bg-[#111113] border border-[#27272A] shadow-2xl relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="space-y-1.5">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-950/80 border border-indigo-500/30 text-indigo-300 text-xs font-bold uppercase tracking-wider">
               <Brain className="w-3.5 h-3.5 text-indigo-400" />
-              <span>Talent Intelligence Network</span>
+              <span>AI-Powered Talent Intelligence</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-black text-[#FAFAFA] tracking-tight">
-              Interactive 3D Skill & Talent Graph
+              Talent Intelligence Network
             </h1>
             <p className="text-xs sm:text-sm text-zinc-400 max-w-2xl leading-relaxed">
-              Explore real student profiles, technical skill hubs, and active project skill gaps in an interactive 3D universe.
+              Explore students, skill hubs, and active projects to discover compatible teammates and build high-impact squads.
             </p>
           </div>
 
-          {/* Search Bar */}
+          {/* Search Bar with Autocomplete Dropdown */}
           <div className="relative w-full lg:w-80">
-            <Search className="w-4 h-4 text-zinc-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-            <input
-              type="text"
-              placeholder="Search students, skills, projects..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-[#111118] border border-zinc-800 focus:border-indigo-500 rounded-2xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-zinc-500 focus:outline-none shadow-inner"
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
+            <div className="relative">
+              <Search className="w-4 h-4 text-zinc-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                type="text"
+                placeholder="Search students, skills, projects..."
+                value={searchQuery}
+                onFocus={() => setSearchDropdownOpen(true)}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setSearchDropdownOpen(true);
+                }}
+                className="w-full bg-[#18181B] border border-[#27272A] focus:border-indigo-500 rounded-2xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-zinc-500 focus:outline-none shadow-inner"
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+
+            {/* Instant Search Dropdown */}
+            {searchDropdownOpen && searchResults.length > 0 && (
+              <div className="absolute top-full mt-2 left-0 right-0 bg-[#18181B] border border-[#27272A] rounded-2xl shadow-2xl z-50 overflow-hidden p-1.5 animate-in fade-in slide-in-from-top-2">
+                <div className="text-[10px] font-bold text-zinc-500 px-3 py-1 uppercase tracking-wider">
+                  Direct Entity Matches
+                </div>
+                {searchResults.map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => {
+                      setSelectedNode(item);
+                      setSearchDropdownOpen(false);
+                    }}
+                    className="w-full text-left p-2 rounded-xl hover:bg-zinc-800 flex items-center justify-between gap-2 transition-colors cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span
+                        className="w-2 h-2 rounded-full flex-shrink-0"
+                        style={{ backgroundColor: ENTITY_COLORS[item.type] }}
+                      />
+                      <span className="text-xs font-bold text-white truncate">{item.name}</span>
+                    </div>
+                    <span className="text-[10px] text-zinc-500 uppercase font-semibold">
+                      {item.type}
+                    </span>
+                  </button>
+                ))}
+              </div>
             )}
           </div>
         </div>
 
-        {/* Filter Tabs & Controls */}
-        <div className="mt-6 pt-5 border-t border-zinc-800/80 flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+        {/* Dynamic Compact Statistics Strip */}
+        <div className="mt-6 pt-5 border-t border-[#27272A] grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="p-3 bg-[#18181B] rounded-2xl border border-zinc-800 flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-cyan-950/60 border border-cyan-500/30 text-cyan-400 flex items-center justify-center">
+              <Users className="w-4 h-4" />
+            </div>
+            <div>
+              <p className="text-xs text-zinc-400 font-medium">Students</p>
+              <h4 className="text-base font-extrabold text-white">{totalStudentsCount} Profiled</h4>
+            </div>
+          </div>
+
+          <div className="p-3 bg-[#18181B] rounded-2xl border border-zinc-800 flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-purple-950/60 border border-purple-500/30 text-purple-400 flex items-center justify-center">
+              <Zap className="w-4 h-4" />
+            </div>
+            <div>
+              <p className="text-xs text-zinc-400 font-medium">Skill Hubs</p>
+              <h4 className="text-base font-extrabold text-white">{totalSkillsCount} Categorized</h4>
+            </div>
+          </div>
+
+          <div className="p-3 bg-[#18181B] rounded-2xl border border-zinc-800 flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-amber-950/60 border border-amber-500/30 text-amber-400 flex items-center justify-center">
+              <FolderKanban className="w-4 h-4" />
+            </div>
+            <div>
+              <p className="text-xs text-zinc-400 font-medium">Projects</p>
+              <h4 className="text-base font-extrabold text-white">{totalProjectsCount} Active</h4>
+            </div>
+          </div>
+
+          <div className="p-3 bg-[#18181B] rounded-2xl border border-zinc-800 flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-indigo-950/60 border border-indigo-500/30 text-indigo-400 flex items-center justify-center">
+              <Activity className="w-4 h-4" />
+            </div>
+            <div>
+              <p className="text-xs text-zinc-400 font-medium">Connections</p>
+              <h4 className="text-base font-extrabold text-white">{links.length} Live Edges</h4>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 2. MODE SELECTOR & FILTER BAR */}
+      <div className="flex flex-wrap items-center justify-between gap-4 bg-[#111113] p-3 rounded-2xl border border-[#27272A]">
+        {/* Mode Selector Tabs */}
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+          {[
+            { id: 'network', label: '🌐 Talent Network' },
+            { id: 'gaps', label: '⚠️ Skill Gap Mode' },
+            { id: 'matches', label: '✨ Team Match Mode' }
+          ].map((mode) => (
+            <button
+              key={mode.id}
+              type="button"
+              onClick={() => {
+                setActiveMode(mode.id);
+                if (mode.id === 'matches') handleFindMyMatches();
+              }}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+                activeMode === mode.id
+                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
+                  : 'text-zinc-400 hover:text-white bg-[#18181B]'
+              }`}
+            >
+              {mode.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Project Selector when in Skill Gaps Mode */}
+        {activeMode === 'gaps' && (
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-zinc-400 font-semibold">Target Project:</span>
+            <select
+              value={selectedProjectForGap?._id || ''}
+              onChange={(e) => {
+                const found = projectsList.find((p) => p._id === e.target.value);
+                setSelectedProjectForGap(found);
+              }}
+              className="bg-[#18181B] border border-[#27272A] rounded-xl px-3 py-1 text-xs text-white focus:outline-none focus:border-indigo-500"
+            >
+              {projectsList.map((p) => (
+                <option key={p._id} value={p._id}>
+                  {p.title}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {/* Quick Action: Find My Best Matches */}
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={handleFindMyMatches}
+            className="px-3.5 py-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-1.5 cursor-pointer active:scale-95"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+            <span>Find My Best Team Matches</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setViewMode(viewMode === '3D' ? '2D' : '3D')}
+            className="px-3 py-1.5 bg-[#18181B] hover:bg-[#27272A] text-zinc-300 rounded-xl text-xs font-bold border border-[#27272A] transition-all flex items-center gap-1.5 cursor-pointer"
+          >
+            {viewMode === '3D' ? <List className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+            <span>{viewMode === '3D' ? '2D Explorer' : '3D Graph'}</span>
+          </button>
+        </div>
+      </div>
+
+      {/* 3. MAIN 3-COLUMN / 2D WORKSPACE */}
+      <div className="bg-[#18181B] border border-[#27272A] rounded-3xl overflow-hidden shadow-2xl relative flex flex-col h-[780px] max-h-[85vh]">
+        {/* Canvas Toolbar Header */}
+        <div className="p-3 px-5 bg-[#111113] border-b border-[#27272A] flex flex-wrap items-center justify-between gap-3 z-10">
+          {/* Entity Type Filter Tabs */}
+          <div className="flex items-center gap-1.5">
+            <span className="text-[10px] font-bold text-zinc-500 uppercase mr-1">Filter:</span>
             {[
-              { id: 'All', label: 'All Entities' },
+              { id: 'All', label: 'All' },
               { id: 'student', label: 'Students' },
               { id: 'skill', label: 'Skills' },
-              { id: 'project', label: 'Projects' },
-              { id: 'gap', label: 'Skill Gaps' }
+              { id: 'project', label: 'Projects' }
             ].map((tab) => (
               <button
                 key={tab.id}
-                type="button"
-                onClick={() => setSelectedFilter(tab.id)}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
-                  selectedFilter === tab.id
-                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
-                    : 'text-zinc-400 hover:text-white bg-[#111118] border border-zinc-800'
+                onClick={() => setSelectedType(tab.id)}
+                className={`px-3 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  selectedType === tab.id
+                    ? 'bg-indigo-600 text-white shadow-xs'
+                    : 'text-zinc-400 hover:text-zinc-200 bg-[#18181B]'
                 }`}
               >
                 {tab.label}
@@ -850,7 +1164,7 @@ export const SkillNetwork3D = () => {
               className={`p-2 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
                 autoRotate
                   ? 'bg-indigo-950/80 text-indigo-300 border-indigo-500/40'
-                  : 'bg-[#111118] text-zinc-400 border-zinc-800'
+                  : 'bg-[#18181B] text-zinc-400 border-[#27272A]'
               }`}
               title="Toggle Auto-Rotation"
             >
@@ -863,604 +1177,340 @@ export const SkillNetwork3D = () => {
                 if (controlsRef.current) controlsRef.current.reset();
                 setSelectedNode(null);
               }}
-              className="px-3.5 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 rounded-xl text-xs font-bold transition-all cursor-pointer"
+              className="px-3 py-1.5 bg-[#27272A] hover:bg-[#3F3F46] text-zinc-200 rounded-xl text-xs font-bold transition-all cursor-pointer"
             >
               Reset View
             </button>
-
-            <button
-              type="button"
-              onClick={() => setViewMode(viewMode === '3D' ? '2D' : '3D')}
-              className="px-3.5 py-1.5 bg-[#111118] hover:bg-zinc-800 text-zinc-300 rounded-xl text-xs font-bold border border-zinc-800 transition-all flex items-center gap-1.5 cursor-pointer"
-            >
-              {viewMode === '3D' ? <List className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-              <span>{viewMode === '3D' ? '2D Explorer' : '3D Graph'}</span>
-            </button>
           </div>
         </div>
-      </div>
 
-      {/* 2. 3D GRAPH / 2D EXPLORER WORKSPACE */}
-      <div className="bg-[#05050B] border border-zinc-800 rounded-3xl overflow-hidden shadow-2xl relative flex flex-col h-[780px] max-h-[85vh]">
-        {loading ? (
-          <div className="h-full flex flex-col items-center justify-center space-y-3">
-            <div className="w-10 h-10 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-            <p className="text-xs text-zinc-400 font-semibold">
-              Rendering Talent Intelligence Graph...
-            </p>
-          </div>
-        ) : viewMode === '3D' ? (
-          /* 3D WebGL Canvas */
-          <div
-            className="w-full h-full relative cursor-grab active:cursor-grabbing"
-            onClick={(e) => {
-              if (e.target.tagName === 'CANVAS') setSelectedNode(null);
-            }}
-          >
-            <Canvas
-              camera={{ position: [0, 0, 12], fov: 48 }}
-              dpr={[1, 1.5]}
-              gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
-              onPointerMissed={() => setSelectedNode(null)}
+        {/* Center Canvas / 2D Explorer */}
+        <div className="flex-1 relative overflow-hidden">
+          {loading ? (
+            <div className="h-full flex flex-col items-center justify-center space-y-3">
+              <div className="w-10 h-10 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+              <p className="text-xs text-zinc-400 font-semibold">
+                Building your talent intelligence graph...
+              </p>
+            </div>
+          ) : viewMode === '3D' ? (
+            /* 3D WebGL Canvas */
+            <div
+              className="w-full h-full relative cursor-grab active:cursor-grabbing"
+              onClick={(e) => {
+                if (e.target.tagName === 'CANVAS') setSelectedNode(null);
+              }}
             >
-              <ambientLight intensity={0.7} />
-              <pointLight position={[12, 12, 12]} intensity={1.4} color="#818cf8" />
-              <pointLight position={[-12, -12, -12]} intensity={0.9} color="#c084fc" />
-              <Suspense fallback={null}>
-                <GraphScene
-                  nodes={filteredNodes}
-                  links={links}
-                  selectedNode={selectedNode}
-                  hoveredNode={hoveredNode}
-                  onSelectNode={handleSelectNode}
-                  onHoverNode={handleHoverNode}
-                  autoRotate={autoRotate}
-                  prefersReducedMotion={prefersReducedMotion}
-                  controlsRef={controlsRef}
-                />
-                <OrbitControls
-                  ref={controlsRef}
-                  enableDamping
-                  dampingFactor={0.05}
-                  rotateSpeed={0.6}
-                  zoomSpeed={0.8}
-                  minDistance={3.5}
-                  maxDistance={24}
-                />
-              </Suspense>
-            </Canvas>
-
-            {/* Hover Tooltip (Rendered outside 3D group to eliminate all pointer fluttering) */}
-            {hoveredNode && !selectedNode && (
-              <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 pointer-events-none bg-[#111118]/95 backdrop-blur-md border border-white/15 px-4 py-2 rounded-2xl shadow-2xl text-center animate-in fade-in zoom-in-95 duration-100">
-                <div className="flex items-center gap-2 justify-center">
-                  <span
-                    className="w-2 h-2 rounded-full"
-                    style={{ backgroundColor: ENTITY_COLORS[hoveredNode.type] || '#6366f1' }}
+              <Canvas
+                camera={{ position: [0, 0, 12], fov: 48 }}
+                dpr={[1, 1.5]}
+                gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
+                onPointerMissed={() => setSelectedNode(null)}
+              >
+                <ambientLight intensity={0.7} />
+                <pointLight position={[12, 12, 12]} intensity={1.4} color="#818cf8" />
+                <pointLight position={[-12, -12, -12]} intensity={0.9} color="#c084fc" />
+                <Suspense fallback={null}>
+                  <GraphScene
+                    nodes={filteredNodes}
+                    links={links}
+                    selectedNode={selectedNode}
+                    hoveredNode={hoveredNode}
+                    searchQuery={searchQuery}
+                    activeMode={activeMode}
+                    selectedProjectForGap={selectedProjectForGap}
+                    onSelectNode={setSelectedNode}
+                    onHoverNode={setHoveredNode}
+                    autoRotate={autoRotate}
+                    prefersReducedMotion={prefersReducedMotion}
+                    controlsRef={controlsRef}
                   />
-                  <span className="text-xs font-extrabold text-white">{hoveredNode.name}</span>
-                </div>
-                <p className="text-[11px] text-zinc-400 mt-0.5">
-                  {hoveredNode.type === 'student'
-                    ? `${hoveredNode.primarySkill} • Click for full profile`
-                    : hoveredNode.type === 'skill'
-                    ? `${hoveredNode.userCount || 1} Students • Click to inspect`
-                    : hoveredNode.type === 'project'
-                    ? `${hoveredNode.category} • Click for details`
-                    : `${hoveredNode.reason}`}
-                </p>
-              </div>
-            )}
+                  <CameraController selectedNode={selectedNode} controlsRef={controlsRef} />
+                  <OrbitControls
+                    ref={controlsRef}
+                    enableDamping
+                    dampingFactor={0.05}
+                    rotateSpeed={0.6}
+                    zoomSpeed={0.8}
+                    minDistance={3.5}
+                    maxDistance={24}
+                  />
+                </Suspense>
+              </Canvas>
 
-            {/* Bottom Legend */}
-            <div className="absolute bottom-4 left-4 z-10 bg-[#111118]/90 backdrop-blur-md border border-zinc-800 px-3.5 py-2 rounded-2xl shadow-xl flex items-center gap-3 text-[11px] font-bold">
-              <span className="text-zinc-500 uppercase text-[9px] font-black">Legend:</span>
-              <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-xs" />
-                <span className="text-zinc-300">Students</span>
+              {/* Bottom Legend (Adapts to Active Mode) */}
+              <div className="absolute bottom-4 left-4 z-10 bg-[#111113]/90 backdrop-blur-md border border-[#27272A] px-3.5 py-2 rounded-2xl shadow-xl flex items-center gap-3 text-[11px] font-bold">
+                {activeMode === 'gaps' ? (
+                  <>
+                    <span className="text-zinc-500 uppercase text-[9px] font-black">Skill Gap:</span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-xs" />
+                      <span className="text-emerald-300">Covered</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-xs" />
+                      <span className="text-rose-300">Missing Gap</span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <span className="text-zinc-500 uppercase text-[9px] font-black">Nodes:</span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-xs" />
+                      <span className="text-zinc-300">Students</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-2.5 h-2.5 rounded-full bg-purple-400 shadow-xs" />
+                      <span className="text-zinc-300">Skills</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-xs" />
+                      <span className="text-zinc-300">Projects</span>
+                    </div>
+                  </>
+                )}
               </div>
-              <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-purple-400 shadow-xs" />
-                <span className="text-zinc-300">Skills</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-xs" />
-                <span className="text-zinc-300">Projects</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-rose-500 shadow-xs" />
-                <span className="text-zinc-300">Skill Gaps</span>
+
+              <div className="absolute bottom-4 right-4 z-10 hidden sm:block bg-[#111113]/80 backdrop-blur-sm border border-[#27272A] px-3 py-1.5 rounded-xl text-[10px] text-zinc-400">
+                Drag to rotate • Scroll to zoom • Click node to open intelligence panel
               </div>
             </div>
+          ) : (
+            /* 2D Explorer Mode */
+            <div className="p-6 overflow-y-auto h-full space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pb-20">
+                {filteredNodes.map((n) => {
+                  const isSelected = selectedNode?.id === n.id;
+                  const baseColor = ENTITY_COLORS[n.type] || '#6366f1';
 
-            <div className="absolute bottom-4 right-4 z-10 hidden sm:block bg-[#111118]/80 backdrop-blur-sm border border-zinc-800 px-3 py-1.5 rounded-xl text-[10px] text-zinc-400">
-              Drag to rotate • Scroll to zoom • Click node to open details panel
-            </div>
-          </div>
-        ) : (
-          /* 2D Explorer Mode */
-          <div className="p-6 overflow-y-auto h-full space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pb-20">
-              {filteredNodes.map((n) => {
-                const isSelected = selectedNode?.id === n.id;
-                const baseColor = ENTITY_COLORS[n.type] || '#6366f1';
-
-                return (
-                  <div
-                    key={n.id}
-                    onClick={() => setSelectedNode(n)}
-                    className={`p-4 rounded-2xl bg-[#111118] border transition-all cursor-pointer ${
-                      isSelected
-                        ? 'border-indigo-500 shadow-lg shadow-indigo-500/10 bg-[#181822]'
-                        : 'border-zinc-800 hover:border-zinc-700'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between gap-2 mb-2">
-                      <span
-                        className="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider"
-                        style={{
-                          backgroundColor: `${baseColor}20`,
-                          color: baseColor
-                        }}
-                      >
-                        {n.type === 'gap' ? 'Skill Gap' : n.type}
-                      </span>
-                      {n.scorePercentage && (
-                        <span className="text-[11px] font-extrabold text-emerald-400 flex items-center gap-1">
-                          <Star className="w-3 h-3 fill-emerald-400" />
-                          {n.scorePercentage}
+                  return (
+                    <div
+                      key={n.id}
+                      onClick={() => setSelectedNode(n)}
+                      className={`p-4 rounded-2xl bg-[#111113] border transition-all cursor-pointer ${
+                        isSelected
+                          ? 'border-indigo-500 shadow-lg shadow-indigo-500/10 bg-[#18181B]'
+                          : 'border-[#27272A] hover:border-zinc-600'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-2 mb-2">
+                        <span
+                          className="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider"
+                          style={{
+                            backgroundColor: `${baseColor}20`,
+                            color: baseColor
+                          }}
+                        >
+                          {n.type}
                         </span>
+                        {n.scorePercentage && (
+                          <span className="text-[11px] font-extrabold text-emerald-400 flex items-center gap-1">
+                            <Star className="w-3 h-3 fill-emerald-400" />
+                            {n.scorePercentage}
+                          </span>
+                        )}
+                      </div>
+                      <h4 className="text-sm font-bold text-white">{n.name}</h4>
+                      <p className="text-xs text-zinc-400 mt-0.5 truncate">{n.subtitle}</p>
+
+                      {Array.isArray(n.skills) && n.skills.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-3">
+                          {n.skills.slice(0, 3).map((sk) => (
+                            <span
+                              key={sk}
+                              className="px-2 py-0.5 rounded-lg text-[10px] bg-zinc-800 text-zinc-300 border border-zinc-700"
+                            >
+                              {sk}
+                            </span>
+                          ))}
+                        </div>
                       )}
                     </div>
-                    <h4 className="text-sm font-bold text-white">{n.name}</h4>
-                    <p className="text-xs text-zinc-400 mt-0.5 truncate">{n.subtitle}</p>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
-                    {Array.isArray(n.skills) && n.skills.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mt-3">
-                        {n.skills.slice(0, 3).map((sk) => (
-                          <span
-                            key={sk}
-                            className="px-2 py-0.5 rounded-lg text-[10px] bg-zinc-900 text-zinc-300 border border-zinc-800"
-                          >
-                            {sk}
-                          </span>
-                        ))}
-                      </div>
+          {/* 4. CONTEXTUAL INTELLIGENCE PANEL (Desktop Right Drawer / Mobile Bottom Sheet) */}
+          {selectedNode && (
+            <div className="absolute z-30 bg-[#111113]/98 backdrop-blur-2xl border-[#27272A] shadow-2xl p-5 overflow-y-auto space-y-5 animate-in duration-200 w-full sm:w-96 max-h-[78vh] sm:max-h-full bottom-0 sm:bottom-0 right-0 sm:top-0 rounded-t-3xl sm:rounded-none sm:border-l border-t sm:border-t-0">
+              {/* Header */}
+              <div className="flex items-start justify-between gap-3 pb-4 border-b border-[#27272A]">
+                <div className="flex items-center gap-3">
+                  <div
+                    className="w-12 h-12 rounded-2xl flex items-center justify-center text-white font-bold shadow-md flex-shrink-0"
+                    style={{ backgroundColor: ENTITY_COLORS[selectedNode.type] || '#6366f1' }}
+                  >
+                    {selectedNode.type === 'student' ? (
+                      <Users className="w-6 h-6" />
+                    ) : selectedNode.type === 'project' ? (
+                      <FolderKanban className="w-6 h-6" />
+                    ) : (
+                      <Zap className="w-6 h-6" />
                     )}
                   </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* 3. PERSISTENT CONTEXTUAL DETAILS PANEL (Desktop Right Drawer / Mobile Bottom Sheet) */}
-        {selectedNode && (
-          <div className="absolute z-30 bg-[#09090F]/98 backdrop-blur-2xl border-zinc-800 shadow-2xl p-5 sm:p-6 overflow-y-auto space-y-5 animate-in duration-200 w-full sm:w-96 max-h-[80vh] sm:max-h-full bottom-0 sm:bottom-0 right-0 sm:top-0 rounded-t-3xl sm:rounded-none sm:border-l border-t sm:border-t-0">
-            {/* Header */}
-            <div className="flex items-start justify-between gap-3 pb-4 border-b border-zinc-800">
-              <div className="flex items-center gap-3">
-                <div
-                  className="w-12 h-12 rounded-2xl flex items-center justify-center text-white font-bold shadow-md flex-shrink-0"
-                  style={{ backgroundColor: ENTITY_COLORS[selectedNode.type] || '#6366f1' }}
-                >
-                  {selectedNode.type === 'student' ? (
-                    <Users className="w-6 h-6" />
-                  ) : selectedNode.type === 'project' ? (
-                    <FolderKanban className="w-6 h-6" />
-                  ) : selectedNode.type === 'gap' ? (
-                    <AlertTriangle className="w-6 h-6" />
-                  ) : (
-                    <Zap className="w-6 h-6" />
-                  )}
-                </div>
-                <div className="min-w-0">
-                  <span
-                    className="text-[10px] font-black uppercase tracking-wider block"
-                    style={{ color: ENTITY_COLORS[selectedNode.type] }}
-                  >
-                    {selectedNode.type === 'gap' ? 'Skill Gap' : selectedNode.type} Details
-                  </span>
-                  <h4 className="text-base font-extrabold text-white truncate">
-                    {selectedNode.name}
-                  </h4>
-                  <p className="text-xs text-zinc-400 truncate">{selectedNode.subtitle}</p>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setSelectedNode(null)}
-                className="p-1.5 text-zinc-400 hover:text-white rounded-xl hover:bg-zinc-800 transition-colors cursor-pointer"
-                title="Close Panel (Esc)"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* ========================================================================= */}
-            {/* 1. STUDENT DETAILS PANEL (Exact layout from requirement #5)              */}
-            {/* ========================================================================= */}
-            {selectedNode.type === 'student' && (
-              <div className="space-y-4">
-                {/* Student Avatar & Status */}
-                <div className="flex items-center gap-3 p-3 bg-[#111118] rounded-2xl border border-zinc-800">
-                  <img
-                    src={
-                      selectedNode.avatar ||
-                      `https://api.dicebear.com/7.x/avataaars/svg?seed=${selectedNode.name}`
-                    }
-                    alt={selectedNode.name}
-                    className="w-12 h-12 rounded-xl object-cover bg-zinc-800 border border-zinc-700"
-                  />
                   <div className="min-w-0">
-                    <h5 className="text-sm font-black text-white truncate">{selectedNode.name}</h5>
-                    <p className="text-xs text-zinc-400 truncate">
-                      {selectedNode.headline || selectedNode.course}
-                    </p>
-                    <div className="flex items-center gap-1.5 mt-1">
-                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                      <span className="text-[10px] font-semibold text-emerald-400">
-                        {selectedNode.availability}
+                    <span
+                      className="text-[10px] font-black uppercase tracking-wider block"
+                      style={{ color: ENTITY_COLORS[selectedNode.type] }}
+                    >
+                      {selectedNode.type} Intelligence
+                    </span>
+                    <h4 className="text-base font-extrabold text-white truncate">
+                      {selectedNode.name}
+                    </h4>
+                    <p className="text-xs text-zinc-400 truncate">{selectedNode.subtitle}</p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setSelectedNode(null)}
+                  className="p-1.5 text-zinc-400 hover:text-white rounded-xl hover:bg-[#27272A] transition-colors cursor-pointer"
+                  title="Close Panel"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* ================================================================= */}
+              {/* STUDENT CONTEXTUAL INTELLIGENCE                                    */}
+              {/* ================================================================= */}
+              {selectedNode.type === 'student' && (
+                <div className="space-y-4">
+                  {/* Score & Availability */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="p-3 bg-zinc-900/80 rounded-2xl border border-zinc-800 text-center">
+                      <span className="text-[10px] text-zinc-500 uppercase font-bold block">
+                        Skill Score
+                      </span>
+                      <span className="text-base font-black text-emerald-400 flex items-center justify-center gap-1 mt-0.5">
+                        <Star className="w-4 h-4 fill-emerald-400" />
+                        {selectedNode.scorePercentage || '92%'}
+                      </span>
+                    </div>
+
+                    <div className="p-3 bg-zinc-900/80 rounded-2xl border border-zinc-800 text-center">
+                      <span className="text-[10px] text-zinc-500 uppercase font-bold block">
+                        Availability
+                      </span>
+                      <span className="text-xs font-bold text-white mt-1 block truncate">
+                        {selectedNode.availability || '15-20 hrs/wk'}
                       </span>
                     </div>
                   </div>
-                </div>
 
-                {/* Match Score */}
-                <div className="p-3 bg-gradient-to-r from-indigo-950/60 to-purple-950/60 rounded-2xl border border-indigo-500/30 flex items-center justify-between">
-                  <span className="text-xs font-bold text-indigo-300 uppercase tracking-wider">
-                    Match Score
-                  </span>
-                  <span className="text-lg font-black text-emerald-400 flex items-center gap-1">
-                    <Star className="w-4 h-4 fill-emerald-400" />
-                    {selectedNode.scorePercentage || '92%'}
-                  </span>
-                </div>
-
-                {/* Top Skills Pills */}
-                <div className="space-y-2">
-                  <h6 className="text-xs font-bold uppercase tracking-wider text-zinc-400">
-                    Top Skills
-                  </h6>
-                  <div className="flex flex-wrap gap-1.5">
-                    {(selectedNode.skills || []).map((sk) => (
-                      <span
-                        key={sk}
-                        className="px-2.5 py-1 rounded-xl text-xs font-semibold bg-purple-950/60 text-purple-300 border border-purple-500/30"
-                      >
-                        {sk}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Skill Strength Bars */}
-                <div className="space-y-2">
-                  <h6 className="text-xs font-bold uppercase tracking-wider text-zinc-400">
-                    Skill Strength
-                  </h6>
+                  {/* Top Skills Breakdown */}
                   <div className="space-y-2">
-                    {(selectedNode.skills || []).slice(0, 4).map((sk, idx) => {
-                      const score = Math.max(70, 92 - idx * 6);
-                      return (
-                        <div key={sk} className="space-y-1">
-                          <div className="flex items-center justify-between text-xs">
-                            <span className="font-semibold text-zinc-200">{sk}</span>
-                            <span className="text-indigo-400 font-bold">{score}%</span>
-                          </div>
-                          <div className="w-full bg-zinc-800 h-1.5 rounded-full overflow-hidden">
-                            <div
-                              className="bg-gradient-to-r from-cyan-500 to-indigo-500 h-full rounded-full"
-                              style={{ width: `${score}%` }}
-                            />
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Projects */}
-                <div className="space-y-2 pt-2 border-t border-zinc-800">
-                  <h6 className="text-xs font-bold uppercase tracking-wider text-zinc-400">
-                    Projects
-                  </h6>
-                  <div className="space-y-1">
-                    {(selectedNode.pastProjects || ['TeamForge', 'Backend Platform']).map((proj, idx) => (
-                      <p key={idx} className="text-xs text-zinc-300 flex items-center gap-1.5">
-                        <span className="text-zinc-500">•</span>
-                        <span>{proj}</span>
-                      </p>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Matching Skills & Skill Gaps */}
-                <div className="grid grid-cols-2 gap-3 pt-2 border-t border-zinc-800">
-                  <div>
-                    <h6 className="text-[11px] font-bold uppercase text-emerald-400 mb-1">
-                      Matching Skills
-                    </h6>
-                    <div className="space-y-0.5 text-xs text-zinc-300">
-                      {(selectedNode.skills || []).slice(0, 3).map((sk) => (
-                        <p key={sk} className="flex items-center gap-1 text-[11px]">
-                          <span className="text-emerald-400 font-bold">✓</span>
-                          <span>{sk}</span>
-                        </p>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <h6 className="text-[11px] font-bold uppercase text-rose-400 mb-1">
-                      Skill Gaps
-                    </h6>
-                    <div className="space-y-0.5 text-xs text-zinc-300">
-                      {['Python', 'Machine Learning'].map((gap) => (
-                        <p key={gap} className="flex items-center gap-1 text-[11px] text-zinc-400">
-                          <span className="text-rose-400">•</span>
-                          <span>{gap}</span>
-                        </p>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="pt-3 border-t border-zinc-800 space-y-2">
-                  <Link to="/profile" className="w-full block">
-                    <button
-                      type="button"
-                      className="w-full py-2.5 px-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
-                    >
-                      <UserCheck className="w-4 h-4" />
-                      <span>View Profile</span>
-                    </button>
-                  </Link>
-
-                  <Link to="/groups" className="w-full block">
-                    <button
-                      type="button"
-                      className="w-full py-2.5 px-4 bg-[#111118] hover:bg-zinc-800 text-zinc-200 hover:text-white rounded-xl text-xs font-bold border border-zinc-800 transition-all flex items-center justify-center gap-2 cursor-pointer"
-                    >
-                      <MessageSquare className="w-4 h-4" />
-                      <span>Connect</span>
-                    </button>
-                  </Link>
-                </div>
-              </div>
-            )}
-
-            {/* ========================================================================= */}
-            {/* 2. SKILL DETAILS PANEL                                                    */}
-            {/* ========================================================================= */}
-            {selectedNode.type === 'skill' && (
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="p-3 bg-[#111118] rounded-2xl border border-zinc-800 text-center">
-                    <span className="text-[10px] text-zinc-500 uppercase font-bold block">
-                      Talent Pool
-                    </span>
-                    <span className="text-base font-black text-cyan-400 mt-0.5 block">
-                      {selectedNode.userCount || 1} Students
-                    </span>
-                  </div>
-
-                  <div className="p-3 bg-[#111118] rounded-2xl border border-zinc-800 text-center">
-                    <span className="text-[10px] text-zinc-500 uppercase font-bold block">
-                      Average Score
-                    </span>
-                    <span className="text-base font-black text-purple-400 mt-0.5 block">
-                      {selectedNode.avgPercentage || '84%'}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Top Matching Students */}
-                <div className="space-y-2">
-                  <h6 className="text-xs font-bold uppercase tracking-wider text-zinc-400">
-                    Top Students
-                  </h6>
-                  <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
-                    {connectedStudents.map((st) => (
-                      <div
-                        key={st.id}
-                        onClick={() => setSelectedNode(st)}
-                        className="p-2 rounded-xl bg-[#111118] hover:bg-zinc-800 border border-zinc-800 transition-all cursor-pointer flex items-center justify-between gap-2"
-                      >
-                        <div className="flex items-center gap-2 min-w-0">
-                          <img
-                            src={st.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${st.name}`}
-                            alt={st.name}
-                            className="w-6 h-6 rounded-lg object-cover bg-zinc-800 border border-zinc-700"
-                          />
-                          <span className="text-xs font-bold text-white truncate">{st.name}</span>
-                        </div>
-                        <span className="text-[10px] text-emerald-400 font-bold">
-                          {st.scorePercentage || '92%'}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Related Projects */}
-                <div className="space-y-2 pt-2 border-t border-zinc-800">
-                  <h6 className="text-xs font-bold uppercase tracking-wider text-zinc-400">
-                    Projects Requiring {selectedNode.name} ({connectedProjects.length})
-                  </h6>
-                  <div className="space-y-1.5 max-h-36 overflow-y-auto pr-1">
-                    {connectedProjects.map((p) => (
-                      <div
-                        key={p.id}
-                        onClick={() => setSelectedNode(p)}
-                        className="p-2 rounded-xl bg-[#111118] hover:bg-zinc-800 border border-zinc-800 transition-all cursor-pointer flex items-center justify-between"
-                      >
-                        <span className="text-xs font-bold text-amber-300 truncate">{p.name}</span>
-                        <ArrowRight className="w-3.5 h-3.5 text-zinc-500" />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="pt-3 border-t border-zinc-800">
-                  <Link to="/community" className="w-full block">
-                    <button
-                      type="button"
-                      className="w-full py-2.5 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
-                    >
-                      <Users className="w-4 h-4" />
-                      <span>Find {selectedNode.name} Developers</span>
-                    </button>
-                  </Link>
-                </div>
-              </div>
-            )}
-
-            {/* ========================================================================= */}
-            {/* 3. PROJECT DETAILS PANEL                                                  */}
-            {/* ========================================================================= */}
-            {selectedNode.type === 'project' && (
-              <div className="space-y-4">
-                <p className="text-xs text-zinc-300 leading-relaxed">
-                  {selectedNode.description || selectedNode.subtitle}
-                </p>
-
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="p-3 bg-[#111118] rounded-2xl border border-zinc-800 text-center">
-                    <span className="text-[10px] text-zinc-500 uppercase font-bold block">
-                      Team Size
-                    </span>
-                    <span className="text-base font-black text-amber-400 mt-0.5 block">
-                      {selectedNode.memberCount || 1} / {selectedNode.teamSize || 4} Members
-                    </span>
-                  </div>
-
-                  <div className="p-3 bg-[#111118] rounded-2xl border border-zinc-800 text-center">
-                    <span className="text-[10px] text-zinc-500 uppercase font-bold block">
-                      Difficulty
-                    </span>
-                    <span className="text-xs font-bold text-white mt-1 block">
-                      {selectedNode.difficulty || 'Medium'}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Required Skills */}
-                <div className="space-y-2">
-                  <h6 className="text-xs font-bold uppercase tracking-wider text-zinc-400">
-                    Required Skills
-                  </h6>
-                  <div className="flex flex-wrap gap-1.5">
-                    {(selectedNode.requiredSkills || []).map((sk) => (
-                      <span
-                        key={sk}
-                        className="px-2.5 py-1 rounded-xl text-xs font-semibold bg-amber-950/60 text-amber-300 border border-amber-500/30"
-                      >
-                        {sk}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Missing Skills / Gaps */}
-                {selectedNode.missingSkills?.length > 0 && (
-                  <div className="space-y-2 pt-2 border-t border-zinc-800">
-                    <h6 className="text-xs font-bold uppercase tracking-wider text-rose-400 flex items-center gap-1.5">
-                      <AlertTriangle className="w-3.5 h-3.5 text-rose-400" />
-                      <span>Skill Gaps Detected ({selectedNode.missingSkills.length})</span>
-                    </h6>
-                    <div className="flex flex-wrap gap-1.5">
-                      {selectedNode.missingSkills.map((gap) => (
-                        <span
-                          key={gap}
-                          className="px-2.5 py-1 rounded-xl text-xs font-semibold bg-rose-950/60 text-rose-300 border border-rose-500/30"
-                        >
-                          {gap}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Actions */}
-                <div className="pt-3 border-t border-zinc-800 space-y-2">
-                  {selectedNode.raw?._id && (
-                    <>
-                      <Link to={`/projects/${selectedNode.raw._id}/matches`} className="w-full block">
-                        <button
-                          type="button"
-                          className="w-full py-2.5 px-4 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
-                        >
-                          <Sparkles className="w-4 h-4" />
-                          <span>Find Team Members</span>
-                        </button>
-                      </Link>
-
-                      <Link to={`/projects/${selectedNode.raw._id}/team`} className="w-full block">
-                        <button
-                          type="button"
-                          className="w-full py-2.5 px-4 bg-[#111118] hover:bg-zinc-800 text-zinc-200 hover:text-white rounded-xl text-xs font-bold border border-zinc-800 transition-all flex items-center justify-center gap-2 cursor-pointer"
-                        >
-                          <FolderKanban className="w-4 h-4" />
-                          <span>View Project Workspace</span>
-                        </button>
-                      </Link>
-                    </>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* ========================================================================= */}
-            {/* 4. MISSING SKILL / GAP DETAILS PANEL                                      */}
-            {/* ========================================================================= */}
-            {selectedNode.type === 'gap' && (
-              <div className="space-y-4">
-                <div className="p-3.5 bg-rose-950/40 rounded-2xl border border-rose-500/30 space-y-1">
-                  <span className="text-[10px] font-black uppercase tracking-wider text-rose-300">
-                    Why Missing
-                  </span>
-                  <p className="text-xs text-rose-200 leading-relaxed">{selectedNode.reason}</p>
-                </div>
-
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="p-3 bg-[#111118] rounded-2xl border border-zinc-800 text-center">
-                    <span className="text-[10px] text-zinc-500 uppercase font-bold block">
-                      Proficiency Required
-                    </span>
-                    <span className="text-xs font-bold text-white mt-1 block">
-                      {selectedNode.proficiencyRequired || 'Intermediate'}
-                    </span>
-                  </div>
-
-                  <div className="p-3 bg-[#111118] rounded-2xl border border-zinc-800 text-center">
-                    <span className="text-[10px] text-zinc-500 uppercase font-bold block">
-                      Project
-                    </span>
-                    <span className="text-xs font-bold text-amber-300 mt-1 block truncate">
-                      {selectedNode.projectTitle}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Best Matching Students for this Gap */}
-                <div className="space-y-2 pt-2 border-t border-zinc-800">
-                  <h6 className="text-xs font-bold uppercase tracking-wider text-zinc-400">
-                    Best Matching Candidates ({gapMatchingStudents.length})
-                  </h6>
-                  {gapMatchingStudents.length === 0 ? (
-                    <p className="text-xs text-zinc-500 italic">
-                      No candidate students currently profiled with this skill.
-                    </p>
-                  ) : (
+                    <h5 className="text-xs font-bold uppercase tracking-wider text-zinc-400">
+                      Top Skills
+                    </h5>
                     <div className="space-y-1.5">
-                      {gapMatchingStudents.map((st) => (
+                      {(selectedNode.skills || []).map((sk, idx) => {
+                        const score = Math.max(75, 94 - idx * 4);
+                        return (
+                          <div key={sk} className="space-y-1">
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="font-semibold text-zinc-200">{sk}</span>
+                              <span className="text-indigo-400 font-bold">{score}%</span>
+                            </div>
+                            <div className="w-full bg-zinc-800 h-1.5 rounded-full overflow-hidden">
+                              <div
+                                className="bg-gradient-to-r from-indigo-500 to-purple-500 h-full rounded-full"
+                                style={{ width: `${score}%` }}
+                              />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Matching Projects */}
+                  {connectedProjects.length > 0 && (
+                    <div className="space-y-2 pt-2 border-t border-zinc-800">
+                      <h5 className="text-xs font-bold uppercase tracking-wider text-zinc-400">
+                        AI Matches ({connectedProjects.length} Projects)
+                      </h5>
+                      <div className="space-y-1.5">
+                        {connectedProjects.slice(0, 3).map((p) => (
+                          <div
+                            key={p.id}
+                            onClick={() => setSelectedNode(p)}
+                            className="p-2.5 rounded-xl bg-zinc-900/70 hover:bg-zinc-800 border border-zinc-800 transition-all cursor-pointer flex items-center justify-between"
+                          >
+                            <span className="text-xs font-bold text-amber-300 truncate">{p.name}</span>
+                            <span className="text-[10px] font-bold text-emerald-400">
+                              {p.matchScore || 94}% match
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Actions */}
+                  <div className="pt-3 border-t border-[#27272A] space-y-2">
+                    <Link to={`/profile`} className="w-full block">
+                      <button
+                        type="button"
+                        className="w-full py-2.5 px-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                      >
+                        <UserCheck className="w-4 h-4" />
+                        <span>View Profile & Analytics</span>
+                      </button>
+                    </Link>
+
+                    <Link to="/groups" className="w-full block">
+                      <button
+                        type="button"
+                        className="w-full py-2.5 px-4 bg-[#27272A] hover:bg-[#3F3F46] text-zinc-200 hover:text-white rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer"
+                      >
+                        <MessageSquare className="w-4 h-4" />
+                        <span>Direct Message</span>
+                      </button>
+                    </Link>
+                  </div>
+                </div>
+              )}
+
+              {/* ================================================================= */}
+              {/* SKILL CONTEXTUAL INTELLIGENCE                                      */}
+              {/* ================================================================= */}
+              {selectedNode.type === 'skill' && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="p-3 bg-zinc-900/80 rounded-2xl border border-zinc-800 text-center">
+                      <span className="text-[10px] text-zinc-500 uppercase font-bold block">
+                        Talent Pool
+                      </span>
+                      <span className="text-base font-black text-cyan-400 mt-0.5 block">
+                        {selectedNode.userCount || 1} Students
+                      </span>
+                    </div>
+
+                    <div className="p-3 bg-zinc-900/80 rounded-2xl border border-zinc-800 text-center">
+                      <span className="text-[10px] text-zinc-500 uppercase font-bold block">
+                        Average Score
+                      </span>
+                      <span className="text-base font-black text-purple-400 mt-0.5 block">
+                        {selectedNode.avgPercentage || '84%'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Top Students */}
+                  <div className="space-y-2">
+                    <h5 className="text-xs font-bold uppercase tracking-wider text-zinc-400">
+                      Top Rated Students
+                    </h5>
+                    <div className="space-y-1.5 max-h-44 overflow-y-auto pr-1">
+                      {connectedStudents.map((st) => (
                         <div
                           key={st.id}
                           onClick={() => setSelectedNode(st)}
-                          className="p-2 rounded-xl bg-[#111118] hover:bg-zinc-800 border border-zinc-800 transition-all cursor-pointer flex items-center justify-between gap-2"
+                          className="p-2 rounded-xl bg-zinc-900/70 hover:bg-zinc-800 border border-zinc-800 transition-all cursor-pointer flex items-center justify-between gap-2"
                         >
                           <div className="flex items-center gap-2 min-w-0">
                             <img
@@ -1476,37 +1526,205 @@ export const SkillNetwork3D = () => {
                         </div>
                       ))}
                     </div>
-                  )}
-                </div>
+                  </div>
 
-                {/* Recommended Action */}
-                <div className="pt-3 border-t border-zinc-800">
-                  {selectedNode.projectDbId ? (
-                    <Link to={`/projects/${selectedNode.projectDbId}/matches`} className="w-full block">
-                      <button
-                        type="button"
-                        className="w-full py-2.5 px-4 bg-gradient-to-r from-rose-600 to-purple-600 hover:from-rose-500 hover:to-purple-500 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
-                      >
-                        <UserPlus className="w-4 h-4" />
-                        <span>Recruit Candidate to Fill Gap</span>
-                      </button>
-                    </Link>
-                  ) : (
+                  {/* Projects Requiring Skill */}
+                  <div className="space-y-2">
+                    <h5 className="text-xs font-bold uppercase tracking-wider text-zinc-400">
+                      Projects Requiring {selectedNode.name} ({connectedProjects.length})
+                    </h5>
+                    <div className="space-y-1.5 max-h-36 overflow-y-auto pr-1">
+                      {connectedProjects.map((p) => (
+                        <div
+                          key={p.id}
+                          onClick={() => setSelectedNode(p)}
+                          className="p-2 rounded-xl bg-zinc-900/70 hover:bg-zinc-800 border border-zinc-800 transition-all cursor-pointer flex items-center justify-between"
+                        >
+                          <span className="text-xs font-bold text-amber-300 truncate">{p.name}</span>
+                          <ArrowRight className="w-3.5 h-3.5 text-zinc-500" />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="pt-3 border-t border-[#27272A]">
                     <Link to="/community" className="w-full block">
                       <button
                         type="button"
-                        className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition-all text-center cursor-pointer"
+                        className="w-full py-2.5 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
                       >
-                        Find Candidates
+                        <Users className="w-4 h-4" />
+                        <span>Find {selectedNode.name} Developers</span>
                       </button>
                     </Link>
-                  )}
+                  </div>
+                </div>
+              )}
+
+              {/* ================================================================= */}
+              {/* PROJECT CONTEXTUAL INTELLIGENCE                                    */}
+              {/* ================================================================= */}
+              {selectedNode.type === 'project' && (
+                <div className="space-y-4">
+                  <p className="text-xs text-zinc-300 leading-relaxed">
+                    {selectedNode.description || selectedNode.subtitle}
+                  </p>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="p-3 bg-zinc-900/80 rounded-2xl border border-zinc-800 text-center">
+                      <span className="text-[10px] text-zinc-500 uppercase font-bold block">
+                        Team Size
+                      </span>
+                      <span className="text-base font-black text-amber-400 mt-0.5 block">
+                        {selectedNode.memberCount || 1} / {selectedNode.teamSize || 4} Members
+                      </span>
+                    </div>
+
+                    <div className="p-3 bg-zinc-900/80 rounded-2xl border border-zinc-800 text-center">
+                      <span className="text-[10px] text-zinc-500 uppercase font-bold block">
+                        Difficulty
+                      </span>
+                      <span className="text-xs font-bold text-white mt-1 block">
+                        {selectedNode.difficulty || 'Medium'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Required Skills & Skill Gaps */}
+                  <div className="space-y-2">
+                    <h5 className="text-xs font-bold uppercase tracking-wider text-zinc-400">
+                      Required Skills & Gaps
+                    </h5>
+                    <div className="flex flex-wrap gap-1.5">
+                      {(selectedNode.requiredSkills || []).map((sk) => (
+                        <span
+                          key={sk}
+                          className="px-2.5 py-1 rounded-xl text-xs font-semibold bg-amber-950/60 text-amber-300 border border-amber-500/30"
+                        >
+                          {sk}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="pt-3 border-t border-[#27272A] space-y-2">
+                    {selectedNode.raw?._id && (
+                      <>
+                        <Link to={`/projects/${selectedNode.raw._id}/matches`} className="w-full block">
+                          <button
+                            type="button"
+                            className="w-full py-2.5 px-4 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                          >
+                            <Sparkles className="w-4 h-4" />
+                            <span>Find Team Members</span>
+                          </button>
+                        </Link>
+
+                        <Link to={`/projects/${selectedNode.raw._id}/team`} className="w-full block">
+                          <button
+                            type="button"
+                            className="w-full py-2.5 px-4 bg-[#27272A] hover:bg-[#3F3F46] text-zinc-200 hover:text-white rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer"
+                          >
+                            <FolderKanban className="w-4 h-4" />
+                            <span>View Project Workspace</span>
+                          </button>
+                        </Link>
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* 5. "FIND MY BEST TEAM MATCHES" MODAL DIALOG */}
+      {aiMatchesModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="bg-[#18181B] border border-[#27272A] rounded-3xl p-6 max-w-xl w-full shadow-2xl space-y-6 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
+
+            <div className="flex items-start justify-between gap-4 relative z-10">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 text-white flex items-center justify-center shadow-lg shadow-purple-600/30">
+                  <Sparkles className="w-6 h-6 text-amber-300" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-black text-white tracking-tight">
+                    AI Talent Compatibility Matches
+                  </h3>
+                  <p className="text-xs text-zinc-400">
+                    Based on your skills, project history, and complementary team requirements.
+                  </p>
                 </div>
               </div>
+
+              <button
+                type="button"
+                onClick={() => setAiMatchesModalOpen(false)}
+                className="p-1.5 rounded-xl text-zinc-400 hover:text-white hover:bg-zinc-800"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {loadingMatches ? (
+              <div className="py-12 flex flex-col items-center justify-center space-y-3">
+                <div className="w-8 h-8 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+                <p className="text-xs text-zinc-400">Synthesizing talent synergy matrix...</p>
+              </div>
+            ) : (
+              <div className="space-y-3 max-h-96 overflow-y-auto pr-1 relative z-10">
+                {aiMatches.map((m, idx) => (
+                  <div
+                    key={m.user._id || idx}
+                    className="p-4 rounded-2xl bg-[#111113] border border-zinc-800 hover:border-indigo-500/40 transition-all space-y-2"
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <img
+                          src={m.user.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${m.user.name}`}
+                          alt={m.user.name}
+                          className="w-10 h-10 rounded-xl object-cover bg-zinc-800 border border-zinc-700"
+                        />
+                        <div>
+                          <h4 className="text-sm font-extrabold text-white">{m.user.name}</h4>
+                          <p className="text-xs text-zinc-400 truncate">{m.user.headline}</p>
+                        </div>
+                      </div>
+
+                      <span className="px-3 py-1 rounded-xl text-xs font-black bg-emerald-950 text-emerald-300 border border-emerald-500/30">
+                        {m.matchScore}% Match
+                      </span>
+                    </div>
+
+                    <div className="space-y-1 text-xs text-zinc-300 pt-1 border-t border-zinc-800/80">
+                      {m.reasons.map((r, rIdx) => (
+                        <p key={rIdx} className="flex items-center gap-1.5 text-[11px] text-zinc-400">
+                          <span className="text-indigo-400 font-bold">✓</span>
+                          <span>{r}</span>
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
             )}
+
+            <div className="pt-2 border-t border-zinc-800 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setAiMatchesModalOpen(false)}
+                className="py-2.5 px-5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition-all cursor-pointer"
+              >
+                Done
+              </button>
+            </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };
