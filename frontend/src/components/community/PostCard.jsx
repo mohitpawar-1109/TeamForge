@@ -691,7 +691,10 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
       )}
 
       {/* Attached Media (Images & Video with Lightbox & Player) */}
-      <PostMedia media={post.media} singleImageUrl={post.image} />
+      <PostMedia
+        media={post.media || post.attachments || post.mediaItems}
+        singleImageUrl={post.image || post.imageUrl || post.mediaUrl}
+      />
 
       {/* Post Tags Chips */}
       {post.tags && post.tags.length > 0 && (

@@ -94,9 +94,42 @@ export const createPost = async (req, res, next) => {
         const parsedMedia = typeof req.body.media === 'string' ? JSON.parse(req.body.media) : req.body.media;
         if (Array.isArray(parsedMedia)) {
           uploadedMedia.push(...parsedMedia.filter(m => m && m.url));
+        } else if (parsedMedia && parsedMedia.url) {
+          uploadedMedia.push(parsedMedia);
         }
       } catch {
-        // Ignore JSON parse errors
+        if (typeof req.body.media === 'string' && req.body.media.trim().startsWith('http')) {
+          uploadedMedia.push({
+            type: /\.(mp4|webm|mov|mkv)$/i.test(req.body.media) ? 'video' : 'image',
+            url: req.body.media.trim(),
+            name: 'Attachment'
+          });
+        }
+      }
+    }
+
+    // Support legacy and alias fields: image, imageUrl, mediaUrl, attachments
+    if (Array.isArray(req.body.attachments)) {
+      uploadedMedia.push(...req.body.attachments.filter(a => a && a.url));
+    }
+
+    const otherUrls = [
+      req.body.image,
+      req.body.imageUrl,
+      req.body.mediaUrl
+    ].filter(url => typeof url === 'string' && url.trim().length > 0);
+
+    for (const urlStr of otherUrls) {
+      const cleanUrl = urlStr.trim();
+      if (cleanUrl.startsWith('http') || cleanUrl.startsWith('data:')) {
+        if (!uploadedMedia.some(m => m.url === cleanUrl)) {
+          const isVid = /\.(mp4|webm|mov|mkv)$/i.test(cleanUrl);
+          uploadedMedia.push({
+            type: isVid ? 'video' : 'image',
+            url: cleanUrl,
+            name: 'Attachment'
+          });
+        }
       }
     }
 
@@ -141,13 +174,14 @@ export const createPost = async (req, res, next) => {
 
     const validTypes = ['TEXT', 'PROJECT', 'HACKATHON', 'QUESTION', 'ACHIEVEMENT', 'LOOKING_FOR_TEAMMATES'];
     const postType = validTypes.includes(type) ? type : 'TEXT';
+    const primaryImage = uploadedMedia.find(m => m.type === 'image')?.url || (image && typeof image === 'string' ? image.trim() : '');
 
     const post = await Post.create({
       author: req.user._id,
       content: (content || '').trim(),
       type: postType,
       tags: formattedTags,
-      image: image || (uploadedMedia.find(m => m.type === 'image')?.url || ''),
+      image: primaryImage,
       media: uploadedMedia,
       projectLink: projectLink ? projectLink.trim() : '',
       title: title ? title.trim() : '',
@@ -167,7 +201,8 @@ export const createPost = async (req, res, next) => {
     res.status(201).json({
       success: true,
       message: 'Post published successfully',
-      data: populatedPost
+      data: populatedPost,
+      post: populatedPost
     });
   } catch (error) {
     console.error('[Create Post Error]:', error);

@@ -15,14 +15,55 @@ export const PostMedia = ({ media = [], singleImageUrl = '' }) => {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
-  // Normalize media items: support both post.media array and legacy post.image string
+  // Normalize media items: support arrays, JSON strings, legacy image strings, and multiple formats
   const items = React.useMemo(() => {
-    if (Array.isArray(media) && media.length > 0) {
-      return media.filter((m) => m && m.url);
+    let rawList = [];
+    if (Array.isArray(media)) {
+      rawList = media;
+    } else if (typeof media === 'string' && media.trim()) {
+      try {
+        const parsed = JSON.parse(media);
+        if (Array.isArray(parsed)) rawList = parsed;
+        else if (parsed && typeof parsed === 'object') rawList = [parsed];
+        else rawList = [{ url: media.trim(), type: 'image' }];
+      } catch {
+        rawList = [{ url: media.trim(), type: 'image' }];
+      }
     }
+
+    const normalized = rawList
+      .map((item) => {
+        if (!item) return null;
+        if (typeof item === 'string') {
+          const isVid = /\.(mp4|webm|mov|mkv)$/i.test(item);
+          return { type: isVid ? 'video' : 'image', url: item, name: 'Attachment' };
+        }
+        if (typeof item === 'object' && item.url) {
+          const isVid = item.type === 'video' || /\.(mp4|webm|mov|mkv)$/i.test(item.url);
+          return {
+            type: isVid ? 'video' : 'image',
+            url: item.url,
+            thumbnailUrl: item.thumbnailUrl || item.url,
+            name: item.name || 'Attachment',
+            size: item.size,
+            fileId: item.fileId
+          };
+        }
+        return null;
+      })
+      .filter(Boolean);
+
+    if (normalized.length > 0) return normalized;
+
     if (singleImageUrl && typeof singleImageUrl === 'string' && singleImageUrl.trim()) {
-      return [{ type: 'image', url: singleImageUrl.trim(), name: 'Image attachment' }];
+      const isVid = /\.(mp4|webm|mov|mkv)$/i.test(singleImageUrl);
+      return [{
+        type: isVid ? 'video' : 'image',
+        url: singleImageUrl.trim(),
+        name: 'Attachment'
+      }];
     }
+
     return [];
   }, [media, singleImageUrl]);
 
