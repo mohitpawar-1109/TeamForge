@@ -22,61 +22,17 @@ export const CommunityPage = () => {
   };
 
   const trendingTags = [
-    { name: 'hackathon2026', count: '48 posts' },
-    { name: 'aiml', count: '32 posts' },
-    { name: 'lookingforteammates', count: '29 posts' },
-    { name: 'fullstack', count: '21 posts' },
     { name: 'uiux', count: '18 posts' },
     { name: 'smartindia', count: '15 posts' },
-    { name: 'reactjs', count: '14 posts' }
+    { name: 'reactjs', count: '14 posts' },
+    { name: 'aiml', count: '32 posts' },
+    { name: 'lookingforteammates', count: '29 posts' }
   ];
 
   return (
-    <div className="space-y-8">
-      {/* Top Banner Header */}
-      <div className="bg-gradient-to-r from-[#4A2A35] via-[#703344] to-[#A84A4D] rounded-3xl p-6 sm:p-8 text-[#F6E8E2] shadow-soft relative overflow-hidden flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 border border-[#703344]">
-        {/* Subtle background glow */}
-        <div className="absolute -right-10 -bottom-10 w-72 h-72 bg-[#CB6B5A]/10 rounded-full blur-3xl pointer-events-none" />
-
-        <div className="relative z-10">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#281A21]/60 backdrop-blur-md text-xs font-bold uppercase tracking-wider mb-3 text-[#DDA081] border border-[#703344]">
-            <Sparkles className="w-3.5 h-3.5 text-[#CB6B5A]" />
-            <span>TeamForge Community Hub</span>
-          </div>
-
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-[#F6E8E2]">
-            Community
-          </h1>
-          <p className="text-sm text-[#F6E8E2]/85 mt-1 max-w-xl">
-            Share ideas. Find teammates. Build together. Connect with passionate student creators across universities.
-          </p>
-        </div>
-
-        <div className="relative z-10 flex flex-wrap gap-3">
-          <Link to="/projects/create">
-            <Button
-              variant="primary"
-              size="md"
-              icon={PlusCircle}
-            >
-              Post Project
-            </Button>
-          </Link>
-          <Link to="/projects">
-            <Button
-              variant="outline"
-              size="md"
-              icon={Compass}
-              className="text-[#F6E8E2] border-[#F6E8E2]/30 hover:bg-[#703344]/40"
-            >
-              Explore Teams
-            </Button>
-          </Link>
-        </div>
-      </div>
-
+    <div className="space-y-8 max-w-7xl mx-auto pb-12">
       {/* Main 2-Column Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 items-start">
         {/* Main Feed Column (2 cols wide on desktop) */}
         <div className="lg:col-span-2 space-y-6">
           {/* Create Post Component */}
@@ -91,71 +47,77 @@ export const CommunityPage = () => {
 
         {/* Sidebar Information Column */}
         <div className="space-y-6">
-          {/* Team Recruitment Requests Panel */}
-          <TeamRequestsSection isCompact={true} />
-
           {/* Trending Topics Card */}
-          <div className="bg-[#4A2A35] rounded-3xl border border-[#703344] p-5 sm:p-6 shadow-soft">
-            <div className="flex items-center gap-2 mb-4 pb-3 border-b border-[#703344]">
-              <div className="w-8 h-8 rounded-xl bg-[#703344] text-[#CB6B5A] border border-[#A84A4D]/40 flex items-center justify-center">
-                <Flame className="w-4 h-4" />
+          <div className="bg-[#111111] rounded-3xl border border-[#242424] p-5 sm:p-6 shadow-soft">
+            <div className="flex items-center gap-2 mb-4 pb-3 border-b border-[#1F1F1F]">
+              <div className="w-8 h-8 rounded-full bg-[#161616] text-[#E50914] border border-[#242424] flex items-center justify-center">
+                <Flame className="w-4 h-4 text-[#E50914]" />
               </div>
               <div>
-                <h3 className="font-bold text-[#F6E8E2] text-sm">Trending Discussions</h3>
-                <p className="text-[11px] text-[#DDA081]">Popular topics in the student hub</p>
+                <h3 className="font-bold text-[#F5F5F5] text-xs font-mono tracking-wider uppercase">Trending Discussions</h3>
+                <p className="text-[11px] font-mono text-[#666666]">Popular topics in student hub</p>
               </div>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               {trendingTags.map((tag, idx) => (
                 <div
                   key={idx}
-                  className="flex items-center justify-between p-2 rounded-xl hover:bg-[#281A21] transition-colors text-xs font-semibold"
+                  className="flex items-center justify-between p-2 rounded-xl hover:bg-[#161616] transition-colors text-xs font-mono"
                 >
-                  <span className="text-[#CB6B5A] hover:underline">#{tag.name}</span>
-                  <span className="text-[10px] text-[#DDA081] font-medium">{tag.count}</span>
+                  <span className="text-[#F5F5F5] hover:text-[#E50914] cursor-pointer">#{tag.name}</span>
+                  <span className="text-[10px] text-[#666666]">{tag.count}</span>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Community Guidelines / Collaboration Tips */}
-          <div className="bg-[#4A2A35] rounded-3xl border border-[#703344] p-5 sm:p-6 shadow-soft">
+          <div className="bg-[#111111] rounded-3xl border border-[#242424] p-5 sm:p-6 shadow-soft">
             <div className="flex items-center gap-2 mb-3">
-              <ShieldCheck className="w-5 h-5 text-[#CB6B5A]" />
-              <h3 className="font-bold text-[#F6E8E2] text-sm">Collaboration Etiquette</h3>
+              <ShieldCheck className="w-4 h-4 text-[#20D47A]" />
+              <h3 className="font-bold text-[#F5F5F5] text-xs font-mono uppercase tracking-wider">Collaboration Etiquette</h3>
             </div>
-            <ul className="space-y-2 text-xs text-[#DDA081] leading-relaxed">
+            <ul className="space-y-2 text-xs text-[#888888] leading-relaxed">
               <li className="flex items-start gap-2">
-                <span className="text-[#CB6B5A] font-bold">•</span>
-                <span><strong className="text-[#F6E8E2]">Be Specific:</strong> State required tech stack and weekly time commitments clearly.</span>
+                <span className="text-[#E50914] font-bold">•</span>
+                <span><strong className="text-[#F5F5F5]">Be Specific:</strong> State required tech stack and weekly time commitments clearly.</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-[#CB6B5A] font-bold">•</span>
-                <span><strong className="text-[#F6E8E2]">Include Demo Links:</strong> Share GitHub repos or live prototypes for faster feedback.</span>
+                <span className="text-[#E50914] font-bold">•</span>
+                <span><strong className="text-[#F5F5F5]">Include Demo Links:</strong> Share GitHub repos or live prototypes for faster feedback.</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-[#CB6B5A] font-bold">•</span>
-                <span><strong className="text-[#F6E8E2]">Prompt Replies:</strong> Respond to team requests within 24 hours to secure teammates.</span>
+                <span className="text-[#E50914] font-bold">•</span>
+                <span><strong className="text-[#F5F5F5]">Prompt Replies:</strong> Respond to team requests within 24 hours to secure teammates.</span>
               </li>
             </ul>
           </div>
 
           {/* Quick Explore Projects CTA */}
-          <div className="bg-[#4A2A35] rounded-3xl border border-[#703344] p-5 sm:p-6 shadow-soft text-center">
-            <div className="w-12 h-12 rounded-2xl bg-[#703344] text-[#CB6B5A] border border-[#A84A4D]/40 flex items-center justify-center mx-auto mb-3">
-              <FolderGit2 className="w-6 h-6" />
+          <div className="bg-[#111111] rounded-3xl border border-[#242424] p-5 sm:p-6 shadow-soft text-center space-y-3">
+            <div className="w-12 h-12 rounded-full bg-[#161616] text-[#A1A1A1] border border-[#242424] flex items-center justify-center mx-auto">
+              <FolderGit2 className="w-5 h-5" />
             </div>
-            <h4 className="font-bold text-[#F6E8E2] text-sm">Need a Ready-to-Join Team?</h4>
-            <p className="text-xs text-[#DDA081] mt-1 mb-4">
-              Browse actively recruiting projects with AI skill matching.
-            </p>
-            <Link to="/projects">
-              <Button variant="primary" size="sm" icon={ArrowRight} className="w-full justify-center text-xs">
-                Browse Active Projects
-              </Button>
+            <div>
+              <h4 className="font-bold text-[#F5F5F5] text-sm">Need a Ready-to-Join Team?</h4>
+              <p className="text-xs text-[#888888] mt-1">
+                Browse actively recruiting projects with AI skill matching.
+              </p>
+            </div>
+            <Link to="/projects" className="block pt-2">
+              <button
+                type="button"
+                className="w-full bg-white hover:bg-neutral-200 text-black font-mono font-bold text-xs py-2.5 px-4 rounded-full flex items-center justify-center gap-2 transition-all shadow-sm cursor-pointer active:scale-[0.98]"
+              >
+                <ArrowRight className="w-3.5 h-3.5" />
+                <span>Browse Active Projects</span>
+              </button>
             </Link>
           </div>
+
+          {/* Team Recruitment Requests Panel */}
+          <TeamRequestsSection isCompact={true} />
         </div>
       </div>
     </div>

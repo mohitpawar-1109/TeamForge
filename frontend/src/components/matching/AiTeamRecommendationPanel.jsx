@@ -81,7 +81,6 @@ export const AiTeamRecommendationPanel = ({ projectId, onInviteSent }) => {
       if (res.data.success) {
         success(`Invitation sent to ${selectedMember.student.name}! ✉️`);
         setSelectedMember(null);
-        // Mark as pending locally
         setData((prev) => ({
           ...prev,
           recommendedTeam: prev.recommendedTeam.map((m) =>
@@ -138,17 +137,17 @@ export const AiTeamRecommendationPanel = ({ projectId, onInviteSent }) => {
 
   if (loading) {
     return (
-      <div className="bg-[#4A2A35] border border-[#703344] rounded-3xl p-6 sm:p-8 space-y-6 animate-pulse">
+      <div className="bg-[#111111] border border-[#242424] rounded-3xl p-6 sm:p-8 space-y-6 animate-pulse">
         <div className="flex items-center justify-between">
           <div className="space-y-2">
-            <div className="h-6 w-48 bg-[#703344] rounded-xl" />
-            <div className="h-4 w-72 bg-[#703344]/60 rounded-lg" />
+            <div className="h-6 w-48 bg-[#161616] rounded-full" />
+            <div className="h-4 w-72 bg-[#161616] rounded-full" />
           </div>
-          <div className="h-14 w-28 bg-[#703344] rounded-2xl" />
+          <div className="h-14 w-28 bg-[#161616] rounded-2xl" />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-44 bg-[#281A21] rounded-2xl border border-[#703344]" />
+            <div key={i} className="h-44 bg-[#161616] rounded-2xl border border-[#242424]" />
           ))}
         </div>
       </div>
@@ -157,13 +156,13 @@ export const AiTeamRecommendationPanel = ({ projectId, onInviteSent }) => {
 
   if (!data || !data.recommendedTeam || data.recommendedTeam.length === 0) {
     return (
-      <div className="bg-[#4A2A35] border border-[#703344] rounded-3xl p-8 text-center space-y-4">
-        <div className="w-12 h-12 rounded-2xl bg-[#703344] text-[#CB6B5A] border border-[#A84A4D]/40 flex items-center justify-center mx-auto">
+      <div className="bg-[#111111] border border-[#242424] rounded-3xl p-8 text-center space-y-4">
+        <div className="w-12 h-12 rounded-full bg-[#161616] text-[#E50914] border border-[#242424] flex items-center justify-center mx-auto">
           <Users className="w-6 h-6" />
         </div>
         <div>
-          <h3 className="text-base font-bold text-[#F6E8E2]">No Team Recommendations Available</h3>
-          <p className="text-xs text-[#DDA081] mt-1 max-w-md mx-auto">
+          <h3 className="text-base font-bold text-[#F5F5F5]">No Team Recommendations Available</h3>
+          <p className="text-xs font-mono text-[#888888] mt-1 max-w-md mx-auto">
             All team slots might already be filled, or you can adjust your required project skills to discover more candidates.
           </p>
         </div>
@@ -177,47 +176,47 @@ export const AiTeamRecommendationPanel = ({ projectId, onInviteSent }) => {
   const { teamCompatibilityScore, teamSynergySummary, totalSkillsCovered, totalSkillsRequired, skillCoveragePercentage, recommendedTeam } = data;
 
   return (
-    <div className="bg-[#4A2A35] border border-[#703344] rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 relative overflow-hidden">
+    <div className="bg-[#111111] border border-[#242424] rounded-3xl p-6 sm:p-8 shadow-soft space-y-6 relative overflow-hidden">
       {/* Header: Score Banner & Actions */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
         <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <span className="p-1.5 rounded-xl bg-[#703344] text-[#CB6B5A] border border-[#A84A4D]/40">
-              <Brain className="w-4 h-4" />
+            <span className="p-1 rounded-full bg-[#161616] text-[#E50914] border border-[#242424]">
+              <Brain className="w-3.5 h-3.5" />
             </span>
-            <span className="text-xs font-extrabold uppercase tracking-widest text-[#DDA081]">
-              AI Squad Architecture Engine
+            <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#888888]">
+              // AI_SQUAD_ENGINE
             </span>
           </div>
 
-          <h2 className="text-xl sm:text-2xl font-black text-[#F6E8E2] tracking-tight">
+          <h2 className="text-xl sm:text-2xl font-bold text-[#F5F5F5] tracking-tight">
             Optimal Complementary Team
           </h2>
 
-          <p className="text-xs sm:text-sm text-[#F6E8E2]/90 max-w-2xl leading-relaxed">
+          <p className="text-xs sm:text-sm font-mono text-[#888888] max-w-2xl leading-relaxed">
             {teamSynergySummary}
           </p>
         </div>
 
         {/* Big Team Compatibility Metric Card */}
-        <div className="flex items-center gap-4 sm:gap-6 bg-[#281A21] border border-[#703344] p-4 sm:p-5 rounded-2xl shadow-xl flex-shrink-0">
+        <div className="flex items-center gap-4 sm:gap-6 bg-[#161616] border border-[#242424] p-4 sm:p-5 rounded-2xl shadow-soft flex-shrink-0">
           <div className="text-center">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#DDA081] block mb-0.5">
-              Team Compatibility
+            <span className="text-[9px] font-mono font-bold uppercase tracking-wider text-[#888888] block mb-0.5">
+              Compatibility
             </span>
-            <div className="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#A84A4D] via-[#CB6B5A] to-[#DDA081]">
+            <div className="text-3xl sm:text-4xl font-mono font-bold text-[#20D47A]">
               {teamCompatibilityScore}%
             </div>
           </div>
 
-          <div className="h-10 w-px bg-[#703344]" />
+          <div className="h-10 w-px bg-[#242424]" />
 
-          <div className="space-y-1 text-xs">
-            <div className="flex items-center gap-1.5 text-[#F6E8E2] font-semibold">
-              <CheckCircle2 className="w-3.5 h-3.5 text-[#86B190]" />
+          <div className="space-y-1 text-xs font-mono">
+            <div className="flex items-center gap-1.5 text-[#F5F5F5] font-semibold">
+              <CheckCircle2 className="w-3.5 h-3.5 text-[#20D47A]" />
               <span>{totalSkillsCovered}/{totalSkillsRequired} Skills ({skillCoveragePercentage}%)</span>
             </div>
-            <div className="text-[11px] text-[#DDA081] font-medium">
+            <div className="text-[11px] text-[#888888]">
               {recommendedTeam.length} Squad Roles Identified
             </div>
           </div>
@@ -225,9 +224,9 @@ export const AiTeamRecommendationPanel = ({ projectId, onInviteSent }) => {
       </div>
 
       {/* Squad Actions Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-[#703344] relative z-10">
-        <div className="flex items-center gap-2 text-xs text-[#DDA081]">
-          <Zap className="w-4 h-4 text-[#E5B079]" />
+      <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-[#1F1F1F] relative z-10">
+        <div className="flex items-center gap-2 text-xs font-mono text-[#888888]">
+          <Zap className="w-4 h-4 text-[#F2B705]" />
           <span>
             Deterministic skill synthesis & Gemini AI contextual reasoning applied.
           </span>
@@ -266,7 +265,7 @@ export const AiTeamRecommendationPanel = ({ projectId, onInviteSent }) => {
           return (
             <div
               key={student._id || index}
-              className="bg-[#281A21] border border-[#703344] hover:border-[#A84A4D]/60 rounded-2xl p-5 transition-all shadow-lg flex flex-col justify-between space-y-4 group"
+              className="bg-[#161616] border border-[#242424] hover:border-[#333333] rounded-2xl p-5 transition-all shadow-soft flex flex-col justify-between space-y-4 group"
             >
               {/* Top Header with Avatar, Name, Role & Match Score */}
               <div>
@@ -279,43 +278,42 @@ export const AiTeamRecommendationPanel = ({ projectId, onInviteSent }) => {
                           `https://api.dicebear.com/7.x/avataaars/svg?seed=${student.name || 'User'}`
                         }
                         alt={student.name}
-                        className="w-12 h-12 rounded-2xl object-cover border border-[#703344] bg-[#4A2A35]"
+                        className="w-12 h-12 rounded-full object-cover border border-[#242424] bg-[#111111]"
                       />
-                      <span className="absolute -top-1.5 -left-1.5 w-5 h-5 rounded-full bg-[#A84A4D] text-[#F6E8E2] font-bold text-[10px] flex items-center justify-center shadow-md">
+                      <span className="absolute -top-1.5 -left-1.5 w-5 h-5 rounded-full bg-white text-black font-mono font-bold text-[10px] flex items-center justify-center shadow-md">
                         {index + 1}
                       </span>
                     </div>
 
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
-                        <h4 className="text-sm font-bold text-[#F6E8E2] truncate group-hover:text-[#CB6B5A] transition-colors">
+                        <h4 className="text-sm font-bold text-[#F5F5F5] truncate group-hover:text-white transition-colors">
                           {student.name}
                         </h4>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#703344] text-[#F6E8E2] border border-[#A84A4D]/40">
+                        <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#111111] text-[#A1A1A1] border border-[#242424]">
                           {item.role}
                         </span>
                       </div>
-                      <p className="text-xs text-[#DDA081] truncate mt-0.5">{student.headline || student.course}</p>
-                      <p className="text-[11px] text-[#DDA081]/70 truncate">{student.college}</p>
+                      <p className="text-xs font-mono text-[#888888] truncate mt-0.5">{student.headline || student.course}</p>
+                      <p className="text-[10px] font-mono text-[#666666] truncate">{student.college}</p>
                     </div>
                   </div>
 
-                  {/* Individual Score Badge */}
                   <div className="flex flex-col items-end flex-shrink-0">
-                    <span className="text-base font-black text-[#86B190]">
+                    <span className="text-sm font-mono font-bold text-[#20D47A]">
                       {item.matchScore}%
                     </span>
-                    <span className="text-[9px] font-bold text-[#DDA081] uppercase">Match</span>
+                    <span className="text-[9px] font-mono text-[#666666] uppercase">Match</span>
                   </div>
                 </div>
 
-                {/* Why this person is recommended (Key AI Justification) */}
-                <div className="p-3 rounded-xl bg-[#4A2A35] border border-[#703344] text-xs text-[#F6E8E2]/90 leading-relaxed mb-3">
-                  <span className="font-bold text-[#CB6B5A] flex items-center gap-1.5 mb-1">
-                    <Sparkles className="w-3.5 h-3.5 text-[#CB6B5A]" />
+                {/* Why this person is recommended */}
+                <div className="p-3 rounded-2xl bg-[#111111] border border-[#242424] text-xs font-mono text-[#888888] leading-relaxed mb-3">
+                  <span className="font-bold text-[#E50914] flex items-center gap-1.5 mb-1">
+                    <Sparkles className="w-3 h-3 text-[#E50914]" />
                     <span>Why Recommended:</span>
                   </span>
-                  <p className="text-[11px] text-[#F6E8E2]/80">
+                  <p className="text-[11px] text-[#A1A1A1]">
                     {item.whyRecommended || 'Matches required technical proficiencies and complementary team dynamics.'}
                   </p>
                 </div>
@@ -323,7 +321,7 @@ export const AiTeamRecommendationPanel = ({ projectId, onInviteSent }) => {
                 {/* Skills Chips */}
                 {item.matchedSkills && item.matchedSkills.length > 0 && (
                   <div className="space-y-1.5">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#DDA081] block">
+                    <span className="text-[9px] font-mono font-bold uppercase tracking-wider text-[#888888] block">
                       Contributed & Matched Skills:
                     </span>
                     <div className="flex flex-wrap gap-1">
@@ -332,10 +330,10 @@ export const AiTeamRecommendationPanel = ({ projectId, onInviteSent }) => {
                         return (
                           <span
                             key={sIdx}
-                            className={`text-[10px] font-semibold px-2 py-0.5 rounded-lg border ${
+                            className={`text-[9px] font-mono font-semibold px-2 py-0.5 rounded-full border ${
                               isMissingGap
-                                ? 'bg-[#5B8A68]/20 text-[#86B190] border-[#5B8A68]/40'
-                                : 'bg-[#4A2A35] text-[#F6E8E2] border-[#703344]'
+                                ? 'bg-[#20D47A]/10 text-[#20D47A] border-[#20D47A]/30'
+                                : 'bg-[#111111] text-[#F5F5F5] border-[#242424]'
                             }`}
                           >
                             {skill} {isMissingGap && '★'}
@@ -348,19 +346,19 @@ export const AiTeamRecommendationPanel = ({ projectId, onInviteSent }) => {
               </div>
 
               {/* Bottom Card Footer Actions */}
-              <div className="pt-3 border-t border-[#703344] flex items-center justify-between gap-2">
+              <div className="pt-3 border-t border-[#242424] flex items-center justify-between gap-2">
                 <a
                   href={`/profile?id=${student._id}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-xs text-[#DDA081] hover:text-[#F6E8E2] inline-flex items-center gap-1 transition-colors"
+                  className="text-xs font-mono text-[#888888] hover:text-white inline-flex items-center gap-1 transition-colors"
                 >
                   <span>View Profile</span>
                   <ExternalLink className="w-3 h-3" />
                 </a>
 
                 {isPending ? (
-                  <span className="inline-flex items-center gap-1 text-xs font-bold text-[#E5B079] bg-[#D99443]/20 border border-[#D99443]/40 px-3 py-1.5 rounded-xl">
+                  <span className="inline-flex items-center gap-1 text-xs font-mono font-bold text-[#F2B705] bg-[#F2B705]/10 border border-[#F2B705]/30 px-3 py-1.5 rounded-full">
                     <UserCheck className="w-3.5 h-3.5" />
                     <span>Invite Sent</span>
                   </span>
@@ -392,7 +390,7 @@ export const AiTeamRecommendationPanel = ({ projectId, onInviteSent }) => {
         >
           <form onSubmit={handleSendSingleInvite} className="space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-[#DDA081] mb-1">
+              <label className="block text-[10px] font-mono font-bold uppercase text-[#888888] mb-1.5">
                 Assigned Team Role
               </label>
               <input
@@ -401,12 +399,12 @@ export const AiTeamRecommendationPanel = ({ projectId, onInviteSent }) => {
                 value={inviteRole}
                 onChange={(e) => setInviteRole(e.target.value)}
                 placeholder="e.g. ML Lead, Frontend Architect, UI/UX Designer"
-                className="w-full px-3 py-2 text-sm bg-[#281A21] border border-[#703344] text-[#F6E8E2] rounded-xl focus:border-[#CB6B5A] focus:outline-none placeholder:text-[#DDA081]"
+                className="w-full px-4 py-2 text-xs sm:text-sm font-mono bg-[#161616] border border-[#242424] text-[#F5F5F5] rounded-full focus:border-[#E50914] focus:outline-none placeholder:text-[#555555]"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#DDA081] mb-1">
+              <label className="block text-[10px] font-mono font-bold uppercase text-[#888888] mb-1.5">
                 Personalized Invitation Message
               </label>
               <textarea
@@ -414,11 +412,11 @@ export const AiTeamRecommendationPanel = ({ projectId, onInviteSent }) => {
                 required
                 value={inviteMessage}
                 onChange={(e) => setInviteMessage(e.target.value)}
-                className="w-full px-3 py-2 text-sm bg-[#281A21] border border-[#703344] text-[#F6E8E2] rounded-xl focus:border-[#CB6B5A] focus:outline-none resize-none placeholder:text-[#DDA081]"
+                className="w-full px-4 py-3 text-xs sm:text-sm font-mono bg-[#161616] border border-[#242424] text-[#F5F5F5] rounded-2xl focus:border-[#E50914] focus:outline-none resize-none placeholder:text-[#555555]"
               />
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#703344]">
+            <div className="flex items-center justify-end gap-2 pt-3 border-t border-[#1F1F1F]">
               <Button type="button" variant="outline" size="sm" onClick={() => setSelectedMember(null)}>
                 Cancel
               </Button>

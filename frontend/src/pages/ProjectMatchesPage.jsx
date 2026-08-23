@@ -18,10 +18,9 @@ export const ProjectMatchesPage = () => {
   const [matches, setMatches] = useState([]);
   const [projectTitle, setProjectTitle] = useState('');
   const [loading, setLoading] = useState(true);
-  const [activeView, setActiveView] = useState('squad'); // 'squad' | 'candidates'
+  const [activeView, setActiveView] = useState('squad');
   const [show3DVisualizer, setShow3DVisualizer] = useState(false);
 
-  // Invite Modal state
   const [selectedCandidate, setSelectedCandidate] = useState(null);
   const [inviteRole, setInviteRole] = useState('Contributor');
   const [inviteMessage, setInviteMessage] = useState('');
@@ -68,7 +67,7 @@ export const ProjectMatchesPage = () => {
       if (res.data.success) {
         success(`Invitation sent to ${selectedCandidate.name}! ✉️`);
         setSelectedCandidate(null);
-        fetchMatches(); // refresh status
+        fetchMatches();
       }
     } catch (err) {
       error(err.response?.data?.message || 'Failed to send invitation.');
@@ -82,26 +81,26 @@ export const ProjectMatchesPage = () => {
       {/* Top Breadcrumb & Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <Link to={`/projects/${id}`} className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#CB6B5A] hover:underline mb-2">
+          <Link to={`/projects/${id}`} className="inline-flex items-center gap-1.5 text-xs font-mono font-bold text-[#888888] hover:text-white mb-2">
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Back to Project Overview</span>
           </Link>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-[#F6E8E2] tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-bold text-[#F5F5F5] tracking-tight">
               AI Talent & Team Matching
             </h1>
-            <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[#703344] text-[#F6E8E2] border border-[#A84A4D]/40">
+            <span className="text-[9px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-[#161616] text-[#A1A1A1] border border-[#242424]">
               GEMINI POWERED
             </span>
           </div>
-          <p className="text-xs sm:text-sm text-[#DDA081] mt-1">
-            Optimized squad recommendations & candidate rankings for <span className="font-bold text-[#F6E8E2]">"{projectTitle}"</span>.
+          <p className="text-xs sm:text-sm font-mono text-[#888888] mt-1">
+            Optimized squad recommendations & candidate rankings for <span className="font-bold text-[#F5F5F5]">"{projectTitle}"</span>.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           <Button
-            variant={show3DVisualizer ? 'secondary' : 'primary'}
+            variant={show3DVisualizer ? 'outline' : 'primary'}
             size="md"
             icon={Brain}
             onClick={() => setShow3DVisualizer(!show3DVisualizer)}
@@ -121,28 +120,28 @@ export const ProjectMatchesPage = () => {
       )}
 
       {/* View Switcher Tabs */}
-      <div className="flex border-b border-[#703344] gap-4">
+      <div className="flex border-b border-[#1F1F1F] gap-4">
         <button
           onClick={() => setActiveView('squad')}
-          className={`flex items-center gap-2 pb-3 px-1 text-sm font-bold border-b-2 transition-all cursor-pointer ${
+          className={`flex items-center gap-2 pb-3 px-1 text-xs font-mono font-bold border-b-2 transition-all cursor-pointer ${
             activeView === 'squad'
-              ? 'border-[#A84A4D] text-[#F6E8E2]'
-              : 'border-transparent text-[#DDA081] hover:text-[#F6E8E2]'
+              ? 'border-[#E50914] text-[#F5F5F5]'
+              : 'border-transparent text-[#888888] hover:text-white'
           }`}
         >
-          <Sparkles className="w-4 h-4 text-[#CB6B5A]" />
-          <span>✨ Optimal AI Squad Recommendation</span>
+          <Sparkles className="w-3.5 h-3.5 text-[#E50914]" />
+          <span>Optimal AI Squad Recommendation</span>
         </button>
 
         <button
           onClick={() => setActiveView('candidates')}
-          className={`flex items-center gap-2 pb-3 px-1 text-sm font-bold border-b-2 transition-all cursor-pointer ${
+          className={`flex items-center gap-2 pb-3 px-1 text-xs font-mono font-bold border-b-2 transition-all cursor-pointer ${
             activeView === 'candidates'
-              ? 'border-[#A84A4D] text-[#F6E8E2]'
-              : 'border-transparent text-[#DDA081] hover:text-[#F6E8E2]'
+              ? 'border-[#E50914] text-[#F5F5F5]'
+              : 'border-transparent text-[#888888] hover:text-white'
           }`}
         >
-          <Users className="w-4 h-4 text-[#CB6B5A]" />
+          <Users className="w-3.5 h-3.5 text-[#888888]" />
           <span>All Candidate Matches ({matches.length})</span>
         </button>
       </div>
@@ -192,29 +191,29 @@ export const ProjectMatchesPage = () => {
       >
         <form onSubmit={handleSendInvite} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-[#DDA081] mb-1">Assigned Role in Project</label>
+            <label className="block text-[10px] font-mono font-bold uppercase text-[#888888] mb-1.5">Assigned Role in Project</label>
             <input
               type="text"
               required
               value={inviteRole}
               onChange={(e) => setInviteRole(e.target.value)}
               placeholder="e.g. ML Engineer, UI/UX Lead, Backend Developer"
-              className="w-full px-3 py-2 text-sm bg-[#281A21] border border-[#703344] text-[#F6E8E2] rounded-xl focus:bg-[#281A21] focus:border-[#CB6B5A] focus:outline-none placeholder:text-[#DDA081]"
+              className="w-full px-4 py-2.5 text-xs sm:text-sm font-mono bg-[#161616] border border-[#242424] text-[#F5F5F5] rounded-full focus:border-[#E50914] focus:outline-none placeholder:text-[#555555]"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#DDA081] mb-1">Personalized Message</label>
+            <label className="block text-[10px] font-mono font-bold uppercase text-[#888888] mb-1.5">Personalized Message</label>
             <textarea
               rows={3}
               required
               value={inviteMessage}
               onChange={(e) => setInviteMessage(e.target.value)}
-              className="w-full px-3 py-2 text-sm bg-[#281A21] border border-[#703344] text-[#F6E8E2] rounded-xl focus:bg-[#281A21] focus:border-[#CB6B5A] focus:outline-none placeholder:text-[#DDA081]"
+              className="w-full px-4 py-3 text-xs sm:text-sm font-mono bg-[#161616] border border-[#242424] text-[#F5F5F5] rounded-2xl focus:border-[#E50914] focus:outline-none placeholder:text-[#555555]"
             />
           </div>
 
-          <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#703344]">
+          <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#1F1F1F]">
             <Button variant="outline" size="md" onClick={() => setSelectedCandidate(null)}>
               Cancel
             </Button>

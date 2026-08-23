@@ -24,7 +24,7 @@ import { useToast } from '../../context/ToastContext';
 export const TeamPerformanceAnalytics = ({ projectId }) => {
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'members' | 'progress' | 'timeline'
+  const [activeTab, setActiveTab] = useState('overview');
   const { error } = useToast();
 
   useEffect(() => {
@@ -51,10 +51,10 @@ export const TeamPerformanceAnalytics = ({ projectId }) => {
   if (loading) {
     return (
       <div className="space-y-6 animate-pulse">
-        <div className="h-44 bg-[#4A2A35] border border-[#703344] rounded-3xl" />
+        <div className="h-44 bg-[#111111] border border-[#242424] rounded-3xl" />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="h-64 bg-[#4A2A35] border border-[#703344] rounded-3xl" />
-          <div className="h-64 bg-[#4A2A35] border border-[#703344] rounded-3xl md:col-span-2" />
+          <div className="h-64 bg-[#111111] border border-[#242424] rounded-3xl" />
+          <div className="h-64 bg-[#111111] border border-[#242424] rounded-3xl md:col-span-2" />
         </div>
       </div>
     );
@@ -62,16 +62,15 @@ export const TeamPerformanceAnalytics = ({ projectId }) => {
 
   if (!analytics) {
     return (
-      <div className="p-8 text-center bg-[#4A2A35] border border-[#703344] rounded-3xl text-[#DDA081]">
-        <Activity className="w-10 h-10 text-[#703344] mx-auto mb-2" />
-        <p>No analytics data available for this project yet.</p>
+      <div className="p-8 text-center bg-[#111111] border border-[#242424] rounded-3xl text-[#888888]">
+        <Activity className="w-10 h-10 text-[#333333] mx-auto mb-2" />
+        <p className="font-mono text-xs">No analytics data available for this project yet.</p>
       </div>
     );
   }
 
   const { summary, priorityBreakdown, memberPerformance, activityTrend, milestones, timelineEvents } = analytics;
 
-  // Calculate maximum activity value for trend chart scaling
   const maxTrendActivity = Math.max(
     ...activityTrend.map((d) => d.totalActivity),
     5
@@ -80,23 +79,23 @@ export const TeamPerformanceAnalytics = ({ projectId }) => {
   return (
     <div className="space-y-8">
       {/* Top Analytics Nav Tabs */}
-      <div className="flex items-center justify-between flex-wrap gap-4 border-b border-[#703344] pb-4">
+      <div className="flex items-center justify-between flex-wrap gap-4 border-b border-[#1F1F1F] pb-4">
         <div>
-          <h2 className="text-xl font-extrabold text-[#F6E8E2] tracking-tight flex items-center gap-2">
-            <Activity className="w-5 h-5 text-[#CB6B5A]" />
+          <h2 className="text-xl font-bold text-[#F5F5F5] tracking-tight flex items-center gap-2">
+            <Activity className="w-5 h-5 text-[#E50914]" />
             <span>Team Performance & Project Velocity</span>
           </h2>
-          <p className="text-xs text-[#DDA081] mt-0.5">
+          <p className="text-xs font-mono text-[#888888] mt-0.5">
             Real-time execution analytics computed from sprint tasks, member contributions, and collaboration history.
           </p>
         </div>
 
-        <div className="flex bg-[#281A21] p-1 rounded-2xl border border-[#703344] gap-1">
+        <div className="flex bg-[#161616] p-1 rounded-full border border-[#242424] gap-1">
           {[
-            { id: 'overview', label: 'Team Overview', icon: BarChart3 },
-            { id: 'members', label: 'Member Performance', icon: Users },
-            { id: 'progress', label: 'Project Progress', icon: TrendingUp },
-            { id: 'timeline', label: 'Activity Timeline', icon: Clock }
+            { id: 'overview', label: 'Overview', icon: BarChart3 },
+            { id: 'members', label: 'Members', icon: Users },
+            { id: 'progress', label: 'Progress', icon: TrendingUp },
+            { id: 'timeline', label: 'Timeline', icon: Clock }
           ].map((tab) => {
             const Icon = tab.icon;
             return (
@@ -104,10 +103,10 @@ export const TeamPerformanceAnalytics = ({ projectId }) => {
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-mono font-bold transition-all cursor-pointer ${
                   activeTab === tab.id
-                    ? 'bg-[#A84A4D] text-[#F6E8E2] shadow-md shadow-[#A84A4D]/30'
-                    : 'text-[#DDA081] hover:text-[#F6E8E2]'
+                    ? 'bg-white text-black shadow-soft'
+                    : 'text-[#888888] hover:text-white'
                 }`}
               >
                 <Icon className="w-3.5 h-3.5" />
@@ -118,90 +117,84 @@ export const TeamPerformanceAnalytics = ({ projectId }) => {
         </div>
       </div>
 
-      {/* ========================================================================= */}
-      {/* TAB 1: TEAM OVERVIEW                                                      */}
-      {/* ========================================================================= */}
+      {/* TAB 1: TEAM OVERVIEW */}
       {activeTab === 'overview' && (
         <div className="space-y-6">
           {/* Key Metric Cards */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Overall Progress Card */}
-            <div className="p-5 rounded-3xl bg-[#4A2A35] border border-[#703344] shadow-xl relative overflow-hidden flex flex-col justify-between">
+            <div className="p-5 rounded-3xl bg-[#111111] border border-[#242424] shadow-soft flex flex-col justify-between">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-[#DDA081] uppercase tracking-wider">Overall Progress</span>
-                <span className="p-2 rounded-xl bg-[#703344] text-[#CB6B5A] border border-[#A84A4D]/40">
-                  <TrendingUp className="w-4 h-4" />
+                <span className="text-[10px] font-mono font-bold text-[#888888] uppercase tracking-wider">Overall Progress</span>
+                <span className="p-1.5 rounded-full bg-[#161616] text-[#E50914] border border-[#242424]">
+                  <TrendingUp className="w-3.5 h-3.5" />
                 </span>
               </div>
               <div className="mt-4 flex items-baseline gap-2">
-                <span className="text-3xl sm:text-4xl font-black text-[#F6E8E2]">{analytics.progress}%</span>
-                <span className="text-xs text-[#86B190] font-bold">
+                <span className="text-3xl font-bold text-[#F5F5F5]">{analytics.progress}%</span>
+                <span className="text-xs font-mono text-[#20D47A] font-bold">
                   {summary.completedTasks}/{summary.totalTasks} Tasks
                 </span>
               </div>
-              <div className="w-full bg-[#281A21] h-2 rounded-full mt-3 overflow-hidden">
+              <div className="w-full bg-[#161616] h-1.5 rounded-full mt-3 overflow-hidden border border-[#242424]">
                 <div
-                  className="bg-gradient-to-r from-[#A84A4D] to-[#CB6B5A] h-full rounded-full transition-all duration-500"
+                  className="bg-[#E50914] h-full rounded-full transition-all duration-500"
                   style={{ width: `${analytics.progress}%` }}
                 />
               </div>
             </div>
 
-            {/* Completed Tasks Card */}
-            <div className="p-5 rounded-3xl bg-[#4A2A35] border border-[#703344] shadow-xl relative overflow-hidden flex flex-col justify-between">
+            <div className="p-5 rounded-3xl bg-[#111111] border border-[#242424] shadow-soft flex flex-col justify-between">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-[#DDA081] uppercase tracking-wider">Tasks Completed</span>
-                <span className="p-2 rounded-xl bg-[#5B8A68]/20 text-[#86B190] border border-[#5B8A68]/40">
-                  <CheckCircle2 className="w-4 h-4" />
+                <span className="text-[10px] font-mono font-bold text-[#888888] uppercase tracking-wider">Tasks Completed</span>
+                <span className="p-1.5 rounded-full bg-[#161616] text-[#20D47A] border border-[#242424]">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
                 </span>
               </div>
               <div className="mt-4 flex items-baseline gap-2">
-                <span className="text-3xl sm:text-4xl font-black text-[#F6E8E2]">{summary.completedTasks}</span>
-                <span className="text-xs text-[#DDA081]">
+                <span className="text-3xl font-bold text-[#F5F5F5]">{summary.completedTasks}</span>
+                <span className="text-xs font-mono text-[#888888]">
                   {summary.totalTasks > 0
                     ? `${Math.round((summary.completedTasks / summary.totalTasks) * 100)}% completion`
                     : '0 tasks'}
                 </span>
               </div>
-              <p className="text-[11px] text-[#DDA081] mt-2 font-medium">
+              <p className="text-[11px] font-mono text-[#666666] mt-2">
                 {summary.inProgressTasks} currently in progress
               </p>
             </div>
 
-            {/* Communication Volume Card */}
-            <div className="p-5 rounded-3xl bg-[#4A2A35] border border-[#703344] shadow-xl relative overflow-hidden flex flex-col justify-between">
+            <div className="p-5 rounded-3xl bg-[#111111] border border-[#242424] shadow-soft flex flex-col justify-between">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-[#DDA081] uppercase tracking-wider">Team Chat Volume</span>
-                <span className="p-2 rounded-xl bg-[#703344] text-[#DDA081] border border-[#703344]">
-                  <MessageSquare className="w-4 h-4" />
+                <span className="text-[10px] font-mono font-bold text-[#888888] uppercase tracking-wider">Team Chat Volume</span>
+                <span className="p-1.5 rounded-full bg-[#161616] text-[#2AA8FF] border border-[#242424]">
+                  <MessageSquare className="w-3.5 h-3.5" />
                 </span>
               </div>
               <div className="mt-4 flex items-baseline gap-2">
-                <span className="text-3xl sm:text-4xl font-black text-[#F6E8E2]">{summary.totalMessages}</span>
-                <span className="text-xs text-[#CB6B5A] font-bold">Messages</span>
+                <span className="text-3xl font-bold text-[#F5F5F5]">{summary.totalMessages}</span>
+                <span className="text-xs font-mono text-[#888888]">Messages</span>
               </div>
-              <p className="text-[11px] text-[#DDA081] mt-2 font-medium">
+              <p className="text-[11px] font-mono text-[#666666] mt-2">
                 Across {summary.totalMembers} active team members
               </p>
             </div>
 
-            {/* Overdue / High Priority Alert Card */}
-            <div className="p-5 rounded-3xl bg-[#4A2A35] border border-[#703344] shadow-xl relative overflow-hidden flex flex-col justify-between">
+            <div className="p-5 rounded-3xl bg-[#111111] border border-[#242424] shadow-soft flex flex-col justify-between">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-[#DDA081] uppercase tracking-wider">Priority Tasks</span>
-                <span className="p-2 rounded-xl bg-[#C04A4D]/20 text-[#E07D82] border border-[#C04A4D]/40">
-                  <AlertCircle className="w-4 h-4" />
+                <span className="text-[10px] font-mono font-bold text-[#888888] uppercase tracking-wider">Priority Tasks</span>
+                <span className="p-1.5 rounded-full bg-[#161616] text-[#FF1F2D] border border-[#242424]">
+                  <AlertCircle className="w-3.5 h-3.5" />
                 </span>
               </div>
               <div className="mt-4 flex items-baseline gap-2">
-                <span className="text-3xl sm:text-4xl font-black text-[#F6E8E2]">
+                <span className="text-3xl font-bold text-[#F5F5F5]">
                   {priorityBreakdown.Urgent + priorityBreakdown.High}
                 </span>
-                <span className="text-xs text-[#E07D82] font-bold">
+                <span className="text-xs font-mono text-[#FF1F2D] font-bold">
                   High / Urgent
                 </span>
               </div>
-              <p className="text-[11px] text-[#DDA081] mt-2 font-medium">
+              <p className="text-[11px] font-mono text-[#666666] mt-2">
                 {summary.overdueTasks > 0 ? `${summary.overdueTasks} tasks overdue` : 'All tasks on schedule'}
               </p>
             </div>
@@ -209,29 +202,27 @@ export const TeamPerformanceAnalytics = ({ projectId }) => {
 
           {/* Middle Row: 7-Day Activity Velocity Chart & Priority Distribution */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* 7-Day Activity Trend Bar Chart */}
-            <div className="lg:col-span-2 p-6 rounded-3xl bg-[#4A2A35] border border-[#703344] shadow-xl space-y-6">
+            <div className="lg:col-span-2 p-6 rounded-3xl bg-[#111111] border border-[#242424] shadow-soft space-y-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-base font-extrabold text-[#F6E8E2] tracking-tight flex items-center gap-2">
-                    <Flame className="w-4 h-4 text-[#CB6B5A]" />
+                  <h3 className="text-sm font-mono font-bold text-[#F5F5F5] uppercase tracking-wider flex items-center gap-2">
+                    <Flame className="w-4 h-4 text-[#E50914]" />
                     <span>7-Day Team Activity Trend</span>
                   </h3>
-                  <p className="text-xs text-[#DDA081] mt-0.5">
+                  <p className="text-xs font-mono text-[#888888] mt-0.5">
                     Daily breakdown of sprint task updates and team chat messages
                   </p>
                 </div>
-                <div className="flex items-center gap-3 text-xs">
-                  <span className="flex items-center gap-1.5 text-[#CB6B5A] font-bold">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#A84A4D]" /> Tasks
+                <div className="flex items-center gap-3 text-xs font-mono">
+                  <span className="flex items-center gap-1.5 text-[#E50914] font-bold">
+                    <span className="w-2 h-2 rounded-full bg-[#E50914]" /> Tasks
                   </span>
-                  <span className="flex items-center gap-1.5 text-[#DDA081] font-bold">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#703344]" /> Chat
+                  <span className="flex items-center gap-1.5 text-[#888888] font-bold">
+                    <span className="w-2 h-2 rounded-full bg-[#333333]" /> Chat
                   </span>
                 </div>
               </div>
 
-              {/* Responsive SVG / CSS Bar Chart */}
               <div className="h-48 flex items-end justify-between gap-2 pt-4 px-2">
                 {activityTrend.map((day, idx) => {
                   const taskHeight = (day.tasks / maxTrendActivity) * 100;
@@ -239,34 +230,25 @@ export const TeamPerformanceAnalytics = ({ projectId }) => {
 
                   return (
                     <div key={idx} className="flex-1 flex flex-col items-center gap-2 group h-full justify-end">
-                      {/* Tooltip on hover */}
-                      <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-[#281A21] border border-[#703344] text-[10px] text-[#F6E8E2] px-2 py-1 rounded-lg absolute -top-2 pointer-events-none shadow-lg z-10 whitespace-nowrap">
-                        {day.date}: {day.tasks} Tasks, {day.messages} Messages
-                      </div>
-
-                      {/* Stacked Bars */}
-                      <div className="w-full max-w-[36px] bg-[#281A21] rounded-t-xl overflow-hidden flex flex-col justify-end h-36">
-                        {/* Messages Bar */}
+                      <div className="w-full max-w-[36px] bg-[#161616] rounded-t-xl overflow-hidden flex flex-col justify-end h-36">
                         {day.messages > 0 && (
                           <div
-                            className="w-full bg-[#703344] hover:bg-[#DDA081] transition-all rounded-t-lg"
+                            className="w-full bg-[#333333] hover:bg-[#555555] transition-all"
                             style={{ height: `${Math.max(msgHeight, 8)}%` }}
                           />
                         )}
-                        {/* Tasks Bar */}
                         {day.tasks > 0 && (
                           <div
-                            className="w-full bg-[#A84A4D] hover:bg-[#CB6B5A] transition-all"
+                            className="w-full bg-[#E50914] hover:bg-[#FF1F2D] transition-all"
                             style={{ height: `${Math.max(taskHeight, 8)}%` }}
                           />
                         )}
                         {day.tasks === 0 && day.messages === 0 && (
-                          <div className="w-full h-1 bg-[#703344]/50" />
+                          <div className="w-full h-1 bg-[#242424]" />
                         )}
                       </div>
 
-                      {/* Day Label */}
-                      <span className="text-[11px] font-bold text-[#DDA081] group-hover:text-[#F6E8E2] transition-colors">
+                      <span className="text-[10px] font-mono text-[#888888] group-hover:text-white transition-colors">
                         {day.day}
                       </span>
                     </div>
@@ -275,36 +257,36 @@ export const TeamPerformanceAnalytics = ({ projectId }) => {
               </div>
             </div>
 
-            {/* Task Priority Distribution Donut / List */}
-            <div className="p-6 rounded-3xl bg-[#4A2A35] border border-[#703344] shadow-xl space-y-6 flex flex-col justify-between">
+            {/* Task Priority Distribution */}
+            <div className="p-6 rounded-3xl bg-[#111111] border border-[#242424] shadow-soft space-y-6 flex flex-col justify-between">
               <div>
-                <h3 className="text-base font-extrabold text-[#F6E8E2] tracking-tight flex items-center gap-2">
-                  <Shield className="w-4 h-4 text-[#CB6B5A]" />
+                <h3 className="text-sm font-mono font-bold text-[#F5F5F5] uppercase tracking-wider flex items-center gap-2">
+                  <Shield className="w-4 h-4 text-[#E50914]" />
                   <span>Task Priority Distribution</span>
                 </h3>
-                <p className="text-xs text-[#DDA081] mt-0.5">
+                <p className="text-xs font-mono text-[#888888] mt-0.5">
                   Breakdown of backlog and active sprint priorities
                 </p>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-3 font-mono">
                 {[
-                  { label: 'Urgent', count: priorityBreakdown.Urgent, color: 'bg-[#C04A4D]', text: 'text-[#E07D82]' },
-                  { label: 'High', count: priorityBreakdown.High, color: 'bg-[#D99443]', text: 'text-[#E5B079]' },
-                  { label: 'Medium', count: priorityBreakdown.Medium, color: 'bg-[#CB6B5A]', text: 'text-[#CB6B5A]' },
-                  { label: 'Low', count: priorityBreakdown.Low, color: 'bg-[#703344]', text: 'text-[#DDA081]' }
+                  { label: 'Urgent', count: priorityBreakdown.Urgent, color: 'bg-[#FF1F2D]', text: 'text-[#FF1F2D]' },
+                  { label: 'High', count: priorityBreakdown.High, color: 'bg-[#F2B705]', text: 'text-[#F2B705]' },
+                  { label: 'Medium', count: priorityBreakdown.Medium, color: 'bg-[#2AA8FF]', text: 'text-[#2AA8FF]' },
+                  { label: 'Low', count: priorityBreakdown.Low, color: 'bg-[#666666]', text: 'text-[#888888]' }
                 ].map((item) => {
                   const pct = summary.totalTasks > 0 ? Math.round((item.count / summary.totalTasks) * 100) : 0;
                   return (
                     <div key={item.label} className="space-y-1">
                       <div className="flex items-center justify-between text-xs">
                         <span className={`font-bold flex items-center gap-2 ${item.text}`}>
-                          <span className={`w-2 h-2 rounded-full ${item.color}`} />
-                          {item.label} Priority
+                          <span className={`w-1.5 h-1.5 rounded-full ${item.color}`} />
+                          {item.label}
                         </span>
-                        <span className="text-[#DDA081] font-semibold">{item.count} ({pct}%)</span>
+                        <span className="text-[#888888]">{item.count} ({pct}%)</span>
                       </div>
-                      <div className="w-full bg-[#281A21] h-1.5 rounded-full overflow-hidden">
+                      <div className="w-full bg-[#161616] h-1.5 rounded-full overflow-hidden">
                         <div
                           className={`${item.color} h-full rounded-full transition-all duration-300`}
                           style={{ width: `${pct}%` }}
@@ -315,29 +297,29 @@ export const TeamPerformanceAnalytics = ({ projectId }) => {
                 })}
               </div>
 
-              <div className="p-3 bg-[#281A21] rounded-2xl border border-[#703344] text-[11px] text-[#DDA081] flex items-center justify-between">
+              <div className="p-3 bg-[#161616] rounded-2xl border border-[#242424] text-[10px] font-mono text-[#888888] flex items-center justify-between">
                 <span>Total Tracked Tasks:</span>
-                <span className="text-[#F6E8E2] font-extrabold">{summary.totalTasks}</span>
+                <span className="text-[#F5F5F5] font-bold">{summary.totalTasks}</span>
               </div>
             </div>
           </div>
 
           {/* Bottom Row: Top Member Contribution Leaders */}
-          <div className="p-6 rounded-3xl bg-[#4A2A35] border border-[#703344] shadow-xl space-y-4">
+          <div className="p-6 rounded-3xl bg-[#111111] border border-[#242424] shadow-soft space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-base font-extrabold text-[#F6E8E2] tracking-tight flex items-center gap-2">
-                  <Award className="w-4 h-4 text-[#CB6B5A]" />
+                <h3 className="text-sm font-mono font-bold text-[#F5F5F5] uppercase tracking-wider flex items-center gap-2">
+                  <Award className="w-4 h-4 text-[#E50914]" />
                   <span>Team Contribution Leaderboard</span>
                 </h3>
-                <p className="text-xs text-[#DDA081] mt-0.5">
+                <p className="text-xs font-mono text-[#888888] mt-0.5">
                   Calculated based on completed tasks, active sprint velocity, and collaboration messages
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setActiveTab('members')}
-                className="text-xs font-bold text-[#CB6B5A] hover:text-[#DDA081] flex items-center gap-1 cursor-pointer"
+                className="text-xs font-mono font-bold text-[#E50914] hover:text-white flex items-center gap-1 cursor-pointer"
               >
                 <span>Full Member View</span>
                 <ChevronRight className="w-3.5 h-3.5" />
@@ -348,32 +330,32 @@ export const TeamPerformanceAnalytics = ({ projectId }) => {
               {memberPerformance.slice(0, 3).map((member, idx) => (
                 <div
                   key={member.memberId}
-                  className="p-4 rounded-2xl bg-[#281A21] border border-[#703344] flex items-center justify-between gap-3 hover:border-[#A84A4D]/50 transition-all"
+                  className="p-4 rounded-2xl bg-[#161616] border border-[#242424] flex items-center justify-between gap-3 hover:border-[#333333] transition-all"
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="relative">
                       <img
                         src={member.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${member.name}`}
                         alt={member.name}
-                        className="w-10 h-10 rounded-xl object-cover bg-[#4A2A35] border border-[#703344] flex-shrink-0"
+                        className="w-10 h-10 rounded-full object-cover bg-[#111111] border border-[#242424] flex-shrink-0"
                       />
                       {idx === 0 && (
-                        <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-[#CB6B5A] text-[#281A21] text-[10px] font-black flex items-center justify-center shadow-md">
+                        <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-white text-black text-[9px] font-mono font-bold flex items-center justify-center shadow-md">
                           1
                         </span>
                       )}
                     </div>
                     <div className="min-w-0">
-                      <p className="text-xs font-extrabold text-[#F6E8E2] truncate">{member.name}</p>
-                      <p className="text-[11px] text-[#DDA081] truncate">{member.role}</p>
+                      <p className="text-xs font-mono font-bold text-[#F5F5F5] truncate">{member.name}</p>
+                      <p className="text-[10px] font-mono text-[#888888] truncate">{member.role}</p>
                     </div>
                   </div>
 
-                  <div className="text-right flex-shrink-0">
-                    <span className="px-2 py-0.5 rounded-full text-xs font-black bg-[#703344] text-[#F6E8E2] border border-[#A84A4D]/40">
+                  <div className="text-right flex-shrink-0 font-mono">
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#111111] text-[#F5F5F5] border border-[#242424]">
                       {member.contributionShare}% Share
                     </span>
-                    <p className="text-[10px] text-[#DDA081] mt-1">
+                    <p className="text-[10px] text-[#666666] mt-1">
                       {member.completedCount} Done • {member.messageCount} Chat
                     </p>
                   </div>
@@ -384,64 +366,59 @@ export const TeamPerformanceAnalytics = ({ projectId }) => {
         </div>
       )}
 
-      {/* ========================================================================= */}
-      {/* TAB 2: MEMBER PERFORMANCE                                                 */}
-      {/* ========================================================================= */}
+      {/* TAB 2: MEMBER PERFORMANCE */}
       {activeTab === 'members' && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {memberPerformance.map((member) => (
               <div
                 key={member.memberId}
-                className="p-6 rounded-3xl bg-[#4A2A35] border border-[#703344] shadow-xl space-y-5 flex flex-col justify-between"
+                className="p-6 rounded-3xl bg-[#111111] border border-[#242424] shadow-soft space-y-5 flex flex-col justify-between"
               >
-                {/* Member Header */}
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3">
                     <img
                       src={member.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${member.name}`}
                       alt={member.name}
-                      className="w-12 h-12 rounded-2xl object-cover bg-[#281A21] border border-[#703344] shadow-md"
+                      className="w-12 h-12 rounded-full object-cover bg-[#161616] border border-[#242424]"
                     />
                     <div>
-                      <h4 className="text-sm font-extrabold text-[#F6E8E2]">{member.name}</h4>
-                      <p className="text-xs text-[#CB6B5A] font-semibold">{member.role}</p>
-                      <p className="text-[11px] text-[#DDA081] truncate max-w-[180px]">{member.headline}</p>
+                      <h4 className="text-sm font-bold text-[#F5F5F5]">{member.name}</h4>
+                      <p className="text-xs font-mono text-[#E50914]">{member.role}</p>
+                      <p className="text-[10px] font-mono text-[#888888] truncate max-w-[180px]">{member.headline}</p>
                     </div>
                   </div>
 
-                  <span className="px-2.5 py-1 rounded-xl text-xs font-black bg-[#703344] text-[#F6E8E2] border border-[#A84A4D]/40 shadow-xs">
+                  <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-[#161616] text-[#F5F5F5] border border-[#242424]">
                     {member.contributionShare}%
                   </span>
                 </div>
 
-                {/* Progress & Completion Rate */}
-                <div className="space-y-2">
+                <div className="space-y-2 font-mono">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-[#DDA081] font-medium">Task Completion Rate</span>
-                    <span className="text-[#F6E8E2] font-bold">{member.completionRate}%</span>
+                    <span className="text-[#888888]">Task Completion Rate</span>
+                    <span className="text-[#20D47A] font-bold">{member.completionRate}%</span>
                   </div>
-                  <div className="w-full bg-[#281A21] h-2 rounded-full overflow-hidden">
+                  <div className="w-full bg-[#161616] h-1.5 rounded-full overflow-hidden">
                     <div
-                      className="bg-gradient-to-r from-[#5B8A68] to-[#86B190] h-full rounded-full transition-all duration-300"
+                      className="bg-[#20D47A] h-full rounded-full transition-all duration-300"
                       style={{ width: `${member.completionRate}%` }}
                     />
                   </div>
                 </div>
 
-                {/* Member Stat Grid */}
-                <div className="grid grid-cols-3 gap-2 pt-2 border-t border-[#703344]">
-                  <div className="p-2.5 bg-[#281A21] rounded-xl text-center">
-                    <span className="text-[10px] text-[#DDA081] uppercase font-bold block">Assigned</span>
-                    <span className="text-sm font-black text-[#F6E8E2]">{member.assignedCount}</span>
+                <div className="grid grid-cols-3 gap-2 pt-2 border-t border-[#1F1F1F] font-mono">
+                  <div className="p-2.5 bg-[#161616] rounded-2xl text-center">
+                    <span className="text-[9px] text-[#888888] uppercase font-bold block">Assigned</span>
+                    <span className="text-sm font-bold text-[#F5F5F5]">{member.assignedCount}</span>
                   </div>
-                  <div className="p-2.5 bg-[#281A21] rounded-xl text-center">
-                    <span className="text-[10px] text-[#DDA081] uppercase font-bold block">Completed</span>
-                    <span className="text-sm font-black text-[#86B190]">{member.completedCount}</span>
+                  <div className="p-2.5 bg-[#161616] rounded-2xl text-center">
+                    <span className="text-[9px] text-[#888888] uppercase font-bold block">Completed</span>
+                    <span className="text-sm font-bold text-[#20D47A]">{member.completedCount}</span>
                   </div>
-                  <div className="p-2.5 bg-[#281A21] rounded-xl text-center">
-                    <span className="text-[10px] text-[#DDA081] uppercase font-bold block">Messages</span>
-                    <span className="text-sm font-black text-[#CB6B5A]">{member.messageCount}</span>
+                  <div className="p-2.5 bg-[#161616] rounded-2xl text-center">
+                    <span className="text-[9px] text-[#888888] uppercase font-bold block">Messages</span>
+                    <span className="text-sm font-bold text-[#2AA8FF]">{member.messageCount}</span>
                   </div>
                 </div>
               </div>
@@ -450,60 +427,57 @@ export const TeamPerformanceAnalytics = ({ projectId }) => {
         </div>
       )}
 
-      {/* ========================================================================= */}
-      {/* TAB 3: PROJECT PROGRESS & MILESTONES                                      */}
-      {/* ========================================================================= */}
+      {/* TAB 3: PROJECT PROGRESS & MILESTONES */}
       {activeTab === 'progress' && (
         <div className="space-y-6">
-          {/* Milestone Stepper */}
-          <div className="p-6 rounded-3xl bg-[#4A2A35] border border-[#703344] shadow-xl space-y-6">
+          <div className="p-6 rounded-3xl bg-[#111111] border border-[#242424] shadow-soft space-y-6">
             <div>
-              <h3 className="text-base font-extrabold text-[#F6E8E2] tracking-tight flex items-center gap-2">
-                <Milestone className="w-4 h-4 text-[#CB6B5A]" />
+              <h3 className="text-sm font-mono font-bold text-[#F5F5F5] uppercase tracking-wider flex items-center gap-2">
+                <Milestone className="w-4 h-4 text-[#E50914]" />
                 <span>Project Milestones & Delivery Roadmap</span>
               </h3>
-              <p className="text-xs text-[#DDA081] mt-0.5">
+              <p className="text-xs font-mono text-[#888888] mt-0.5">
                 Automated progression tracking calibrated to sprint completion and delivery goals
               </p>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-3">
               {milestones.map((milestone, idx) => (
                 <div
                   key={milestone.id}
                   className={`p-4 rounded-2xl border transition-all flex items-start justify-between gap-4 ${
                     milestone.completed
-                      ? 'bg-[#5B8A68]/20 border-[#5B8A68]/40'
-                      : 'bg-[#281A21] border-[#703344]'
+                      ? 'bg-[#20D47A]/5 border-[#20D47A]/30'
+                      : 'bg-[#161616] border-[#242424]'
                   }`}
                 >
                   <div className="flex items-start gap-3">
                     <div
-                      className={`w-7 h-7 rounded-xl flex items-center justify-center text-xs font-black flex-shrink-0 mt-0.5 ${
+                      className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-mono font-bold flex-shrink-0 mt-0.5 ${
                         milestone.completed
-                          ? 'bg-[#5B8A68] text-white shadow-md shadow-[#5B8A68]/30'
-                          : 'bg-[#703344] text-[#DDA081]'
+                          ? 'bg-[#20D47A] text-black'
+                          : 'bg-[#242424] text-[#888888]'
                       }`}
                     >
-                      {milestone.completed ? <CheckCircle2 className="w-4 h-4" /> : idx + 1}
+                      {milestone.completed ? <CheckCircle2 className="w-3.5 h-3.5" /> : idx + 1}
                     </div>
                     <div>
                       <h4
-                        className={`text-sm font-extrabold ${
-                          milestone.completed ? 'text-[#86B190]' : 'text-[#F6E8E2]'
+                        className={`text-xs font-bold font-mono ${
+                          milestone.completed ? 'text-[#20D47A]' : 'text-[#F5F5F5]'
                         }`}
                       >
                         {milestone.title}
                       </h4>
-                      <p className="text-xs text-[#DDA081] mt-0.5">{milestone.description}</p>
+                      <p className="text-[11px] font-mono text-[#888888] mt-0.5">{milestone.description}</p>
                     </div>
                   </div>
 
                   <span
-                    className={`px-2.5 py-1 rounded-full text-[11px] font-black uppercase tracking-wider flex-shrink-0 ${
+                    className={`px-2.5 py-0.5 rounded-full text-[9px] font-mono font-bold uppercase tracking-wider flex-shrink-0 ${
                       milestone.completed
-                        ? 'bg-[#5B8A68]/20 text-[#86B190] border border-[#5B8A68]/40'
-                        : 'bg-[#703344] text-[#DDA081]'
+                        ? 'bg-[#20D47A]/10 text-[#20D47A] border border-[#20D47A]/30'
+                        : 'bg-[#111111] text-[#666666] border border-[#242424]'
                     }`}
                   >
                     {milestone.completed ? 'Completed' : 'Pending'}
@@ -515,34 +489,31 @@ export const TeamPerformanceAnalytics = ({ projectId }) => {
         </div>
       )}
 
-      {/* ========================================================================= */}
-      {/* TAB 4: ACTIVITY TIMELINE                                                  */}
-      {/* ========================================================================= */}
+      {/* TAB 4: ACTIVITY TIMELINE */}
       {activeTab === 'timeline' && (
-        <div className="p-6 rounded-3xl bg-[#4A2A35] border border-[#703344] shadow-xl space-y-6">
+        <div className="p-6 rounded-3xl bg-[#111111] border border-[#242424] shadow-soft space-y-6">
           <div>
-            <h3 className="text-base font-extrabold text-[#F6E8E2] tracking-tight flex items-center gap-2">
-              <Clock className="w-4 h-4 text-[#CB6B5A]" />
+            <h3 className="text-sm font-mono font-bold text-[#F5F5F5] uppercase tracking-wider flex items-center gap-2">
+              <Clock className="w-4 h-4 text-[#E50914]" />
               <span>Team Activity Event Stream</span>
             </h3>
-            <p className="text-xs text-[#DDA081] mt-0.5">
+            <p className="text-xs font-mono text-[#888888] mt-0.5">
               Verified chronological log of sprint actions, task events, and member participation
             </p>
           </div>
 
-          <div className="relative border-l-2 border-[#703344] ml-4 pl-6 space-y-6">
+          <div className="relative border-l border-[#242424] ml-4 pl-6 space-y-4">
             {timelineEvents.map((evt, idx) => (
               <div key={idx} className="relative group">
-                {/* Timeline Dot */}
-                <div className="absolute -left-[31px] top-1.5 w-3.5 h-3.5 rounded-full bg-[#A84A4D] border-4 border-[#281A21] group-hover:scale-125 transition-transform" />
+                <div className="absolute -left-[30px] top-2.5 w-2.5 h-2.5 rounded-full bg-[#E50914]" />
 
-                <div className="p-4 rounded-2xl bg-[#281A21] border border-[#703344] group-hover:border-[#A84A4D]/50 transition-colors">
+                <div className="p-4 rounded-2xl bg-[#161616] border border-[#242424] hover:border-[#333333] transition-colors">
                   <div className="flex items-center justify-between gap-2 mb-1">
-                    <span className="text-xs font-bold text-[#F6E8E2] flex items-center gap-1.5">
-                      <Zap className="w-3.5 h-3.5 text-[#CB6B5A]" />
+                    <span className="text-xs font-mono font-bold text-[#F5F5F5] flex items-center gap-1.5">
+                      <Zap className="w-3 h-3 text-[#E50914]" />
                       {evt.title}
                     </span>
-                    <span className="text-[10px] text-[#DDA081]">
+                    <span className="text-[10px] font-mono text-[#666666]">
                       {new Date(evt.timestamp).toLocaleString(undefined, {
                         month: 'short',
                         day: 'numeric',
@@ -551,7 +522,7 @@ export const TeamPerformanceAnalytics = ({ projectId }) => {
                       })}
                     </span>
                   </div>
-                  <p className="text-xs text-[#DDA081]">{evt.description}</p>
+                  <p className="text-xs font-mono text-[#888888]">{evt.description}</p>
                 </div>
               </div>
             ))}

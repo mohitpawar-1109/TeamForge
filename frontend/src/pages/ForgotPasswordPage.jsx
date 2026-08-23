@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Layers, Mail, ArrowRight, ArrowLeft, KeyRound, AlertCircle, Sparkles } from 'lucide-react';
+import { Mail, ArrowRight, ArrowLeft, KeyRound, AlertCircle, Sparkles } from 'lucide-react';
 import { authAPI } from '../services/api';
 import { useToast } from '../context/ToastContext';
 import { Button } from '../components/common/Button';
@@ -23,7 +23,6 @@ export const ForgotPasswordPage = () => {
       const res = await authAPI.forgotPassword({ email: email.trim() });
       if (res.data.success) {
         success('Verification code has been dispatched to your email.');
-        // Navigate to OTP verification page with email state
         navigate('/verify-otp', { state: { email: email.trim() } });
       }
     } catch (err) {
@@ -43,28 +42,27 @@ export const ForgotPasswordPage = () => {
       <div className="w-full max-w-md">
         {/* Brand Header */}
         <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-2 mb-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#A84A4D] to-[#CB6B5A] flex items-center justify-center text-[#F6E8E2] shadow-md shadow-[#A84A4D]/20">
-              <Layers className="w-5 h-5" />
-            </div>
-          </Link>
-          <h2 className="text-2xl font-extrabold text-[#F6E8E2] tracking-tight">Forgot your password?</h2>
-          <p className="text-xs text-[#DDA081] mt-1.5 max-w-xs mx-auto">
+          <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#111111] border border-[#242424] mb-3">
+            <span className="w-2 h-2 rounded-full bg-[#E50914] animate-pulse" />
+            <span className="text-[10px] font-mono font-bold tracking-widest text-[#F5F5F5]">TEAM (FORGE)</span>
+          </div>
+          <h2 className="text-2xl font-bold text-[#F5F5F5] tracking-tight">Forgot your password?</h2>
+          <p className="text-xs font-mono text-[#888888] mt-1.5 max-w-xs mx-auto">
             Enter your registered email address and we'll send you a 6-digit verification code to reset it.
           </p>
         </div>
 
         {/* Main Card */}
-        <div className="bg-[#4A2A35] rounded-2xl border border-[#703344] p-6 sm:p-8 shadow-soft">
+        <div className="bg-[#111111] rounded-3xl border border-[#242424] p-6 sm:p-8 shadow-soft">
           {googleNotice ? (
             <div className="space-y-4">
-              <div className="p-4 rounded-xl bg-[#703344]/40 border border-[#A84A4D]/40 text-left">
+              <div className="p-4 rounded-2xl bg-[#161616] border border-[#242424] text-left">
                 <div className="flex items-start gap-3">
-                  <Sparkles className="w-5 h-5 text-[#CB6B5A] flex-shrink-0 mt-0.5" />
+                  <Sparkles className="w-4 h-4 text-[#E50914] flex-shrink-0 mt-0.5" />
                   <div>
-                    <h4 className="text-sm font-bold text-[#F6E8E2]">Google Account Detected</h4>
-                    <p className="text-xs text-[#DDA081] mt-1">
-                      This account uses Google Sign-In and does not require a local password. Please use the Google sign-in button to access your account.
+                    <h4 className="text-xs font-mono font-bold text-[#F5F5F5]">Google Account Detected</h4>
+                    <p className="text-xs font-mono text-[#888888] mt-1">
+                      This account uses Google Sign-In and does not require a local password. Please use Google Sign-In.
                     </p>
                   </div>
                 </div>
@@ -79,18 +77,18 @@ export const ForgotPasswordPage = () => {
           ) : (
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label className="block text-xs font-semibold text-[#DDA081] mb-1.5">
+                <label className="block text-[10px] font-mono font-bold text-[#888888] uppercase mb-1.5">
                   Email Address
                 </label>
                 <div className="relative">
-                  <Mail className="w-4 h-4 text-[#DDA081] absolute left-3 top-3.5 pointer-events-none" />
+                  <Mail className="w-4 h-4 text-[#666666] absolute left-3.5 top-3.5 pointer-events-none" />
                   <input
                     type="email"
                     required
                     placeholder="name@university.edu"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-9 pr-3 py-2.5 text-sm bg-[#281A21] border border-[#703344] text-[#F6E8E2] rounded-xl focus:bg-[#281A21] focus:border-[#CB6B5A] focus:outline-none transition-all placeholder:text-[#DDA081]"
+                    className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm font-mono bg-[#161616] border border-[#242424] text-[#F5F5F5] rounded-full focus:border-[#E50914] focus:outline-none transition-all placeholder:text-[#555555]"
                   />
                 </div>
               </div>
@@ -108,10 +106,10 @@ export const ForgotPasswordPage = () => {
             </form>
           )}
 
-          <div className="mt-6 pt-5 border-t border-[#703344] text-center">
+          <div className="mt-6 pt-5 border-t border-[#1F1F1F] text-center">
             <Link
               to="/login"
-              className="inline-flex items-center gap-1.5 text-xs text-[#DDA081] hover:text-[#CB6B5A] transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs font-mono text-[#888888] hover:text-[#E50914] transition-colors"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Back to Login</span>

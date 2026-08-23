@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Layers, ArrowRight, LogIn } from 'lucide-react';
+import { ArrowRight, LogIn } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { Button } from './Button';
 
@@ -8,33 +8,31 @@ export const Navbar = () => {
   const { isAuthenticated, user } = useAuth();
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-[#703344]/50 bg-[#281A21]/90 backdrop-blur-md">
+    <header className="sticky top-0 z-40 w-full border-b border-[#242424] bg-black/90 backdrop-blur-md">
       <div className="max-w-7xl mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2.5 group">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#A84A4D] to-[#CB6B5A] flex items-center justify-center shadow-md shadow-[#A84A4D]/25 group-hover:scale-105 transition-transform">
-            <Layers className="w-5 h-5 text-[#F6E8E2]" />
-          </div>
-          <div>
-            <span className="text-xl font-bold tracking-tight text-[#F6E8E2]">
-              TEAM<span className="text-[#CB6B5A]">FORGE</span>
-            </span>
-            <span className="hidden sm:inline-block ml-2 text-[10px] uppercase tracking-wider font-bold px-1.5 py-0.5 rounded bg-[#4A2A35] text-[#DDA081] border border-[#703344]">
-              AI MATCH
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#E50914] animate-pulse" />
+            <span className="text-base font-mono font-bold tracking-widest text-[#F5F5F5]">
+              TEAM<span className="text-[#E50914]"> (FORGE)</span>
             </span>
           </div>
+          <span className="hidden sm:inline-block ml-2 text-[9px] font-mono uppercase tracking-wider font-bold px-2 py-0.5 rounded-full bg-[#161616] text-[#A1A1A1] border border-[#242424]">
+            AI MATCH
+          </span>
         </Link>
 
         {/* Navigation Links */}
-        <nav className="hidden md:flex items-center gap-8">
-          <a href="/#features" className="text-sm font-medium text-[#DDA081] hover:text-[#CB6B5A] transition-colors">
-            Features
+        <nav className="hidden md:flex items-center gap-6">
+          <a href="/#features" className="text-xs font-mono font-bold text-[#888888] hover:text-[#F5F5F5] transition-colors">
+            // FEATURES
           </a>
-          <a href="/#how-it-works" className="text-sm font-medium text-[#DDA081] hover:text-[#CB6B5A] transition-colors">
-            How It Works
+          <a href="/#how-it-works" className="text-xs font-mono font-bold text-[#888888] hover:text-[#F5F5F5] transition-colors">
+            // WORKFLOW
           </a>
-          <Link to="/projects" className="text-sm font-medium text-[#DDA081] hover:text-[#CB6B5A] transition-colors">
-            Explore Projects
+          <Link to="/projects" className="text-xs font-mono font-bold text-[#888888] hover:text-[#F5F5F5] transition-colors">
+            // EXPLORE_PROJECTS
           </Link>
         </nav>
 
@@ -49,7 +47,7 @@ export const Navbar = () => {
           ) : (
             <>
               <Link to="/login">
-                <Button variant="ghost" size="sm" icon={LogIn} className="text-[#DDA081] hover:text-[#F6E8E2] hover:bg-[#4A2A35]">
+                <Button variant="outline" size="sm" icon={LogIn}>
                   Sign In
                 </Button>
               </Link>

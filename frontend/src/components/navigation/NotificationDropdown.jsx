@@ -116,7 +116,6 @@ export const NotificationDropdown = ({ isMobile = false, onCloseMobile }) => {
       setIsOpen(false);
       if (onCloseMobile) onCloseMobile();
 
-      // Navigation routing based on notification type / context
       if (notif.relatedPost || notif.link?.includes('/community')) {
         navigate('/community');
       } else if (notif.relatedProject || notif.link?.includes('/projects')) {
@@ -142,94 +141,78 @@ export const NotificationDropdown = ({ isMobile = false, onCloseMobile }) => {
         return {
           icon: Heart,
           emoji: '❤️',
-          bg: 'bg-[#703344]',
-          text: 'text-[#CB6B5A]',
-          border: 'border-[#A84A4D]/40'
+          bg: 'bg-[#E50914]/15',
+          text: 'text-[#FF1F2D]',
+          border: 'border-[#E50914]/40'
         };
       case 'comment':
       case 'POST_COMMENTED':
         return {
           icon: MessageSquare,
           emoji: '💬',
-          bg: 'bg-[#703344]',
-          text: 'text-[#CB6B5A]',
-          border: 'border-[#A84A4D]/40'
+          bg: 'bg-[#161616]',
+          text: 'text-[#A1A1A1]',
+          border: 'border-[#242424]'
         };
       case 'team_invite':
       case 'INVITATION_RECEIVED':
         return {
           icon: Mail,
           emoji: '📩',
-          bg: 'bg-[#5B8A68]/20',
-          text: 'text-[#86B190]',
-          border: 'border-[#5B8A68]/40'
+          bg: 'bg-[#20D47A]/15',
+          text: 'text-[#20D47A]',
+          border: 'border-[#20D47A]/40'
         };
       case 'team_join_request':
         return {
           icon: Users,
           emoji: '🤝',
-          bg: 'bg-[#D99443]/20',
-          text: 'text-[#E5B079]',
-          border: 'border-[#D99443]/40'
+          bg: 'bg-[#F2B705]/15',
+          text: 'text-[#F2B705]',
+          border: 'border-[#F2B705]/40'
         };
       case 'team_request_accepted':
       case 'INVITATION_ACCEPTED':
         return {
           icon: Check,
           emoji: '🎉',
-          bg: 'bg-[#5B8A68]/20',
-          text: 'text-[#86B190]',
-          border: 'border-[#5B8A68]/40'
+          bg: 'bg-[#20D47A]/15',
+          text: 'text-[#20D47A]',
+          border: 'border-[#20D47A]/40'
         };
       case 'team_request_rejected':
       case 'INVITATION_REJECTED':
         return {
           icon: XCircle,
           emoji: '❌',
-          bg: 'bg-[#C04A4D]/20',
-          text: 'text-[#E07D82]',
-          border: 'border-[#C04A4D]/40'
+          bg: 'bg-[#E50914]/20',
+          text: 'text-[#FF1F2D]',
+          border: 'border-[#E50914]/40'
         };
       case 'task_completed':
         return {
           icon: CheckCircle2,
           emoji: '✅',
-          bg: 'bg-[#5B8A68]/20',
-          text: 'text-[#86B190]',
-          border: 'border-[#5B8A68]/40'
-        };
-      case 'team_update':
-        return {
-          icon: Users,
-          emoji: '🛡️',
-          bg: 'bg-[#703344]',
-          text: 'text-[#DDA081]',
-          border: 'border-[#A84A4D]/40'
+          bg: 'bg-[#20D47A]/15',
+          text: 'text-[#20D47A]',
+          border: 'border-[#20D47A]/40'
         };
       case 'ai_recommendation':
       case 'MATCH_FOUND':
         return {
           icon: Sparkles,
           emoji: '✨',
-          bg: 'bg-[#703344]',
-          text: 'text-[#CB6B5A]',
-          border: 'border-[#A84A4D]/40'
-        };
-      case 'hackathon_deadline':
-        return {
-          icon: Clock,
-          emoji: '⏰',
-          bg: 'bg-[#D99443]/20',
-          text: 'text-[#E5B079]',
-          border: 'border-[#D99443]/40'
+          bg: 'bg-[#8B5CF6]/15',
+          text: 'text-[#8B5CF6]',
+          border: 'border-[#8B5CF6]/40'
         };
       default:
         return {
           icon: Bell,
           emoji: '🔔',
-          bg: 'bg-[#703344]',
-          text: 'text-[#CB6B5A]',
-          border: 'border-[#A84A4D]/40'
+          bg: 'bg-[#161616]',
+          text: 'text-[#A1A1A1]',
+          border: 'border-[#242424]'
         };
     }
   };
@@ -241,11 +224,11 @@ export const NotificationDropdown = ({ isMobile = false, onCloseMobile }) => {
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         aria-label="Notifications"
-        className="relative p-2.5 rounded-2xl text-[#DDA081] hover:text-[#F6E8E2] hover:bg-[#703344]/50 transition-all active:scale-95 focus:outline-none cursor-pointer"
+        className="relative p-2 rounded-full text-[#A1A1A1] hover:text-white hover:bg-[#161616] transition-all active:scale-95 focus:outline-none cursor-pointer"
       >
-        <Bell className="w-5 h-5" />
+        <Bell className="w-4 h-4" />
         {unreadCount > 0 && (
-          <span className="absolute top-1.5 right-1.5 min-w-[18px] h-[18px] px-1 bg-[#A84A4D] text-[#F6E8E2] text-[10px] font-black rounded-full flex items-center justify-center ring-2 ring-[#281A21] shadow-xs animate-pulse">
+          <span className="absolute top-1 right-1 min-w-[16px] h-[16px] px-1 bg-[#E50914] text-white text-[9px] font-mono font-bold rounded-full flex items-center justify-center shadow-[0_0_8px_rgba(229,9,20,0.8)]">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
@@ -253,18 +236,18 @@ export const NotificationDropdown = ({ isMobile = false, onCloseMobile }) => {
 
       {/* Dropdown Panel */}
       {isOpen && (
-        <div className="absolute right-0 mt-2.5 w-80 sm:w-96 max-w-[calc(100vw-24px)] bg-[#4A2A35] rounded-3xl shadow-2xl border border-[#703344] z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="absolute right-0 mt-2.5 w-80 sm:w-96 max-w-[calc(100vw-24px)] bg-[#111111] rounded-3xl shadow-soft border border-[#242424] z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 pb-3.5 bg-[#281A21] border-b border-[#703344]">
+          <div className="flex items-center justify-between p-4 pb-3.5 bg-[#0A0A0A] border-b border-[#1F1F1F]">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-[#703344] text-[#CB6B5A] border border-[#A84A4D]/40 flex items-center justify-center">
-                <Bell className="w-4 h-4" />
+              <div className="w-7 h-7 rounded-full bg-[#161616] text-white border border-[#242424] flex items-center justify-center">
+                <Bell className="w-3.5 h-3.5" />
               </div>
               <div>
-                <h4 className="font-extrabold text-sm text-[#F6E8E2] flex items-center gap-1.5">
-                  <span>Notifications</span>
+                <h4 className="font-mono font-bold text-xs text-[#F5F5F5] flex items-center gap-1.5">
+                  <span>NOTIFICATIONS</span>
                   {unreadCount > 0 && (
-                    <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-[#703344] text-[#CB6B5A] border border-[#A84A4D]/40">
+                    <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-[#E50914] text-white">
                       {unreadCount} new
                     </span>
                   )}
@@ -276,23 +259,23 @@ export const NotificationDropdown = ({ isMobile = false, onCloseMobile }) => {
               <button
                 type="button"
                 onClick={handleMarkAllRead}
-                className="text-xs font-bold text-[#CB6B5A] hover:text-[#F6E8E2] transition-colors flex items-center gap-1 px-2.5 py-1 rounded-lg hover:bg-[#703344]/50 cursor-pointer"
+                className="text-[11px] font-mono text-[#E50914] hover:text-white transition-colors flex items-center gap-1 px-2 py-0.5 rounded-full hover:bg-[#161616] cursor-pointer"
               >
-                <Check className="w-3.5 h-3.5" />
-                <span>Mark all read</span>
+                <Check className="w-3 h-3" />
+                <span>Mark read</span>
               </button>
             )}
           </div>
 
           {/* Notifications List */}
-          <div className="max-h-[380px] overflow-y-auto divide-y divide-[#703344] overscroll-contain">
+          <div className="max-h-[380px] overflow-y-auto divide-y divide-[#1F1F1F] overscroll-contain">
             {notifications.length === 0 ? (
               <div className="py-10 px-4 text-center">
-                <div className="w-12 h-12 rounded-2xl bg-[#703344] text-[#CB6B5A] border border-[#A84A4D]/40 flex items-center justify-center mx-auto mb-3">
-                  <Sparkles className="w-6 h-6" />
+                <div className="w-10 h-10 rounded-full bg-[#161616] text-[#A1A1A1] border border-[#242424] flex items-center justify-center mx-auto mb-2.5">
+                  <Sparkles className="w-5 h-5" />
                 </div>
-                <p className="text-xs font-bold text-[#F6E8E2]">You're all caught up!</p>
-                <p className="text-[11px] text-[#DDA081] mt-0.5">
+                <p className="text-xs font-bold text-[#F5F5F5]">You're all caught up!</p>
+                <p className="text-[11px] text-[#666666] mt-0.5">
                   No new notifications right now.
                 </p>
               </div>
@@ -306,15 +289,15 @@ export const NotificationDropdown = ({ isMobile = false, onCloseMobile }) => {
                     onClick={() => handleNotificationClick(n)}
                     className={`p-3.5 transition-all cursor-pointer flex items-start gap-3 select-none ${
                       n.read
-                        ? 'bg-[#4A2A35] hover:bg-[#703344]/50'
-                        : 'bg-[#703344]/30 hover:bg-[#703344]/60'
+                        ? 'bg-[#111111] hover:bg-[#161616]'
+                        : 'bg-[#161616]/80 hover:bg-[#1C1C1C]'
                     }`}
                   >
                     {/* Notification Icon Avatar */}
                     <div
-                      className={`w-9 h-9 rounded-2xl flex-shrink-0 flex items-center justify-center border shadow-xs ${config.bg} ${config.text} ${config.border}`}
+                      className={`w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center border shadow-xs ${config.bg} ${config.text} ${config.border}`}
                     >
-                      <span className="text-sm">{config.emoji}</span>
+                      <span className="text-xs">{config.emoji}</span>
                     </div>
 
                     {/* Notification Content */}
@@ -322,20 +305,20 @@ export const NotificationDropdown = ({ isMobile = false, onCloseMobile }) => {
                       <div className="flex items-center justify-between gap-1">
                         <p
                           className={`text-xs leading-snug line-clamp-2 ${
-                            n.read ? 'text-[#DDA081] font-medium' : 'text-[#F6E8E2] font-bold'
+                            n.read ? 'text-[#A1A1A1]' : 'text-[#F5F5F5] font-semibold'
                           }`}
                         >
                           {n.message || n.title}
                         </p>
                         {!n.read && (
-                          <span className="w-2 h-2 rounded-full bg-[#CB6B5A] flex-shrink-0 ring-2 ring-[#281A21]" />
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#E50914] flex-shrink-0 shadow-[0_0_6px_rgba(229,9,20,0.8)]" />
                         )}
                       </div>
 
-                      {/* Relative Time & Action Hint */}
-                      <div className="flex items-center gap-2 mt-1 text-[10px] text-[#DDA081] font-medium">
+                      {/* Relative Time */}
+                      <div className="flex items-center gap-2 mt-1 text-[10px] font-mono text-[#666666]">
                         <span className="flex items-center gap-1">
-                          <Clock className="w-2.5 h-2.5 text-[#DDA081]" />
+                          <Clock className="w-2.5 h-2.5 text-[#666666]" />
                           {formatTimeAgo(n.createdAt)}
                         </span>
                         {n.relatedPost && <span>• Post</span>}
@@ -349,8 +332,8 @@ export const NotificationDropdown = ({ isMobile = false, onCloseMobile }) => {
           </div>
 
           {/* Footer */}
-          <div className="p-2.5 bg-[#281A21] border-t border-[#703344] flex items-center justify-between px-4">
-            <span className="text-[11px] text-[#DDA081] font-medium">
+          <div className="p-2.5 bg-[#0A0A0A] border-t border-[#1F1F1F] flex items-center justify-between px-4">
+            <span className="text-[10px] font-mono text-[#666666]">
               {notifications.length} recent
             </span>
             <button
@@ -360,10 +343,10 @@ export const NotificationDropdown = ({ isMobile = false, onCloseMobile }) => {
                 if (onCloseMobile) onCloseMobile();
                 navigate('/notifications');
               }}
-              className="text-xs font-bold text-[#CB6B5A] hover:text-[#F6E8E2] transition-colors flex items-center gap-1 cursor-pointer"
+              className="text-xs font-mono font-semibold text-[#E50914] hover:text-white transition-colors flex items-center gap-1 cursor-pointer"
             >
               <span>View all</span>
-              <ChevronRight className="w-3.5 h-3.5" />
+              <ChevronRight className="w-3 h-3" />
             </button>
           </div>
         </div>

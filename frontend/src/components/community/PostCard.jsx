@@ -79,12 +79,10 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
 
     if (likeLoading) return;
 
-    // Snapshot state for potential rollback
     const previousLikes = [...likes];
     const previousCount = likeCount;
     const nextIsLiked = !isLiked;
 
-    // Optimistic UI updates
     if (nextIsLiked) {
       setLikes([...likes, user._id]);
       setLikeCount(prev => prev + 1);
@@ -110,13 +108,11 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
           setLikeCount(res.data.likeCount);
         }
       } else {
-        // Rollback
         setLikes(previousLikes);
         setLikeCount(previousCount);
         error(res.data.message || 'Failed to update like.');
       }
     } catch (err) {
-      // Rollback on network or server failure
       setLikes(previousLikes);
       setLikeCount(previousCount);
       error(err.response?.data?.message || 'Network error. Could not update like.');
@@ -253,7 +249,7 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
   };
 
   return (
-    <div className="bg-[#4A2A35] rounded-3xl border border-[#703344] p-5 sm:p-6 shadow-soft hover:border-[#A84A4D]/60 transition-all duration-300">
+    <div className="bg-[#111111] rounded-3xl border border-[#242424] p-5 sm:p-6 shadow-soft hover:border-[#333333] transition-all duration-200">
       {/* Header: Author info, Post Type Badge, Actions Menu */}
       <div className="flex items-start justify-between gap-3 mb-4">
         <div className="flex items-center gap-3 min-w-0">
@@ -261,38 +257,38 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
             <img
               src={post.author?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${post.author?.name || 'Student'}`}
               alt={post.author?.name}
-              className="w-11 h-11 rounded-2xl object-cover border border-[#703344] bg-[#281A21] flex-shrink-0 hover:ring-2 hover:ring-[#CB6B5A] transition-all"
+              className="w-10 h-10 rounded-full object-cover border border-[#242424] bg-[#161616] flex-shrink-0"
             />
           </Link>
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <Link
                 to={`/profile?id=${post.author?._id}`}
-                className="font-bold text-[#F6E8E2] text-sm sm:text-base hover:text-[#CB6B5A] transition-colors truncate"
+                className="font-bold text-[#F5F5F5] text-xs sm:text-sm hover:text-[#E50914] transition-colors truncate"
               >
                 {post.author?.name || 'Student Developer'}
               </Link>
               {post.author?.year && (
-                <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-md bg-[#281A21] text-[#DDA081] border border-[#703344]">
+                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-[#161616] text-[#A1A1A1] border border-[#242424]">
                   {post.author.year}
                 </span>
               )}
             </div>
 
-            <p className="text-xs text-[#DDA081] font-medium truncate">
+            <p className="text-xs font-mono text-[#888888] truncate">
               {post.author?.headline || 'Student Builder'}
             </p>
 
-            <div className="flex items-center gap-2 text-[11px] text-[#DDA081] mt-0.5">
+            <div className="flex items-center gap-2 text-[11px] font-mono text-[#666666] mt-0.5">
               {post.author?.college && (
                 <span className="flex items-center gap-1 truncate max-w-[180px]">
-                  <GraduationCap className="w-3 h-3 text-[#DDA081]" />
+                  <GraduationCap className="w-3 h-3 text-[#666666]" />
                   {post.author.college}
                 </span>
               )}
               <span>•</span>
               <span className="flex items-center gap-1">
-                <Clock className="w-3 h-3 text-[#DDA081]" />
+                <Clock className="w-3 h-3 text-[#666666]" />
                 {formatTime(post.createdAt)}
               </span>
             </div>
@@ -302,9 +298,9 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
         {/* Right Header: Post Type Badge & Author Dropdown */}
         <div className="flex items-center gap-2 flex-shrink-0">
           <span
-            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold border ${typeConfig.color}`}
+            className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-[#161616] text-[#A1A1A1] border border-[#242424]"
           >
-            <TypeIcon className="w-3.5 h-3.5" />
+            <TypeIcon className="w-3 h-3" />
             <span className="hidden sm:inline">{typeConfig.label}</span>
           </span>
 
@@ -313,14 +309,14 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
               <button
                 type="button"
                 onClick={() => setMenuOpen(!menuOpen)}
-                className="p-1.5 rounded-xl text-[#DDA081] hover:text-[#F6E8E2] hover:bg-[#703344] transition-colors"
+                className="p-1.5 rounded-full text-[#888888] hover:text-white hover:bg-[#161616] transition-colors"
               >
                 <MoreVertical className="w-4 h-4" />
               </button>
 
               {menuOpen && (
                 <div
-                  className="absolute right-0 mt-1 w-32 bg-[#281A21] rounded-xl shadow-xl border border-[#703344] py-1 z-20 text-xs font-semibold"
+                  className="absolute right-0 mt-1 w-32 bg-[#111111] rounded-2xl shadow-xl border border-[#242424] py-1 z-20 text-xs font-mono"
                   onMouseLeave={() => setMenuOpen(false)}
                 >
                   <button
@@ -328,7 +324,7 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
                       setIsEditing(true);
                       setMenuOpen(false);
                     }}
-                    className="w-full px-3 py-2 text-left text-[#DDA081] hover:bg-[#4A2A35] hover:text-[#F6E8E2] flex items-center gap-2"
+                    className="w-full px-3 py-2 text-left text-[#A1A1A1] hover:bg-[#161616] hover:text-white flex items-center gap-2"
                   >
                     <Edit2 className="w-3.5 h-3.5" />
                     <span>Edit Post</span>
@@ -338,7 +334,7 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
                       handleDelete();
                       setMenuOpen(false);
                     }}
-                    className="w-full px-3 py-2 text-left text-[#E07D82] hover:bg-[#703344]/50 flex items-center gap-2"
+                    className="w-full px-3 py-2 text-left text-[#FF1F2D] hover:bg-[#E50914]/15 flex items-center gap-2"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                     <span>Delete</span>
@@ -357,19 +353,19 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
             rows={3}
             value={editContent}
             onChange={(e) => setEditContent(e.target.value)}
-            className="w-full p-3 text-sm bg-[#281A21] border border-[#703344] text-[#F6E8E2] rounded-2xl focus:bg-[#281A21] focus:border-[#CB6B5A] focus:outline-none"
+            className="w-full p-3 text-xs sm:text-sm font-mono bg-[#161616] border border-[#242424] text-[#F5F5F5] rounded-2xl focus:border-[#E50914] focus:outline-none"
           />
           <div className="flex justify-end gap-2">
             <button
               onClick={() => setIsEditing(false)}
-              className="px-3 py-1.5 text-xs font-semibold rounded-xl bg-[#4A2A35] hover:bg-[#703344] text-[#DDA081]"
+              className="px-3 py-1.5 text-xs font-mono rounded-full bg-[#161616] hover:bg-[#202020] text-[#A1A1A1]"
             >
               Cancel
             </button>
             <button
               onClick={handleSaveEdit}
               disabled={savingEdit}
-              className="px-3 py-1.5 text-xs font-semibold rounded-xl bg-[#A84A4D] hover:bg-[#CB6B5A] text-[#F6E8E2] flex items-center gap-1 shadow-xs"
+              className="px-4 py-1.5 text-xs font-mono font-bold rounded-full bg-[#E50914] hover:bg-[#FF1F2D] text-white flex items-center gap-1 shadow-[0_0_10px_rgba(229,9,20,0.4)]"
             >
               <Check className="w-3.5 h-3.5" />
               <span>Save</span>
@@ -377,13 +373,13 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
           </div>
         </div>
       ) : (
-        <div className="mb-4 space-y-3">
+        <div className="mb-4 space-y-2">
           {post.title && post.type !== 'LOOKING_FOR_TEAMMATES' && (
-            <h4 className="font-bold text-[#F6E8E2] text-sm sm:text-base">
+            <h4 className="font-bold text-[#F5F5F5] text-sm sm:text-base">
               {post.title}
             </h4>
           )}
-          <p className="text-sm text-[#F6E8E2]/90 whitespace-pre-line leading-relaxed">
+          <p className="text-xs sm:text-sm text-[#D0D0D0] whitespace-pre-line leading-relaxed">
             {post.content}
           </p>
         </div>
@@ -391,16 +387,15 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
 
       {/* LOOKING_FOR_TEAMMATES Specialized Recruitment Card */}
       {post.type === 'LOOKING_FOR_TEAMMATES' && (
-        <div className="mb-4 p-4 sm:p-5 rounded-2xl bg-[#281A21] border border-[#703344] shadow-xs space-y-3.5">
+        <div className="mb-4 p-4 sm:p-5 rounded-2xl bg-[#161616] border border-[#242424] space-y-3.5">
           <div className="flex items-center justify-between gap-2 flex-wrap">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-black bg-gradient-to-r from-[#703344] to-[#A84A4D] text-[#F6E8E2] shadow-xs tracking-wide">
-              <span>🚀</span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#E50914] text-white shadow-[0_0_10px_rgba(229,9,20,0.4)] tracking-wide">
               <span>TEAM NEEDED</span>
             </span>
 
             {/* Capacity Counter */}
-            <div className="flex items-center gap-1.5 text-xs font-bold text-[#DDA081] bg-[#4A2A35] border border-[#703344] px-3 py-1 rounded-xl shadow-xs">
-              <Users className="w-3.5 h-3.5 text-[#CB6B5A]" />
+            <div className="flex items-center gap-1.5 text-xs font-mono text-[#A1A1A1] bg-[#111111] border border-[#242424] px-3 py-0.5 rounded-full">
+              <Users className="w-3 h-3 text-[#A1A1A1]" />
               <span>
                 {post.currentMembers || 1}/{post.teamSize || 4} members
               </span>
@@ -409,7 +404,7 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
 
           {/* Project Title */}
           {post.title && (
-            <h4 className="font-black text-[#F6E8E2] text-base sm:text-lg tracking-tight">
+            <h4 className="font-bold text-[#F5F5F5] text-sm sm:text-base">
               {post.title}
             </h4>
           )}
@@ -417,20 +412,18 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
           {/* Required Roles */}
           {post.requiredRoles && post.requiredRoles.length > 0 && (
             <div className="space-y-1.5">
-              <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#DDA081] block">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#666666] block">
                 Looking for:
               </span>
-              <div className="flex flex-wrap gap-2">
-                {post.requiredRoles.map((role, idx) => {
-                  return (
-                    <span
-                      key={idx}
-                      className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-xl border bg-[#703344] text-[#F6E8E2] border-[#A84A4D]/50 shadow-xs"
-                    >
-                      <span>{role}</span>
-                    </span>
-                  );
-                })}
+              <div className="flex flex-wrap gap-1.5">
+                {post.requiredRoles.map((role, idx) => (
+                  <span
+                    key={idx}
+                    className="inline-flex items-center gap-1 text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-[#111111] text-[#F5F5F5] border border-[#242424]"
+                  >
+                    <span>{role}</span>
+                  </span>
+                ))}
               </div>
             </div>
           )}
@@ -438,28 +431,28 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
           {/* Required Skills */}
           {post.requiredSkills && post.requiredSkills.length > 0 && (
             <div className="space-y-1">
-              <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#DDA081] block">
+              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#666666] block">
                 Skills:
               </span>
-              <p className="text-xs font-bold text-[#CB6B5A]">
+              <p className="text-xs font-mono text-[#A1A1A1]">
                 {post.requiredSkills.join(' • ')}
               </p>
             </div>
           )}
 
           {/* Join & AI Match Action Row */}
-          <div className="pt-2 flex flex-wrap items-center justify-between gap-2.5 border-t border-[#703344]">
-            {/* Left Action / Match Trigger */}
+          <div className="pt-2 flex flex-wrap items-center justify-between gap-2.5 border-t border-[#1F1F1F]">
             <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={handleFindMatchesWithAi}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shadow-xs ${showAiMatches
-                    ? 'bg-[#703344] text-[#F6E8E2] border border-[#A84A4D]'
-                    : 'bg-[#4A2A35] text-[#DDA081] hover:bg-[#703344] hover:text-[#F6E8E2] border border-[#703344]'
-                  }`}
+                className={`px-3 py-1.5 rounded-full text-xs font-mono transition-all flex items-center gap-1.5 cursor-pointer ${
+                  showAiMatches
+                    ? 'bg-[#111111] text-white border border-[#333333]'
+                    : 'bg-[#111111] text-[#A1A1A1] hover:text-white border border-[#242424]'
+                }`}
               >
-                <Sparkles className={`w-3.5 h-3.5 ${showAiMatches ? 'text-[#CB6B5A]' : 'text-[#DDA081]'}`} />
+                <Sparkles className={`w-3.5 h-3.5 ${showAiMatches ? 'text-[#E50914]' : 'text-[#888888]'}`} />
                 <span>{showAiMatches ? 'Hide AI Matches' : 'Find Matches with AI'}</span>
                 {showAiMatches ? (
                   <ChevronUp className="w-3.5 h-3.5" />
@@ -469,24 +462,23 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
               </button>
             </div>
 
-            {/* Right Join / Status Action */}
             <div className="flex items-center gap-2">
               {isAuthor ? (
-                <span className="px-3 py-1 rounded-xl text-xs font-bold bg-[#703344] text-[#F6E8E2] border border-[#A84A4D]/50">
+                <span className="px-3 py-1 rounded-full text-xs font-mono text-[#A1A1A1] bg-[#111111] border border-[#242424]">
                   Post Owner
                 </span>
               ) : isMember ? (
-                <span className="px-3 py-1 rounded-xl text-xs font-bold bg-[#5B8A68]/30 text-[#86B190] border border-[#5B8A68]/40 flex items-center gap-1">
-                  <Check className="w-3.5 h-3.5 text-[#86B190]" />
-                  <span>✓ You're part of this team.</span>
+                <span className="px-3 py-1 rounded-full text-xs font-mono text-[#20D47A] bg-[#20D47A]/10 border border-[#20D47A]/30 flex items-center gap-1">
+                  <Check className="w-3.5 h-3.5 text-[#20D47A]" />
+                  <span>✓ You're in this team</span>
                 </span>
               ) : joinRequested ? (
-                <span className="px-3 py-1 rounded-xl text-xs font-bold bg-[#4A2A35] text-[#DDA081] border border-[#703344] flex items-center gap-1">
-                  <Check className="w-3.5 h-3.5 text-[#86B190]" />
+                <span className="px-3 py-1 rounded-full text-xs font-mono text-[#20D47A] bg-[#20D47A]/10 border border-[#20D47A]/30 flex items-center gap-1">
+                  <Check className="w-3.5 h-3.5 text-[#20D47A]" />
                   <span>Join request sent ✓</span>
                 </span>
               ) : (post.teamSize && (post.currentMembers || 1) >= post.teamSize) ? (
-                <span className="px-3 py-1 rounded-xl text-xs font-bold bg-[#4A2A35] text-[#DDA081] border border-[#703344]">
+                <span className="px-3 py-1 rounded-full text-xs font-mono text-[#888888] bg-[#111111] border border-[#242424]">
                   Team Full ({post.teamSize}/{post.teamSize})
                 </span>
               ) : (
@@ -494,7 +486,7 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
                   type="button"
                   onClick={handleRequestToJoin}
                   disabled={joinLoading}
-                  className="px-4 py-1.5 rounded-xl text-xs font-extrabold bg-gradient-to-r from-[#A84A4D] to-[#CB6B5A] hover:from-[#CB6B5A] hover:to-[#DDA081] active:scale-95 text-[#F6E8E2] flex items-center gap-1.5 shadow-sm hover:shadow transition-all duration-200 flex-shrink-0"
+                  className="px-4 py-1.5 rounded-full text-xs font-mono font-bold bg-[#E50914] hover:bg-[#FF1F2D] active:scale-95 text-white flex items-center gap-1.5 shadow-[0_0_15px_rgba(229,9,20,0.4)] transition-all cursor-pointer"
                 >
                   <UserPlus className="w-3.5 h-3.5" />
                   <span>{joinLoading ? 'Sending...' : 'Request to Join'}</span>
@@ -505,39 +497,29 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
 
           {/* AI MATCHES EXPANDABLE CONTAINER */}
           {showAiMatches && (
-            <div className="mt-3 pt-3 border-t border-[#703344] space-y-3 animate-in fade-in slide-in-from-top-1 duration-200">
+            <div className="mt-3 pt-3 border-t border-[#1F1F1F] space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
-                  <Target className="w-4 h-4 text-[#CB6B5A]" />
-                  <span className="text-xs font-black uppercase tracking-wider text-[#CB6B5A]">
+                  <Target className="w-4 h-4 text-[#E50914]" />
+                  <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#E50914]">
                     AI MATCHES {aiMatches.length > 0 && `(${aiMatches.length})`}
                   </span>
-                  <span className="text-[10px] font-black px-2 py-0.5 rounded-md bg-[#A84A4D] text-[#F6E8E2] shadow-xs">
-                    SMART RANKED
-                  </span>
                 </div>
-                <span className="text-[11px] text-[#DDA081] font-medium">
-                  Based on verified skills & interests
-                </span>
               </div>
 
-              {/* Scanning Animation State */}
               {aiLoading ? (
-                <div className="p-5 rounded-2xl bg-[#4A2A35] border border-[#703344] space-y-3">
-                  <div className="flex items-center gap-2.5 text-xs font-bold text-[#CB6B5A]">
-                    <Loader2 className="w-4 h-4 animate-spin text-[#CB6B5A]" />
-                    <span>Analyzing student skillsets & calculating role compatibility...</span>
-                  </div>
-                  <div className="w-full bg-[#281A21] h-2 rounded-full overflow-hidden">
-                    <div className="bg-gradient-to-r from-[#A84A4D] via-[#CB6B5A] to-[#A84A4D] h-full rounded-full animate-pulse w-3/4" />
+                <div className="p-5 rounded-2xl bg-[#111111] border border-[#242424] space-y-3">
+                  <div className="flex items-center gap-2 text-xs font-mono text-[#888888]">
+                    <Loader2 className="w-4 h-4 animate-spin text-[#E50914]" />
+                    <span>Analyzing student skillsets...</span>
                   </div>
                 </div>
               ) : aiMatches.length === 0 ? (
-                <div className="p-4 rounded-2xl bg-[#4A2A35] border border-[#703344] text-center text-xs text-[#DDA081]">
+                <div className="p-4 rounded-2xl bg-[#111111] border border-[#242424] text-center text-xs font-mono text-[#888888]">
                   No compatible student profiles found matching these specific requirements yet.
                 </div>
               ) : (
-                <div className="space-y-2.5">
+                <div className="space-y-2">
                   {aiMatches.map((match, idx) => {
                     const candidate = match.user;
                     const isInvited = invitedUserIds.includes(candidate?._id);
@@ -546,81 +528,37 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
                     return (
                       <div
                         key={candidate?._id || idx}
-                        className="p-3.5 sm:p-4 rounded-2xl bg-[#4A2A35] border border-[#703344] hover:border-[#A84A4D]/60 shadow-xs hover:shadow-md transition-all space-y-2.5"
+                        className="p-3.5 rounded-2xl bg-[#111111] border border-[#242424] hover:border-[#333333] transition-all space-y-2"
                       >
-                        {/* Candidate Header Row */}
                         <div className="flex items-start justify-between gap-3">
-                          <div className="flex items-center gap-3 min-w-0">
+                          <div className="flex items-center gap-2.5 min-w-0">
                             <img
                               src={
                                 candidate?.avatar ||
                                 `https://api.dicebear.com/7.x/avataaars/svg?seed=${candidate?.name || 'User'}`
                               }
                               alt={candidate?.name}
-                              className="w-10 h-10 rounded-xl object-cover border border-[#703344] bg-[#281A21] flex-shrink-0"
+                              className="w-8 h-8 rounded-full object-cover border border-[#242424] bg-[#161616]"
                             />
                             <div className="min-w-0">
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <h5 className="font-extrabold text-[#F6E8E2] text-xs sm:text-sm truncate">
-                                  {candidate?.name}
-                                </h5>
-                                {match.suggestedRole && (
-                                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-[#703344] text-[#F6E8E2] border border-[#A84A4D]/40">
-                                    {match.suggestedRole}
-                                  </span>
-                                )}
-                              </div>
-                              <p className="text-[11px] text-[#DDA081] truncate">
-                                {candidate?.college ? `${candidate.college} • ` : ''}
+                              <h5 className="font-bold text-[#F5F5F5] text-xs truncate">
+                                {candidate?.name}
+                              </h5>
+                              <p className="text-[10px] font-mono text-[#666666] truncate">
                                 {candidate?.course || candidate?.headline || 'Developer'}
                               </p>
                             </div>
                           </div>
 
-                          {/* Match Score Badge */}
-                          <div className="flex-shrink-0">
-                            <span
-                              className={`px-3 py-1 rounded-xl text-xs font-black shadow-xs border ${
-                                score >= 85
-                                  ? 'bg-[#5B8A68]/30 text-[#86B190] border-[#5B8A68]/40'
-                                  : 'bg-[#703344] text-[#F6E8E2] border-[#A84A4D]/40'
-                              }`}
-                            >
-                              {score}% MATCH
-                            </span>
-                          </div>
+                          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#20D47A]/10 text-[#20D47A] border border-[#20D47A]/30">
+                            {score}% MATCH
+                          </span>
                         </div>
 
-                        {/* Matching Skills */}
-                        {match.matchingSkills && match.matchingSkills.length > 0 && (
-                          <div className="flex flex-wrap items-center gap-1.5 text-xs">
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-[#DDA081] mr-1">
-                              Skills:
-                            </span>
-                            {match.matchingSkills.map((sk, sIdx) => (
-                              <span
-                                key={sIdx}
-                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[11px] font-bold bg-[#281A21] text-[#86B190] border border-[#5B8A68]/40"
-                              >
-                                <Check className="w-3 h-3 text-[#86B190]" />
-                                <span>{sk}</span>
-                              </span>
-                            ))}
-                          </div>
-                        )}
-
-                        {/* Why this match explanation */}
-                        {match.reason && (
-                          <p className="text-[11px] text-[#DDA081] italic bg-[#281A21] p-2.5 rounded-xl border border-[#703344]">
-                            "{match.reason}"
-                          </p>
-                        )}
-
-                        {/* Action Buttons: View Profile & Invite */}
                         <div className="flex items-center justify-end gap-2 pt-1">
                           <Link
                             to={`/profile?id=${candidate?._id}`}
-                            className="px-3 py-1.5 rounded-xl text-xs font-bold text-[#DDA081] hover:text-[#CB6B5A] hover:bg-[#281A21] transition-colors"
+                            className="px-3 py-1 rounded-full text-xs font-mono text-[#888888] hover:text-white"
                           >
                             View Profile
                           </Link>
@@ -629,22 +567,13 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
                             type="button"
                             onClick={() => handleInviteCandidate(match)}
                             disabled={isInvited}
-                            className={`px-3.5 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 shadow-xs transition-all ${isInvited
-                                ? 'bg-[#5B8A68]/30 text-[#86B190] border border-[#5B8A68]/40'
-                                : 'bg-[#A84A4D] hover:bg-[#CB6B5A] active:scale-95 text-[#F6E8E2]'
-                              }`}
+                            className={`px-3 py-1 rounded-full text-xs font-mono font-bold flex items-center gap-1 transition-all ${
+                              isInvited
+                                ? 'bg-[#20D47A]/20 text-[#20D47A]'
+                                : 'bg-[#E50914] hover:bg-[#FF1F2D] text-white shadow-[0_0_10px_rgba(229,9,20,0.4)]'
+                            }`}
                           >
-                            {isInvited ? (
-                              <>
-                                <Check className="w-3.5 h-3.5 text-[#86B190]" />
-                                <span>Invited ✓</span>
-                              </>
-                            ) : (
-                              <>
-                                <Send className="w-3 h-3" />
-                                <span>Invite</span>
-                              </>
-                            )}
+                            {isInvited ? 'Invited ✓' : 'Invite'}
                           </button>
                         </div>
                       </div>
@@ -664,22 +593,22 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
             href={post.projectLink}
             target="_blank"
             rel="noopener noreferrer"
-            className="group flex items-center justify-between p-3 rounded-2xl bg-[#281A21] border border-[#703344] hover:border-[#A84A4D]/60 transition-all text-xs font-semibold text-[#F6E8E2]"
+            className="group flex items-center justify-between p-3 rounded-2xl bg-[#161616] border border-[#242424] hover:border-[#333333] transition-all text-xs font-mono text-[#F5F5F5]"
           >
             <div className="flex items-center gap-2 min-w-0">
-              <div className="w-7 h-7 rounded-lg bg-[#A84A4D] text-[#F6E8E2] flex items-center justify-center flex-shrink-0 shadow-xs">
-                <ExternalLink className="w-3.5 h-3.5" />
+              <div className="w-6 h-6 rounded-full bg-[#111111] text-[#E50914] flex items-center justify-center flex-shrink-0">
+                <ExternalLink className="w-3 h-3" />
               </div>
               <span className="truncate">{post.projectLink}</span>
             </div>
-            <span className="text-[11px] font-bold text-[#CB6B5A] group-hover:translate-x-0.5 transition-transform flex-shrink-0">
+            <span className="text-[11px] font-mono text-[#E50914] group-hover:underline flex-shrink-0">
               Visit Resource →
             </span>
           </a>
         </div>
       )}
 
-      {/* Attached Media (Images & Video with Lightbox & Player) */}
+      {/* Attached Media */}
       <PostMedia
         media={post.media || post.attachments || post.mediaItems}
         singleImageUrl={post.image || post.imageUrl || post.mediaUrl}
@@ -691,7 +620,7 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
           {post.tags.map((tag, idx) => (
             <span
               key={idx}
-              className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-0.5 rounded-lg bg-[#281A21] text-[#DDA081] border border-[#703344] hover:border-[#A84A4D] hover:text-[#F6E8E2] transition-colors"
+              className="inline-flex items-center gap-1 text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-[#161616] text-[#A1A1A1] border border-[#242424]"
             >
               #{tag}
             </span>
@@ -700,21 +629,21 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
       )}
 
       {/* Action Buttons: Like, Comment, Share */}
-      <div className="pt-3 border-t border-[#703344] flex items-center justify-between text-xs text-[#DDA081] font-semibold">
+      <div className="pt-3 border-t border-[#1F1F1F] flex items-center justify-between text-xs font-mono text-[#888888]">
         <div className="flex items-center gap-2 sm:gap-4">
           {/* Like Button */}
           <button
             type="button"
             onClick={handleToggleLike}
             disabled={likeLoading}
-            className={`group relative flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200 ${isLiked
-                ? 'text-[#CB6B5A] bg-[#703344]/50 font-bold border border-[#A84A4D]/50 shadow-xs'
-                : 'text-[#DDA081] hover:bg-[#703344]/30 hover:text-[#F6E8E2] border border-transparent'
-              }`}
+            className={`group relative flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-mono transition-all duration-150 cursor-pointer ${
+              isLiked
+                ? 'text-[#FF1F2D] bg-[#E50914]/15 font-bold border border-[#E50914]/40'
+                : 'text-[#888888] hover:bg-[#161616] hover:text-white border border-transparent'
+            }`}
           >
             <span
-              className={`inline-block transition-transform duration-200 text-sm select-none ${heartAnimated ? 'scale-125 text-[#CB6B5A]' : 'group-hover:scale-110'
-                } ${isLiked ? 'text-[#CB6B5A]' : 'text-[#DDA081] group-hover:text-[#CB6B5A]'}`}
+              className={`inline-block transition-transform duration-150 text-sm select-none ${heartAnimated ? 'scale-125' : 'group-hover:scale-110'} ${isLiked ? 'text-[#FF1F2D]' : 'text-[#888888]'}`}
             >
               {isLiked ? '♥' : '♡'}
             </span>
@@ -727,9 +656,9 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
           <button
             type="button"
             onClick={() => setCommentsOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[#DDA081] hover:bg-[#703344]/30 hover:text-[#F6E8E2] transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-mono text-[#888888] hover:bg-[#161616] hover:text-white transition-colors cursor-pointer"
           >
-            <MessageCircle className="w-4 h-4 text-[#DDA081] group-hover:text-[#CB6B5A]" />
+            <MessageCircle className="w-3.5 h-3.5 text-[#888888]" />
             <span>
               {localCommentsCount} {localCommentsCount === 1 ? 'Comment' : 'Comments'}
             </span>
@@ -740,9 +669,9 @@ export const PostCard = ({ post, onPostDeleted, onPostUpdated }) => {
         <button
           type="button"
           onClick={handleShare}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[#DDA081] hover:bg-[#703344]/30 hover:text-[#F6E8E2] transition-colors"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-mono text-[#888888] hover:bg-[#161616] hover:text-white transition-colors cursor-pointer"
         >
-          <Share2 className="w-4 h-4" />
+          <Share2 className="w-3.5 h-3.5" />
           <span className="hidden sm:inline">Share</span>
         </button>
       </div>

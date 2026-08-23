@@ -47,7 +47,7 @@ export const TeamChatRoom = ({
   const [loadingOlder, setLoadingOlder] = useState(false);
   const [hasMoreMessages, setHasMoreMessages] = useState(false);
   const [replyTarget, setReplyTarget] = useState(null);
-  const [typingUsers, setTypingUsers] = useState(new Map()); // userId -> name
+  const [typingUsers, setTypingUsers] = useState(new Map());
   const [sending, setSending] = useState(false);
 
   const messagesEndRef = useRef(null);
@@ -58,7 +58,6 @@ export const TeamChatRoom = ({
     messagesEndRef.current?.scrollIntoView({ behavior });
   };
 
-  // 1. Fetch initial message history
   useEffect(() => {
     let isMounted = true;
     const fetchHistory = async () => {
@@ -86,7 +85,6 @@ export const TeamChatRoom = ({
     };
   }, [projectId, roomId]);
 
-  // Load older messages (pagination)
   const handleLoadOlder = async () => {
     if (loadingOlder || !hasMoreMessages || messages.length === 0) return;
     try {
@@ -110,14 +108,12 @@ export const TeamChatRoom = ({
     }
   };
 
-  // 2. Join Socket Room & Register Real-time Listeners
   useEffect(() => {
     if (!socket || !isConnected || !projectId) return;
 
     joinRoom(roomId);
     markMessagesRead(roomId);
 
-    // Incoming new message handler
     const handleNewMessage = (newMsg) => {
       if (newMsg.roomId === roomId || newMsg.project === projectId) {
         setMessages((prev) => {
@@ -200,7 +196,6 @@ export const TeamChatRoom = ({
     };
   }, [socket, isConnected, projectId, roomId, user?._id, joinRoom, leaveRoom, markMessagesRead]);
 
-  // Handle Input Changes & Debounced Typing Indicators
   const handleInputChange = (e) => {
     setInputText(e.target.value);
     sendTyping(roomId, true);
@@ -214,7 +209,6 @@ export const TeamChatRoom = ({
     }, 2000);
   };
 
-  // Send Message
   const handleSendMessage = async (e) => {
     e?.preventDefault();
     const trimmed = inputText.trim();
@@ -286,21 +280,21 @@ export const TeamChatRoom = ({
   const onlineMembersCount = members.filter((m) => isUserOnline(m.user?._id || m.user)).length;
 
   return (
-    <div className={`flex flex-col h-[600px] bg-[#4A2A35] border border-[#703344] rounded-3xl shadow-soft overflow-hidden ${className}`}>
+    <div className={`flex flex-col h-[600px] bg-[#111111] border border-[#242424] rounded-3xl shadow-soft overflow-hidden ${className}`}>
       {/* Chat Room Header */}
-      <div className="px-6 py-4 bg-[#281A21] border-b border-[#703344] flex items-center justify-between flex-shrink-0">
+      <div className="px-6 py-4 bg-[#161616] border-b border-[#242424] flex items-center justify-between flex-shrink-0">
         <div className="flex items-center gap-3 min-w-0">
-          <div className="w-10 h-10 rounded-2xl bg-[#703344] text-[#CB6B5A] border border-[#A84A4D]/40 flex items-center justify-center flex-shrink-0">
-            <MessageSquare className="w-5 h-5" />
+          <div className="w-10 h-10 rounded-full bg-[#111111] text-[#E50914] border border-[#242424] flex items-center justify-center flex-shrink-0">
+            <MessageSquare className="w-4 h-4" />
           </div>
           <div className="min-w-0">
-            <h3 className="text-sm sm:text-base font-bold text-[#F6E8E2] truncate">
-              {projectTitle} • Team Chat
+            <h3 className="text-sm font-mono font-bold text-[#F5F5F5] truncate">
+              {projectTitle} // TEAM_CHAT
             </h3>
-            <div className="flex items-center gap-2 text-xs text-[#DDA081]">
+            <div className="flex items-center gap-2 text-xs font-mono text-[#888888]">
               <span className="flex items-center gap-1.5">
-                <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-[#5B8A68] animate-pulse' : 'bg-zinc-500'}`} />
-                <span className="text-[#DDA081] font-medium">
+                <span className={`w-1.5 h-1.5 rounded-full ${isConnected ? 'bg-[#20D47A] animate-pulse' : 'bg-zinc-500'}`} />
+                <span>
                   {isConnected ? `${onlineMembersCount} of ${members.length || 1} online` : 'Connecting...'}
                 </span>
               </span>
@@ -311,14 +305,14 @@ export const TeamChatRoom = ({
         {/* Connection Status Indicator */}
         <div className="flex items-center gap-2">
           {isConnected ? (
-            <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full bg-[#5B8A68]/20 text-[#86B190] border border-[#5B8A68]/40">
-              <Wifi className="w-3 h-3 text-[#86B190]" />
-              <span>Live</span>
+            <span className="inline-flex items-center gap-1 text-[9px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-[#20D47A]/10 text-[#20D47A] border border-[#20D47A]/30">
+              <Wifi className="w-2.5 h-2.5 text-[#20D47A]" />
+              <span>LIVE</span>
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full bg-[#281A21] text-[#DDA081] border border-[#703344]">
-              <WifiOff className="w-3 h-3 text-[#DDA081]" />
-              <span>Offline</span>
+            <span className="inline-flex items-center gap-1 text-[9px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-[#111111] text-[#888888] border border-[#242424]">
+              <WifiOff className="w-2.5 h-2.5 text-[#888888]" />
+              <span>OFFLINE</span>
             </span>
           )}
         </div>
@@ -327,14 +321,14 @@ export const TeamChatRoom = ({
       {/* Messages Scroll Area */}
       <div
         ref={chatContainerRef}
-        className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 overscroll-contain"
+        className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 overscroll-contain bg-black"
       >
         {hasMoreMessages && (
           <div className="flex justify-center pb-2">
             <button
               onClick={handleLoadOlder}
               disabled={loadingOlder}
-              className="text-xs font-semibold text-[#CB6B5A] hover:text-[#DDA081] bg-[#281A21] hover:bg-[#703344] border border-[#703344] px-3.5 py-1 rounded-full transition-all flex items-center gap-1.5 cursor-pointer"
+              className="text-xs font-mono font-bold text-[#888888] hover:text-white bg-[#161616] hover:bg-[#202020] border border-[#242424] px-3.5 py-1 rounded-full transition-all flex items-center gap-1.5 cursor-pointer"
             >
               {loadingOlder ? 'Loading...' : '↑ Load Earlier Messages'}
             </button>
@@ -342,17 +336,17 @@ export const TeamChatRoom = ({
         )}
 
         {loadingHistory ? (
-          <div className="flex flex-col items-center justify-center h-full gap-2 text-[#DDA081]">
-            <div className="w-6 h-6 border-2 border-[#A84A4D] border-t-transparent rounded-full animate-spin" />
-            <span className="text-xs">Loading team messages...</span>
+          <div className="flex flex-col items-center justify-center h-full gap-2 text-[#888888]">
+            <div className="w-5 h-5 border-2 border-[#E50914] border-t-transparent rounded-full animate-spin" />
+            <span className="text-xs font-mono">Loading team messages...</span>
           </div>
         ) : messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center py-10">
-            <div className="w-12 h-12 rounded-2xl bg-[#703344] text-[#CB6B5A] border border-[#A84A4D]/40 flex items-center justify-center mb-3">
-              <Sparkles className="w-6 h-6" />
+            <div className="w-10 h-10 rounded-full bg-[#161616] text-[#E50914] border border-[#242424] flex items-center justify-center mb-3">
+              <Sparkles className="w-5 h-5" />
             </div>
-            <h4 className="text-sm font-bold text-[#F6E8E2]">Welcome to your Team Workspace!</h4>
-            <p className="text-xs text-[#DDA081] max-w-sm mt-1">
+            <h4 className="text-sm font-bold text-[#F5F5F5]">Welcome to your Team Workspace!</h4>
+            <p className="text-xs font-mono text-[#888888] max-w-sm mt-1">
               Start the conversation, align on tasks, share technical links, or coordinate milestones in real time.
             </p>
           </div>
@@ -370,17 +364,16 @@ export const TeamChatRoom = ({
                 key={msg._id || index}
                 className={`group flex items-end gap-2.5 ${isMe ? 'justify-end' : 'justify-start'}`}
               >
-                {/* Avatar for other members */}
                 {!isMe && (
                   <div className="relative flex-shrink-0">
                     <img
                       src={senderUser.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${senderUser.name || 'User'}`}
                       alt={senderUser.name}
-                      className="w-8 h-8 rounded-xl object-cover border border-[#703344] bg-[#281A21]"
+                      className="w-8 h-8 rounded-full object-cover border border-[#242424] bg-[#161616]"
                     />
                     <span
-                      className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full ring-2 ring-[#4A2A35] ${
-                        isOnline ? 'bg-[#5B8A68]' : 'bg-zinc-600'
+                      className={`absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full ring-2 ring-black ${
+                        isOnline ? 'bg-[#20D47A]' : 'bg-zinc-600'
                       }`}
                     />
                   </div>
@@ -390,60 +383,57 @@ export const TeamChatRoom = ({
                 <div className={`max-w-[80%] sm:max-w-[70%] flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
                   {!isMe && (
                     <div className="flex items-center gap-1.5 mb-1 px-1">
-                      <span className="text-[11px] font-bold text-[#F6E8E2]">
+                      <span className="text-[11px] font-mono font-bold text-[#F5F5F5]">
                         {senderUser.name || 'Teammate'}
                       </span>
                       {senderUser.headline && (
-                        <span className="text-[10px] text-[#DDA081] truncate max-w-[120px]">
+                        <span className="text-[10px] font-mono text-[#666666] truncate max-w-[120px]">
                           • {senderUser.headline}
                         </span>
                       )}
                     </div>
                   )}
 
-                  {/* Quoted reply */}
                   {msg.replyTo && (
-                    <div className="mb-1 p-2 rounded-xl text-[11px] border border-[#A84A4D]/30 bg-[#703344]/30 text-[#F6E8E2] max-w-full flex items-center gap-1.5">
-                      <CornerDownRight className="w-3 h-3 text-[#CB6B5A] flex-shrink-0" />
-                      <span className="font-bold text-[#CB6B5A]">{msg.replyTo.sender?.name || 'User'}:</span>
-                      <span className="italic text-[#DDA081] truncate">{msg.replyTo.content}</span>
+                    <div className="mb-1 p-2 rounded-xl text-[11px] font-mono border border-[#242424] bg-[#161616] text-[#F5F5F5] max-w-full flex items-center gap-1.5">
+                      <CornerDownRight className="w-3 h-3 text-[#E50914] flex-shrink-0" />
+                      <span className="font-bold text-[#E50914]">{msg.replyTo.sender?.name || 'User'}:</span>
+                      <span className="text-[#888888] truncate">{msg.replyTo.content}</span>
                     </div>
                   )}
 
                   <div
-                    className={`p-3.5 rounded-2xl text-xs sm:text-sm leading-relaxed break-words shadow-xs ${
+                    className={`p-3.5 rounded-2xl text-xs sm:text-sm font-mono leading-relaxed break-words shadow-soft ${
                       msg.isDeleted
-                        ? 'italic text-[#DDA081] bg-[#281A21] border border-[#703344]'
+                        ? 'italic text-[#666666] bg-[#161616] border border-[#242424]'
                         : isMe
-                        ? 'bg-gradient-to-tr from-[#A84A4D] to-[#CB6B5A] text-[#F6E8E2] rounded-br-xs'
-                        : 'bg-[#281A21] border border-[#703344] text-[#F6E8E2] rounded-bl-xs'
+                        ? 'bg-[#E50914] text-white rounded-br-xs'
+                        : 'bg-[#161616] border border-[#242424] text-[#F5F5F5] rounded-bl-xs'
                     }`}
                   >
                     <p className="whitespace-pre-wrap">{msg.content}</p>
                   </div>
 
-                  {/* Message Meta / Timestamp */}
-                  <div className="flex items-center gap-1 mt-1 px-1 text-[10px] text-[#DDA081] font-medium">
+                  <div className="flex items-center gap-1 mt-1 px-1 text-[10px] font-mono text-[#666666]">
                     <span>{formatMsgTime(msg.createdAt)}</span>
                     {isMe && !msg.isDeleted && (
                       <span title={isReadByOthers ? 'Read by team' : 'Delivered'}>
                         {isReadByOthers ? (
-                          <CheckCheck className="w-3 h-3 text-[#86B190] inline" />
+                          <CheckCheck className="w-3 h-3 text-[#20D47A] inline" />
                         ) : (
-                          <Check className="w-3 h-3 text-[#DDA081] inline" />
+                          <Check className="w-3 h-3 text-[#666666] inline" />
                         )}
                       </span>
                     )}
                   </div>
                 </div>
 
-                {/* Actions */}
                 {!msg.isDeleted && (
-                  <div className={`opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 bg-[#281A21] border border-[#703344] rounded-xl p-1 mb-2 ${isMe ? 'order-first' : 'order-last'}`}>
+                  <div className={`opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 bg-[#161616] border border-[#242424] rounded-full p-1 mb-2 ${isMe ? 'order-first' : 'order-last'}`}>
                     <button
                       onClick={() => setReplyTarget(msg)}
                       title="Reply"
-                      className="p-1 rounded text-[#DDA081] hover:text-[#CB6B5A] cursor-pointer"
+                      className="p-1 rounded-full text-[#888888] hover:text-white cursor-pointer"
                     >
                       <Reply className="w-3 h-3" />
                     </button>
@@ -451,7 +441,7 @@ export const TeamChatRoom = ({
                       <button
                         onClick={() => handleDeleteMessage(msg._id)}
                         title="Delete"
-                        className="p-1 rounded text-[#DDA081] hover:text-[#E07D82] cursor-pointer"
+                        className="p-1 rounded-full text-[#888888] hover:text-[#FF1F2D] cursor-pointer"
                       >
                         <Trash2 className="w-3 h-3" />
                       </button>
@@ -463,14 +453,13 @@ export const TeamChatRoom = ({
           })
         )}
 
-        {/* Live Typing Indicators */}
         {typingUsers.size > 0 && (
-          <div className="flex items-center gap-2 text-xs text-[#DDA081] py-1 animate-pulse">
-            <div className="flex gap-1 py-1 px-2.5 rounded-full bg-[#281A21] border border-[#703344] items-center">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#CB6B5A] animate-bounce" style={{ animationDelay: '0ms' }} />
-              <span className="w-1.5 h-1.5 rounded-full bg-[#CB6B5A] animate-bounce" style={{ animationDelay: '150ms' }} />
-              <span className="w-1.5 h-1.5 rounded-full bg-[#CB6B5A] animate-bounce" style={{ animationDelay: '300ms' }} />
-              <span className="ml-1.5 text-[11px] text-[#DDA081] font-medium">
+          <div className="flex items-center gap-2 text-xs font-mono text-[#888888] py-1 animate-pulse">
+            <div className="flex gap-1 py-1 px-2.5 rounded-full bg-[#161616] border border-[#242424] items-center">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#E50914] animate-bounce" style={{ animationDelay: '0ms' }} />
+              <span className="w-1.5 h-1.5 rounded-full bg-[#E50914] animate-bounce" style={{ animationDelay: '150ms' }} />
+              <span className="w-1.5 h-1.5 rounded-full bg-[#E50914] animate-bounce" style={{ animationDelay: '300ms' }} />
+              <span className="ml-1.5 text-[10px] text-[#888888]">
                 {Array.from(typingUsers.values()).join(', ')} is typing...
               </span>
             </div>
@@ -480,39 +469,38 @@ export const TeamChatRoom = ({
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Reply Banner */}
       {replyTarget && (
-        <div className="px-4 py-2 bg-[#703344]/40 border-t border-[#A84A4D]/30 flex items-center justify-between text-xs">
-          <div className="flex items-center gap-2 text-[#F6E8E2]">
-            <Reply className="w-3.5 h-3.5 text-[#CB6B5A]" />
-            <span className="font-bold text-[#CB6B5A]">Replying to {replyTarget.sender?.name || 'message'}:</span>
-            <span className="italic text-[#DDA081] truncate max-w-xs">{replyTarget.content}</span>
+        <div className="px-4 py-2 bg-[#161616] border-t border-[#242424] flex items-center justify-between text-xs font-mono">
+          <div className="flex items-center gap-2 text-[#F5F5F5]">
+            <Reply className="w-3.5 h-3.5 text-[#E50914]" />
+            <span className="font-bold text-[#E50914]">Replying to {replyTarget.sender?.name || 'message'}:</span>
+            <span className="text-[#888888] truncate max-w-xs">{replyTarget.content}</span>
           </div>
-          <button onClick={() => setReplyTarget(null)} className="text-[#DDA081] hover:text-[#F6E8E2] cursor-pointer">✕</button>
+          <button onClick={() => setReplyTarget(null)} className="text-[#888888] hover:text-white cursor-pointer">✕</button>
         </div>
       )}
 
       {/* Input Box Footer */}
       <form
         onSubmit={handleSendMessage}
-        className="p-3 sm:p-4 bg-[#281A21] border-t border-[#703344] flex items-center gap-2 flex-shrink-0"
+        className="p-3 sm:p-4 bg-[#161616] border-t border-[#242424] flex items-center gap-2 flex-shrink-0"
       >
         <div className="flex-1 relative">
           <textarea
             value={inputText}
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
-            placeholder={isConnected ? "Type a message to your team... (Enter to send)" : "Reconnecting to live server..."}
+            placeholder={isConnected ? "Type a message... (Enter to send)" : "Reconnecting..."}
             disabled={!isConnected}
             rows={1}
-            className="w-full resize-none bg-[#4A2A35] border border-[#703344] focus:border-[#CB6B5A] focus:ring-1 focus:ring-[#CB6B5A]/50 rounded-2xl py-2.5 px-4 text-xs sm:text-sm text-[#F6E8E2] placeholder:text-[#DDA081]/60 focus:outline-none max-h-24 transition-colors"
+            className="w-full resize-none bg-[#111111] border border-[#242424] focus:border-[#E50914] rounded-2xl py-2.5 px-4 text-xs sm:text-sm font-mono text-[#F5F5F5] placeholder:text-[#555555] focus:outline-none max-h-24 transition-colors"
           />
         </div>
 
         <button
           type="submit"
           disabled={!inputText.trim() || !isConnected || sending}
-          className="p-3 rounded-2xl bg-[#A84A4D] hover:bg-[#CB6B5A] disabled:opacity-40 disabled:hover:bg-[#A84A4D] text-[#F6E8E2] shadow-md shadow-[#A84A4D]/20 transition-all flex items-center justify-center flex-shrink-0 active:scale-95 cursor-pointer disabled:cursor-not-allowed"
+          className="p-3 rounded-full bg-[#E50914] hover:bg-[#FF1F2D] disabled:opacity-40 disabled:hover:bg-[#E50914] text-white shadow-soft transition-all flex items-center justify-center flex-shrink-0 active:scale-95 cursor-pointer disabled:cursor-not-allowed"
           title="Send message"
         >
           <Send className="w-4 h-4" />

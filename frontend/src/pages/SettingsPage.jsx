@@ -7,30 +7,30 @@ export const SettingsPage = () => {
   const { user, quickSwitchDemoUser } = useAuth();
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
+    <div className="max-w-3xl mx-auto space-y-6 pb-12">
       <div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-[#F6E8E2] tracking-tight">Platform Settings</h1>
-        <p className="text-xs sm:text-sm text-[#DDA081] mt-1">
+        <h1 className="text-2xl sm:text-3xl font-bold text-[#F5F5F5] tracking-tight">Platform Settings</h1>
+        <p className="text-xs sm:text-sm font-mono text-[#888888] mt-1">
           Review environment parameters, demo account access, and authentication sessions.
         </p>
       </div>
 
-      <div className="bg-[#4A2A35] rounded-3xl border border-[#703344] p-6 sm:p-8 shadow-soft space-y-6">
-        <div className="pb-4 border-b border-[#703344]">
-          <h3 className="text-base font-bold text-[#F6E8E2] flex items-center gap-2">
-            <User className="w-4 h-4 text-[#CB6B5A]" />
+      <div className="bg-[#111111] rounded-3xl border border-[#242424] p-6 sm:p-8 shadow-soft space-y-6">
+        <div className="pb-4 border-b border-[#1F1F1F]">
+          <h3 className="text-xs font-mono font-bold text-[#F5F5F5] uppercase tracking-wider flex items-center gap-2">
+            <User className="w-4 h-4 text-[#E50914]" />
             <span>Active Student Account</span>
           </h3>
-          <p className="text-xs text-[#DDA081] mt-1">
-            Logged in as <span className="font-semibold text-[#F6E8E2]">{user?.name}</span> ({user?.email})
+          <p className="text-xs font-mono text-[#888888] mt-1">
+            Logged in as <span className="font-semibold text-[#F5F5F5]">{user?.name}</span> ({user?.email})
           </p>
         </div>
 
-        {/* Demo Switcher for Judges */}
+        {/* Demo Switcher */}
         <div>
-          <h4 className="text-xs font-bold uppercase tracking-wider text-[#DDA081] mb-3 flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5 text-[#CB6B5A]" />
-            <span>Hackathon Instant Switcher</span>
+          <h4 className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#666666] mb-3 flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5 text-[#E50914]" />
+            <span>Instant Demo Switcher</span>
           </h4>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {[
@@ -42,23 +42,23 @@ export const SettingsPage = () => {
               <button
                 key={acc.email}
                 onClick={() => quickSwitchDemoUser(acc.email)}
-                className="p-3 rounded-2xl bg-[#281A21] border border-[#703344] text-left hover:border-[#CB6B5A]/50 hover:bg-[#703344]/40 transition-all text-xs cursor-pointer"
+                className="p-3.5 rounded-2xl bg-[#161616] border border-[#242424] text-left hover:border-[#333333] hover:bg-[#202020] transition-all text-xs font-mono cursor-pointer"
               >
-                <div className="font-bold text-[#F6E8E2]">{acc.name}</div>
-                <div className="text-[#DDA081]">{acc.email}</div>
-                <div className="text-[10px] text-[#CB6B5A] font-semibold mt-1">{acc.role}</div>
+                <div className="font-bold text-[#F5F5F5]">{acc.name}</div>
+                <div className="text-[#888888] text-[11px]">{acc.email}</div>
+                <div className="text-[10px] text-[#E50914] font-semibold mt-1">{acc.role}</div>
               </button>
             ))}
           </div>
         </div>
 
         {/* Tech Stack Details */}
-        <div className="pt-4 border-t border-[#703344] text-xs text-[#DDA081] space-y-1">
-          <div className="font-bold text-[#F6E8E2]">TeamForge Engine Info:</div>
-          <div>• Frontend: React 18 + Vite + Tailwind CSS + Lucide Icons</div>
+        <div className="pt-4 border-t border-[#1F1F1F] text-xs font-mono text-[#888888] space-y-1.5">
+          <div className="font-bold text-[#F5F5F5]">ENGINE SPECIFICATIONS:</div>
+          <div>• Frontend: React 18 + Vite + Tailwind CSS + Nothing OS Tokens</div>
           <div>• Backend: Node.js + Express.js + Mongoose (MongoDB)</div>
-          <div>• AI Engine: Isolated Google Gemini API + Deterministic Fallback</div>
-          <div>• Matching Algorithm: Weighted Multi-factor Scoring (Skills 50%, Interests 20%, Availability 20%, Experience 10%)</div>
+          <div>• AI Engine: Google Gemini API + Deterministic Fallback</div>
+          <div>• Realtime: WebRTC Mesh Video Calling + Socket.io Messaging</div>
         </div>
       </div>
     </div>

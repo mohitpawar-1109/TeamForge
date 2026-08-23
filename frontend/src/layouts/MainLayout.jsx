@@ -13,16 +13,15 @@ import {
   LogOut,
   Menu,
   X,
-  Layers,
   MessageSquare,
   Network,
   Search,
   Trophy,
-  Download
+  Download,
+  Plus
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { usePwa } from '../context/PwaContext';
-import { Button } from '../components/common/Button';
 import { NotificationDropdown } from '../components/navigation/NotificationDropdown';
 
 export const MainLayout = () => {
@@ -49,60 +48,72 @@ export const MainLayout = () => {
     { label: 'Explore', path: '/projects', icon: Compass },
     { label: 'Skill Network', path: '/network', icon: Network },
     { label: 'My Projects', path: '/my-projects', icon: FolderGit2 },
-    {
-      label: 'Invitations',
-      path: '/invitations',
-      icon: Mail
-    },
+    { label: 'Invitations', path: '/invitations', icon: Mail },
     { label: 'Profile', path: '/profile', icon: User },
     { label: 'Settings', path: '/settings', icon: Settings },
   ];
 
   return (
-    <div className="min-h-screen bg-[#281A21] text-[#F6E8E2] flex">
-      {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex flex-col w-64 border-r border-[#703344] bg-[#4A2A35] sticky top-0 h-screen z-30 justify-between">
-        <div>
+    <div className="min-h-screen bg-[#050505] text-[#F5F5F5] flex">
+      {/* Desktop Nothing OS Sidebar */}
+      <aside className="hidden lg:flex flex-col w-[265px] border-r border-[#1F1F1F] bg-[#050505] sticky top-0 h-screen z-30 justify-between select-none">
+        <div className="flex flex-col">
           {/* Logo Header */}
-          <div className="h-16 flex items-center px-6 border-b border-[#703344] gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#A84A4D] to-[#CB6B5A] flex items-center justify-center shadow-md shadow-[#A84A4D]/25">
-              <Layers className="w-4 h-4 text-[#F6E8E2]" />
+          <div className="h-16 flex items-center px-6 border-b border-[#1F1F1F] gap-3">
+            <div className="w-5 h-5 rounded-full bg-[#111111] border border-[#242424] flex items-center justify-center relative">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#E50914] shadow-[0_0_8px_rgba(229,9,20,0.8)]"></span>
             </div>
-            <span className="text-lg font-bold tracking-tight text-[#F6E8E2]">
-              TEAM<span className="text-[#CB6B5A]">FORGE</span>
-            </span>
+            <Link to="/dashboard" className="text-sm font-bold font-mono tracking-wider text-white">
+              TEAM <span className="text-[#E50914]">(FORGE)</span>
+            </Link>
           </div>
 
-          {/* Quick Create Action */}
-          <div className="p-4">
-            <Link to="/projects/create">
-              <Button variant="primary" size="md" icon={PlusCircle} className="w-full justify-center shadow-sm">
-                Create Project
-              </Button>
+          {/* Quick Create Action Button */}
+          <div className="px-4 pt-4 pb-2">
+            <Link to="/projects/create" className="block">
+              <button
+                type="button"
+                className="w-full bg-white hover:bg-neutral-200 text-black font-mono font-bold text-xs uppercase tracking-wider rounded-full py-2.5 px-4 flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer active:scale-[0.98]"
+              >
+                <PlusCircle className="w-3.5 h-3.5 text-black" />
+                <span>+ NEW PROJECT</span>
+              </button>
             </Link>
           </div>
 
           {/* Nav List */}
-          <nav className="px-3 space-y-1">
+          <nav className="px-3 py-2 space-y-1 overflow-y-auto max-h-[calc(100vh-270px)]">
             {navItems.map((item) => {
               const Icon = item.icon;
-              const isActive = location.pathname === item.path;
+              const isActive = location.pathname === item.path || (item.path === '/projects' && location.pathname.startsWith('/projects') && location.pathname !== '/projects/create' && location.pathname !== '/my-projects');
               return (
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                  className={`flex items-center justify-between px-3.5 py-2.5 rounded-full text-xs font-mono transition-all ${
                     isActive
-                      ? 'bg-[#703344] text-[#F6E8E2] font-semibold border border-[#A84A4D]/50 shadow-xs'
-                      : 'text-[#DDA081] hover:bg-[#703344]/50 hover:text-[#F6E8E2]'
+                      ? 'bg-white text-black font-bold shadow-sm'
+                      : 'text-[#888888] hover:text-white hover:bg-[#111111]/70'
                   }`}
                 >
-                  <div className="flex items-center gap-3">
-                    <Icon className={`w-4 h-4 ${isActive ? 'text-[#F6E8E2]' : 'text-[#DDA081]'}`} />
-                    <span>{item.label}</span>
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    {isActive ? (
+                      <span className="w-2 h-2 rounded-full bg-[#E50914] flex-shrink-0 shadow-[0_0_6px_rgba(229,9,20,0.8)]"></span>
+                    ) : (
+                      <Icon className="w-3.5 h-3.5 text-[#777777] flex-shrink-0" />
+                    )}
+                    <span className="truncate">{item.label}</span>
                   </div>
                   {item.badge ? (
-                    <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-[#A84A4D] text-[#F6E8E2]">
+                    <span
+                      className={`px-2 py-0.5 rounded-full text-[10px] font-mono tracking-tight font-bold ${
+                        isActive
+                          ? 'bg-[#E50914] text-white'
+                          : item.badge === 'Live'
+                          ? 'bg-[#E50914]/20 text-[#E50914] border border-[#E50914]/40'
+                          : 'bg-[#161616] text-[#A1A1A1] border border-[#242424]'
+                      }`}
+                    >
                       {item.badge}
                     </span>
                   ) : null}
@@ -115,14 +126,14 @@ export const MainLayout = () => {
               <button
                 type="button"
                 onClick={promptInstall}
-                className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-[#86B190] bg-[#5B8A68]/20 border border-[#5B8A68]/40 hover:bg-[#5B8A68]/30 transition-all cursor-pointer mt-2 shadow-xs"
+                className="w-full flex items-center justify-between px-3.5 py-2 rounded-full text-xs font-mono font-bold text-[#20D47A] bg-[#20D47A]/10 border border-[#20D47A]/30 hover:bg-[#20D47A]/20 transition-all cursor-pointer mt-2"
               >
-                <div className="flex items-center gap-2.5">
-                  <Download className="w-3.5 h-3.5 text-[#86B190]" />
-                  <span>Install Web App</span>
+                <div className="flex items-center gap-2">
+                  <Download className="w-3.5 h-3.5 text-[#20D47A]" />
+                  <span>INSTALL PWA</span>
                 </div>
-                <span className="text-[9px] uppercase tracking-wider bg-[#5B8A68]/30 text-[#86B190] px-1.5 py-0.5 rounded-full">
-                  PWA
+                <span className="text-[9px] uppercase tracking-wider bg-[#20D47A]/20 text-[#20D47A] px-1.5 py-0.5 rounded-full font-mono">
+                  APP
                 </span>
               </button>
             )}
@@ -130,63 +141,66 @@ export const MainLayout = () => {
         </div>
 
         {/* User Card & Demo Switcher at Bottom */}
-        <div className="p-4 border-t border-[#703344] bg-[#4A2A35]">
+        <div className="p-4 border-t border-[#1F1F1F] bg-[#050505]">
           <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2.5 min-w-0">
+            <Link to="/profile" className="flex items-center gap-2.5 min-w-0 group">
               <img
                 src={user?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.name}`}
                 alt={user?.name}
-                className="w-9 h-9 rounded-xl object-cover border border-[#703344] bg-[#281A21] flex-shrink-0"
+                className="w-8 h-8 rounded-full object-cover border border-[#242424] bg-[#111111] flex-shrink-0"
               />
               <div className="min-w-0">
-                <p className="text-xs font-bold text-[#F6E8E2] truncate">{user?.name}</p>
-                <p className="text-[11px] text-[#DDA081] truncate">{user?.course || 'Student'}</p>
+                <p className="text-xs font-bold text-[#F5F5F5] group-hover:text-white truncate">{user?.name || 'Mohit'}</p>
+                <p className="text-[10px] font-mono text-[#666666] truncate">// {user?.course || 'Computer Science'}</p>
               </div>
-            </div>
+            </Link>
             <button
               onClick={logout}
               title="Logout"
-              className="p-1.5 rounded-lg text-[#DDA081] hover:text-[#E07D82] hover:bg-[#703344] transition-colors"
+              className="p-1.5 rounded-lg text-[#666666] hover:text-[#E50914] hover:bg-[#161616] transition-colors cursor-pointer"
             >
               <LogOut className="w-4 h-4" />
             </button>
           </div>
 
-          {/* Quick Demo Switcher Mini Pills */}
-          <div className="pt-2 border-t border-[#703344]">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#DDA081] block mb-1">
-              Switch Demo User:
+          {/* Quick Demo Switcher */}
+          <div className="pt-2 border-t border-[#1F1F1F]">
+            <span className="text-[10px] font-mono text-[#666666] block mb-1.5 tracking-wider">
+              // SWITCH_DEMO:
             </span>
             <div className="grid grid-cols-3 gap-1">
               <button
+                type="button"
                 onClick={() => quickSwitchDemoUser('mohit@teamforge.app')}
-                className={`text-[10px] font-semibold py-1 rounded-lg border transition-all ${
+                className={`text-[10px] font-mono py-1 rounded-md border transition-all cursor-pointer ${
                   user?.email === 'mohit@teamforge.app'
-                    ? 'bg-[#A84A4D] text-[#F6E8E2] border-[#CB6B5A]/60 font-bold'
-                    : 'bg-[#281A21] text-[#DDA081] border-[#703344] hover:bg-[#703344] hover:text-[#F6E8E2]'
+                    ? 'bg-white text-black border-white font-bold'
+                    : 'bg-[#111111] text-[#777777] border-[#242424] hover:text-white hover:border-[#333333]'
                 }`}
               >
-                Mohit
+                MOHIT
               </button>
               <button
+                type="button"
                 onClick={() => quickSwitchDemoUser('priya@teamforge.app')}
-                className={`text-[10px] font-semibold py-1 rounded-lg border transition-all ${
+                className={`text-[10px] font-mono py-1 rounded-md border transition-all cursor-pointer ${
                   user?.email === 'priya@teamforge.app'
-                    ? 'bg-[#A84A4D] text-[#F6E8E2] border-[#CB6B5A]/60 font-bold'
-                    : 'bg-[#281A21] text-[#DDA081] border-[#703344] hover:bg-[#703344] hover:text-[#F6E8E2]'
+                    ? 'bg-white text-black border-white font-bold'
+                    : 'bg-[#111111] text-[#777777] border-[#242424] hover:text-white hover:border-[#333333]'
                 }`}
               >
-                Priya
+                PRIYA
               </button>
               <button
+                type="button"
                 onClick={() => quickSwitchDemoUser('aarav@teamforge.app')}
-                className={`text-[10px] font-semibold py-1 rounded-lg border transition-all ${
+                className={`text-[10px] font-mono py-1 rounded-md border transition-all cursor-pointer ${
                   user?.email === 'aarav@teamforge.app'
-                    ? 'bg-[#A84A4D] text-[#F6E8E2] border-[#CB6B5A]/60 font-bold'
-                    : 'bg-[#281A21] text-[#DDA081] border-[#703344] hover:bg-[#703344] hover:text-[#F6E8E2]'
+                    ? 'bg-white text-black border-white font-bold'
+                    : 'bg-[#111111] text-[#777777] border-[#242424] hover:text-white hover:border-[#333333]'
                 }`}
               >
-                Aarav
+                AARAV
               </button>
             </div>
           </div>
@@ -196,44 +210,46 @@ export const MainLayout = () => {
       {/* Main Content Column */}
       <div className="flex-1 flex flex-col min-w-0 pb-20 lg:pb-8">
         {/* Top Header Bar */}
-        <header className="sticky top-0 z-20 h-16 bg-[#281A21]/90 backdrop-blur-md border-b border-[#703344] px-4 sm:px-8 flex items-center justify-between gap-4">
+        <header className="sticky top-0 z-20 h-16 bg-[#050505]/95 backdrop-blur-md border-b border-[#1F1F1F] px-4 sm:px-8 flex items-center justify-between gap-4">
           {/* Mobile hamburger & title */}
           <div className="flex items-center gap-3 lg:hidden">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-xl text-[#DDA081] hover:bg-[#4A2A35] hover:text-[#F6E8E2]"
+              className="p-2 rounded-xl text-[#A1A1A1] hover:bg-[#161616] hover:text-white"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
-            <span className="font-bold text-[#F6E8E2] text-base">TEAMFORGE</span>
+            <span className="font-mono font-bold text-white text-sm">
+              TEAM <span className="text-[#E50914]">(FORGE)</span>
+            </span>
           </div>
 
-          {/* Global Search Bar */}
-          <form onSubmit={handleSearchSubmit} className="hidden sm:flex items-center flex-1 max-w-md relative">
-            <Search className="w-4 h-4 text-[#DDA081] absolute left-3 pointer-events-none" />
+          {/* Global Technical Search Bar */}
+          <form onSubmit={handleSearchSubmit} className="hidden sm:flex items-center flex-1 max-w-lg relative">
+            <Search className="w-3.5 h-3.5 text-[#666666] absolute left-3.5 pointer-events-none" />
             <input
               type="text"
-              placeholder="Search projects, skills, students..."
+              placeholder="[ SEARCH_PROJECTS_SKILLS_STUDENTS_ ]"
               value={globalSearch}
               onChange={(e) => setGlobalSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 text-xs sm:text-sm bg-[#4A2A35] border border-[#703344] text-[#F6E8E2] placeholder-[#DDA081] rounded-xl focus:bg-[#281A21] focus:border-[#CB6B5A] focus:outline-none transition-all"
+              className="w-full pl-9 pr-4 py-2 text-xs font-mono bg-[#111111] border border-[#242424] text-[#F5F5F5] placeholder-[#555555] rounded-full focus:bg-[#161616] focus:border-[#E50914] focus:outline-none transition-all"
             />
           </form>
 
           {/* Right Header Actions */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            {/* Notification Bell Dropdown Component */}
+          <div className="flex items-center gap-3">
+            {/* Notification Bell Dropdown */}
             <NotificationDropdown />
 
-            {/* Quick User Avatar */}
-            <Link to="/profile" className="flex items-center gap-2 pl-2">
+            {/* User Avatar */}
+            <Link to="/profile" className="flex items-center gap-2 pl-1 group">
               <img
                 src={user?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.name}`}
                 alt={user?.name}
-                className="w-8 h-8 rounded-xl object-cover border border-[#703344] bg-[#4A2A35]"
+                className="w-7 h-7 rounded-full object-cover border border-[#242424] bg-[#111111]"
               />
-              <span className="hidden sm:inline-block text-xs font-semibold text-[#DDA081] max-w-[100px] truncate">
-                {user?.name}
+              <span className="hidden sm:inline-block text-xs font-medium text-[#A1A1A1] group-hover:text-white max-w-[120px] truncate">
+                {user?.name || 'Mohit'}
               </span>
             </Link>
           </div>
@@ -241,12 +257,15 @@ export const MainLayout = () => {
 
         {/* Mobile Flyout Menu */}
         {mobileMenuOpen && (
-          <div className="lg:hidden fixed inset-0 z-40 bg-black/75 backdrop-blur-xs" onClick={() => setMobileMenuOpen(false)}>
-            <div className="w-64 bg-[#4A2A35] border-r border-[#703344] h-full p-4 flex flex-col justify-between" onClick={e => e.stopPropagation()}>
+          <div className="lg:hidden fixed inset-0 z-40 bg-black/80 backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)}>
+            <div className="w-68 bg-[#0A0A0A] border-r border-[#1F1F1F] h-full p-4 flex flex-col justify-between" onClick={e => e.stopPropagation()}>
               <div>
-                <div className="flex items-center justify-between pb-4 border-b border-[#703344] mb-4">
-                  <span className="font-bold text-[#F6E8E2]">TEAMFORGE</span>
-                  <button onClick={() => setMobileMenuOpen(false)}><X className="w-5 h-5 text-[#DDA081]" /></button>
+                <div className="flex items-center justify-between pb-4 border-b border-[#1F1F1F] mb-4">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#E50914]"></span>
+                    <span className="font-mono font-bold text-white text-sm">TEAM (FORGE)</span>
+                  </div>
+                  <button onClick={() => setMobileMenuOpen(false)}><X className="w-5 h-5 text-[#888888]" /></button>
                 </div>
                 <nav className="space-y-1">
                   {navItems.map((item) => {
@@ -257,45 +276,30 @@ export const MainLayout = () => {
                         key={item.path}
                         to={item.path}
                         onClick={() => setMobileMenuOpen(false)}
-                        className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium ${
+                        className={`flex items-center gap-3 px-3.5 py-2.5 rounded-full text-xs font-mono ${
                           isActive
-                            ? 'bg-[#703344] text-[#F6E8E2] border border-[#A84A4D]/50'
-                            : 'text-[#DDA081] hover:bg-[#703344]/50 hover:text-[#F6E8E2]'
+                            ? 'bg-white text-black font-bold'
+                            : 'text-[#888888] hover:bg-[#161616] hover:text-white'
                         }`}
                       >
-                        <Icon className="w-4 h-4 text-[#DDA081]" />
+                        {isActive ? (
+                          <span className="w-2 h-2 rounded-full bg-[#E50914]"></span>
+                        ) : (
+                          <Icon className="w-4 h-4 text-[#666666]" />
+                        )}
                         <span>{item.label}</span>
                       </Link>
                     );
                   })}
-
-                  {isInstallable && !isInstalled && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setMobileMenuOpen(false);
-                        promptInstall();
-                      }}
-                      className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-bold text-[#86B190] bg-[#5B8A68]/20 border border-[#5B8A68]/40 hover:bg-[#5B8A68]/30 transition-all cursor-pointer mt-2"
-                    >
-                      <div className="flex items-center gap-3">
-                        <Download className="w-4 h-4 text-[#86B190]" />
-                        <span>Install TeamForge App</span>
-                      </div>
-                      <span className="text-[9px] uppercase tracking-wider bg-[#5B8A68]/30 text-[#86B190] px-1.5 py-0.5 rounded-full">
-                        PWA
-                      </span>
-                    </button>
-                  )}
                 </nav>
               </div>
 
               <button
                 onClick={logout}
-                className="flex items-center gap-2 p-3 text-[#E07D82] hover:bg-[#703344] rounded-xl text-sm font-medium"
+                className="flex items-center gap-2 p-3 text-[#E50914] hover:bg-[#161616] rounded-xl text-xs font-mono"
               >
                 <LogOut className="w-4 h-4" />
-                <span>Logout</span>
+                <span>LOGOUT</span>
               </button>
             </div>
           </div>
@@ -308,28 +312,28 @@ export const MainLayout = () => {
       </div>
 
       {/* Mobile Bottom Navigation Bar */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 h-16 bg-[#281A21]/95 backdrop-blur-md border-t border-[#703344] z-30 flex items-center justify-around px-2">
-        <Link to="/dashboard" className={`flex flex-col items-center gap-1 text-[10px] font-medium ${location.pathname === '/dashboard' ? 'text-[#CB6B5A] font-bold' : 'text-[#DDA081] hover:text-[#CB6B5A]'}`}>
-          <LayoutDashboard className="w-5 h-5" />
-          <span>Home</span>
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 h-16 bg-[#050505]/95 backdrop-blur-md border-t border-[#1F1F1F] z-30 flex items-center justify-around px-2">
+        <Link to="/dashboard" className={`flex flex-col items-center gap-1 text-[10px] font-mono ${location.pathname === '/dashboard' ? 'text-white font-bold' : 'text-[#777777] hover:text-white'}`}>
+          <LayoutDashboard className="w-4 h-4" />
+          <span>HOME</span>
         </Link>
-        <Link to="/groups" className={`flex flex-col items-center gap-1 text-[10px] font-medium ${location.pathname.startsWith('/groups') ? 'text-[#CB6B5A] font-bold' : 'text-[#DDA081] hover:text-[#CB6B5A]'}`}>
-          <Users className="w-5 h-5" />
-          <span>Chat</span>
+        <Link to="/groups" className={`flex flex-col items-center gap-1 text-[10px] font-mono ${location.pathname.startsWith('/groups') ? 'text-white font-bold' : 'text-[#777777] hover:text-white'}`}>
+          <Users className="w-4 h-4" />
+          <span>CHAT</span>
         </Link>
-        <Link to="/projects/create" className="flex flex-col items-center gap-1 text-[10px] font-medium text-[#CB6B5A]">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#A84A4D] to-[#CB6B5A] text-[#F6E8E2] flex items-center justify-center shadow-md shadow-[#A84A4D]/25">
-            <PlusCircle className="w-5 h-5" />
+        <Link to="/projects/create" className="flex flex-col items-center gap-1 text-[10px] font-mono text-white">
+          <div className="w-8 h-8 rounded-full bg-white text-black flex items-center justify-center shadow-md">
+            <Plus className="w-4 h-4 text-black" />
           </div>
-          <span>Create</span>
+          <span>NEW</span>
         </Link>
-        <Link to="/projects" className={`flex flex-col items-center gap-1 text-[10px] font-medium ${location.pathname === '/projects' ? 'text-[#CB6B5A] font-bold' : 'text-[#DDA081] hover:text-[#CB6B5A]'}`}>
-          <Compass className="w-5 h-5" />
-          <span>Explore</span>
+        <Link to="/projects" className={`flex flex-col items-center gap-1 text-[10px] font-mono ${location.pathname === '/projects' ? 'text-white font-bold' : 'text-[#777777] hover:text-white'}`}>
+          <Compass className="w-4 h-4" />
+          <span>EXPLORE</span>
         </Link>
-        <Link to="/profile" className={`flex flex-col items-center gap-1 text-[10px] font-medium ${location.pathname === '/profile' ? 'text-[#CB6B5A] font-bold' : 'text-[#DDA081] hover:text-[#CB6B5A]'}`}>
-          <User className="w-5 h-5" />
-          <span>Profile</span>
+        <Link to="/profile" className={`flex flex-col items-center gap-1 text-[10px] font-mono ${location.pathname === '/profile' ? 'text-white font-bold' : 'text-[#777777] hover:text-white'}`}>
+          <User className="w-4 h-4" />
+          <span>PROFILE</span>
         </Link>
       </div>
     </div>

@@ -5,7 +5,6 @@ import { authAPI } from '../services/api';
 import { useToast } from '../context/ToastContext';
 import { Button } from '../components/common/Button';
 
-// Calculate password strength score (0 to 100)
 const calculateStrength = (pass = '') => {
   let score = 0;
   if (!pass) return { score: 0, label: 'None', color: 'bg-zinc-700' };
@@ -15,9 +14,9 @@ const calculateStrength = (pass = '') => {
   if (/[a-z]/.test(pass) && /[A-Z]/.test(pass)) score += 15;
   if (/[^A-Za-z0-9]/.test(pass)) score += 15;
 
-  if (score < 40) return { score, label: 'Weak', color: 'bg-[#C04A4D]' };
-  if (score < 75) return { score, label: 'Good', color: 'bg-[#D99443]' };
-  return { score, label: 'Strong', color: 'bg-[#5B8A68]' };
+  if (score < 40) return { score, label: 'Weak', color: 'bg-[#FF1F2D]' };
+  if (score < 75) return { score, label: 'Good', color: 'bg-[#F2B705]' };
+  return { score, label: 'Strong', color: 'bg-[#20D47A]' };
 };
 
 export const ResetPasswordPage = () => {
@@ -35,7 +34,6 @@ export const ResetPasswordPage = () => {
   const [loading, setLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  // Redirect if missing credentials
   useEffect(() => {
     if (!email || !resetToken) {
       navigate('/forgot-password');
@@ -83,15 +81,14 @@ export const ResetPasswordPage = () => {
       <div className="w-full max-w-md">
         {/* Brand Header */}
         <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-2 mb-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#A84A4D] to-[#CB6B5A] flex items-center justify-center text-[#F6E8E2] shadow-md shadow-[#A84A4D]/20">
-              <Layers className="w-5 h-5" />
-            </div>
-          </Link>
-          <h2 className="text-2xl font-extrabold text-[#F6E8E2] tracking-tight">
+          <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#111111] border border-[#242424] mb-3">
+            <span className="w-2 h-2 rounded-full bg-[#E50914] animate-pulse" />
+            <span className="text-[10px] font-mono font-bold tracking-widest text-[#F5F5F5]">TEAM (FORGE)</span>
+          </div>
+          <h2 className="text-2xl font-bold text-[#F5F5F5] tracking-tight">
             {isSuccess ? 'Password Reset Complete' : 'Create new password'}
           </h2>
-          <p className="text-xs text-[#DDA081] mt-1.5 max-w-xs mx-auto">
+          <p className="text-xs font-mono text-[#888888] mt-1.5 max-w-xs mx-auto">
             {isSuccess
               ? 'Your password has been securely updated in TeamForge.'
               : 'Choose a strong password with at least 8 characters.'}
@@ -99,17 +96,16 @@ export const ResetPasswordPage = () => {
         </div>
 
         {/* Card */}
-        <div className="bg-[#4A2A35] rounded-2xl border border-[#703344] p-6 sm:p-8 shadow-soft">
+        <div className="bg-[#111111] rounded-3xl border border-[#242424] p-6 sm:p-8 shadow-soft">
           {isSuccess ? (
-            /* STEP 5: SUCCESS STATE */
             <div className="text-center py-4 space-y-6">
-              <div className="w-16 h-16 rounded-full bg-[#5B8A68]/20 border border-[#5B8A68]/40 flex items-center justify-center mx-auto text-[#86B190] shadow-lg shadow-[#5B8A68]/10">
+              <div className="w-16 h-16 rounded-full bg-[#20D47A]/10 border border-[#20D47A]/30 flex items-center justify-center mx-auto text-[#20D47A]">
                 <CheckCircle2 className="w-8 h-8" />
               </div>
 
               <div>
-                <h3 className="text-lg font-bold text-[#F6E8E2]">Password reset successful!</h3>
-                <p className="text-xs text-[#DDA081] mt-1">
+                <h3 className="text-lg font-bold text-[#F5F5F5]">Password reset successful!</h3>
+                <p className="text-xs font-mono text-[#888888] mt-1">
                   You can now sign in to TeamForge with your new password.
                 </p>
               </div>
@@ -122,15 +118,14 @@ export const ResetPasswordPage = () => {
               </Link>
             </div>
           ) : (
-            /* STEP 4: RESET PASSWORD FORM */
             <form onSubmit={handleSubmit} className="space-y-5">
               {/* New Password */}
               <div>
-                <label className="block text-xs font-semibold text-[#DDA081] mb-1.5">
+                <label className="block text-[10px] font-mono font-bold text-[#888888] uppercase mb-1.5">
                   New Password
                 </label>
                 <div className="relative">
-                  <Lock className="w-4 h-4 text-[#DDA081] absolute left-3 top-3.5 pointer-events-none" />
+                  <Lock className="w-4 h-4 text-[#666666] absolute left-3.5 top-3.5 pointer-events-none" />
                   <input
                     type={showPassword ? 'text' : 'password'}
                     required
@@ -138,25 +133,24 @@ export const ResetPasswordPage = () => {
                     placeholder="At least 8 characters"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-9 pr-10 py-2.5 text-sm bg-[#281A21] border border-[#703344] text-[#F6E8E2] rounded-xl focus:bg-[#281A21] focus:border-[#CB6B5A] focus:outline-none transition-all placeholder:text-[#DDA081]"
+                    className="w-full pl-10 pr-10 py-2.5 text-xs sm:text-sm font-mono bg-[#161616] border border-[#242424] text-[#F5F5F5] rounded-full focus:border-[#E50914] focus:outline-none transition-all placeholder:text-[#555555]"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-3.5 text-[#DDA081] hover:text-[#F6E8E2] focus:outline-none cursor-pointer"
+                    className="absolute right-3.5 top-3 text-[#888888] hover:text-[#F5F5F5] focus:outline-none cursor-pointer"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
 
-                {/* Password Strength Indicator */}
                 {password && (
                   <div className="mt-2 space-y-1">
-                    <div className="flex justify-between items-center text-[10px] text-[#DDA081]">
+                    <div className="flex justify-between items-center text-[10px] font-mono text-[#888888]">
                       <span>Strength</span>
-                      <span className="font-semibold text-[#F6E8E2]">{strength.label}</span>
+                      <span className="font-semibold text-[#F5F5F5]">{strength.label}</span>
                     </div>
-                    <div className="w-full bg-[#281A21] h-1.5 rounded-full overflow-hidden">
+                    <div className="w-full bg-[#161616] h-1 rounded-full overflow-hidden">
                       <div
                         className={`h-full ${strength.color} transition-all duration-300`}
                         style={{ width: `${strength.score}%` }}
@@ -168,11 +162,11 @@ export const ResetPasswordPage = () => {
 
               {/* Confirm Password */}
               <div>
-                <label className="block text-xs font-semibold text-[#DDA081] mb-1.5">
+                <label className="block text-[10px] font-mono font-bold text-[#888888] uppercase mb-1.5">
                   Confirm Password
                 </label>
                 <div className="relative">
-                  <Lock className="w-4 h-4 text-[#DDA081] absolute left-3 top-3.5 pointer-events-none" />
+                  <Lock className="w-4 h-4 text-[#666666] absolute left-3.5 top-3.5 pointer-events-none" />
                   <input
                     type={showConfirmPassword ? 'text' : 'password'}
                     required
@@ -180,22 +174,22 @@ export const ResetPasswordPage = () => {
                     placeholder="Re-enter password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className={`w-full pl-9 pr-10 py-2.5 text-sm bg-[#281A21] border text-[#F6E8E2] rounded-xl focus:bg-[#281A21] focus:outline-none transition-all placeholder:text-[#DDA081] ${
+                    className={`w-full pl-10 pr-10 py-2.5 text-xs sm:text-sm font-mono bg-[#161616] border text-[#F5F5F5] rounded-full focus:outline-none transition-all placeholder:text-[#555555] ${
                       confirmPassword && confirmPassword !== password
-                        ? 'border-[#C04A4D] focus:border-[#C04A4D]'
-                        : 'border-[#703344] focus:border-[#CB6B5A]'
+                        ? 'border-[#FF1F2D]'
+                        : 'border-[#242424] focus:border-[#E50914]'
                     }`}
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-3.5 text-[#DDA081] hover:text-[#F6E8E2] focus:outline-none cursor-pointer"
+                    className="absolute right-3.5 top-3 text-[#888888] hover:text-[#F5F5F5] focus:outline-none cursor-pointer"
                   >
                     {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
                 {confirmPassword && confirmPassword !== password && (
-                  <p className="text-[11px] text-[#E07D82] mt-1">Passwords do not match</p>
+                  <p className="text-[11px] font-mono text-[#FF1F2D] mt-1">Passwords do not match</p>
                 )}
               </div>
 

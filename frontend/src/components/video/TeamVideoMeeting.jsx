@@ -49,16 +49,16 @@ export const TeamVideoMeeting = ({
 
   // Connection & Room States
   const [meetingTitle, setMeetingTitle] = useState('Team Video Meeting');
-  const [connectionStatus, setConnectionStatus] = useState('connecting'); // 'connecting' | 'connected' | 'disconnected'
-  const [participants, setParticipants] = useState(new Map()); // socketId -> { info, stream, lastUpdated }
+  const [connectionStatus, setConnectionStatus] = useState('connecting');
+  const [participants, setParticipants] = useState(new Map());
   const [mediaError, setMediaError] = useState(null);
 
   // Refs for stable, non-stale WebRTC resources across closures
   const localVideoRef = useRef(null);
   const localStreamRef = useRef(null);
-  const peersRef = useRef(new Map()); // socketId -> RTCPeerConnection
-  const remoteStreamsRef = useRef(new Map()); // socketId -> MediaStream
-  const iceCandidateQueues = useRef(new Map()); // socketId -> Array<candidate>
+  const peersRef = useRef(new Map());
+  const remoteStreamsRef = useRef(new Map());
+  const iceCandidateQueues = useRef(new Map());
   const iceServersRef = useRef([{ urls: 'stun:stun.l.google.com:19302' }]);
   const containerRef = useRef(null);
 
@@ -109,14 +109,6 @@ export const TeamVideoMeeting = ({
         }
       }
 
-      // Log local audio tracks
-      stream.getAudioTracks().forEach((track) => {
-        console.log(`[WEBRTC] LOCAL AUDIO TRACK: id=${track.id}, enabled=${track.enabled}, readyState=${track.readyState}`);
-      });
-      stream.getVideoTracks().forEach((track) => {
-        console.log(`[WEBRTC] LOCAL VIDEO TRACK: id=${track.id}, enabled=${track.enabled}, readyState=${track.readyState}`);
-      });
-
       localStreamRef.current = stream;
       setLocalStream(stream);
       if (localVideoRef.current) {
@@ -132,7 +124,6 @@ export const TeamVideoMeeting = ({
 
   // 2. Create WebRTC Peer Connection for a remote peer
   const createPeerConnection = useCallback((targetSocketId) => {
-    // Prevent duplicate peer connections for the same socket
     if (peersRef.current.has(targetSocketId)) {
       console.log(`[WEBRTC] Reusing existing RTCPeerConnection for ${targetSocketId}`);
       return peersRef.current.get(targetSocketId);
@@ -145,16 +136,13 @@ export const TeamVideoMeeting = ({
 
     peersRef.current.set(targetSocketId, pc);
 
-    // Add all current local tracks to this peer connection
     const currentStream = localStreamRef.current;
     if (currentStream) {
       currentStream.getTracks().forEach((track) => {
-        console.log(`[WEBRTC] Adding local track (${track.kind}, id=${track.id}) to peer ${targetSocketId}`);
         pc.addTrack(track, currentStream);
       });
     }
 
-    // ICE candidate exchange
     pc.onicecandidate = (event) => {
       if (event.candidate && socket) {
         socket.emit('webrtc_ice_candidate', {
@@ -164,31 +152,18 @@ export const TeamVideoMeeting = ({
       }
     };
 
-    // Remote track arrived (audio or video)
     pc.ontrack = (event) => {
       const track = event.track;
-      console.log(`[WEBRTC] Remote track received from ${targetSocketId}: kind=${track.kind}, id=${track.id}, enabled=${track.enabled}, readyState=${track.readyState}`);
-
-      if (track.kind === 'audio') {
-        console.log(`[WEBRTC] REMOTE AUDIO TRACK RECEIVED from ${targetSocketId}`);
-      }
-
       let remoteStream = remoteStreamsRef.current.get(targetSocketId);
       if (!remoteStream) {
         remoteStream = new MediaStream();
         remoteStreamsRef.current.set(targetSocketId, remoteStream);
       }
 
-      // Replace existing tracks of the same kind to prevent duplication
       remoteStream.getTracks().filter((t) => t.kind === track.kind).forEach((t) => {
         remoteStream.removeTrack(t);
       });
       remoteStream.addTrack(track);
-
-      // Track lifecycle logging
-      track.onmute = () => console.log(`[WEBRTC] Remote track muted (${track.kind}) from ${targetSocketId}`);
-      track.onunmute = () => console.log(`[WEBRTC] Remote track unmuted (${track.kind}) from ${targetSocketId}`);
-      track.onended = () => console.log(`[WEBRTC] Remote track ended (${track.kind}) from ${targetSocketId}`);
 
       setParticipants((prev) => {
         const next = new Map(prev);
@@ -202,13 +177,10 @@ export const TeamVideoMeeting = ({
       });
     };
 
-    // Connection state diagnostics
     pc.onconnectionstatechange = () => {
-      console.log(`[WEBRTC] ${targetSocketId} connectionState: ${pc.connectionState}`);
       if (pc.connectionState === 'connected') {
         setConnectionStatus('connected');
       } else if (pc.connectionState === 'failed' || pc.connectionState === 'closed') {
-        console.warn(`[WEBRTC] Peer ${targetSocketId} connection failed or closed.`);
         peersRef.current.delete(targetSocketId);
         remoteStreamsRef.current.delete(targetSocketId);
         iceCandidateQueues.current.delete(targetSocketId);
@@ -218,14 +190,6 @@ export const TeamVideoMeeting = ({
           return next;
         });
       }
-    };
-
-    pc.oniceconnectionstatechange = () => {
-      console.log(`[WEBRTC] ${targetSocketId} iceConnectionState: ${pc.iceConnectionState}`);
-    };
-
-    pc.onsignalingstatechange = () => {
-      console.log(`[WEBRTC] ${targetSocketId} signalingState: ${pc.signalingState}`);
     };
 
     return pc;
@@ -239,7 +203,6 @@ export const TeamVideoMeeting = ({
       if (!socket || !roomId) return;
 
       try {
-        // Get authorized meeting configuration & ICE servers
         const res = await meetingAPI.getMeetingConfig({
           roomId,
           projectId,
@@ -259,12 +222,10 @@ export const TeamVideoMeeting = ({
           setMeetingTitle(res.data.data.title);
         }
 
-        // Initialize local video/audio
         await initLocalMedia();
 
         if (!isMounted) return;
 
-        // Join socket room
         socket.emit('join_meeting', { roomId }, async (resp) => {
           if (!resp?.success) {
             error(resp?.message || 'Could not join meeting.');
@@ -274,9 +235,7 @@ export const TeamVideoMeeting = ({
 
           setConnectionStatus('connected');
           const existing = resp.existingParticipants || [];
-          console.log(`[WEBRTC] Joined room ${roomId}. Found ${existing.length} existing participants:`, existing);
 
-          // Connect to each existing participant by creating an Offer
           for (const participant of existing) {
             const targetSocketId = participant.socketId;
             setParticipants((prev) => new Map(prev).set(targetSocketId, { ...participant }));
@@ -285,7 +244,6 @@ export const TeamVideoMeeting = ({
             const offer = await pc.createOffer();
             await pc.setLocalDescription(offer);
 
-            console.log(`[WEBRTC] Sending Offer to existing participant ${targetSocketId}`);
             socket.emit('webrtc_offer', {
               targetSocketId,
               sdp: offer,
@@ -298,7 +256,6 @@ export const TeamVideoMeeting = ({
           }
         });
       } catch (err) {
-        console.error('[WEBRTC] Error establishing meeting session:', err);
         error(err.response?.data?.message || 'Failed to authenticate meeting.');
         onLeave && onLeave();
       }
@@ -306,9 +263,7 @@ export const TeamVideoMeeting = ({
 
     setupMeeting();
 
-    // Socket Event: New User Joined -> store participant metadata and await their offer
     const handleUserJoined = ({ participant }) => {
-      console.log(`[WEBRTC] New participant joined room: ${participant.userName} (${participant.socketId})`);
       info(`${participant.userName} joined the meeting.`);
       setParticipants((prev) => {
         const next = new Map(prev);
@@ -317,9 +272,7 @@ export const TeamVideoMeeting = ({
       });
     };
 
-    // Socket Event: WebRTC Offer received
     const handleOffer = async ({ senderSocketId, sdp, callerInfo }) => {
-      console.log(`[WEBRTC] Received Offer from ${senderSocketId}`);
       let pc = peersRef.current.get(senderSocketId);
       if (!pc) {
         pc = createPeerConnection(senderSocketId);
@@ -342,7 +295,6 @@ export const TeamVideoMeeting = ({
       const answer = await pc.createAnswer();
       await pc.setLocalDescription(answer);
 
-      console.log(`[WEBRTC] Sending Answer back to ${senderSocketId}`);
       socket.emit('webrtc_answer', {
         targetSocketId: senderSocketId,
         sdp: answer,
@@ -354,9 +306,7 @@ export const TeamVideoMeeting = ({
       });
     };
 
-    // Socket Event: WebRTC Answer received
     const handleAnswer = async ({ senderSocketId, sdp }) => {
-      console.log(`[WEBRTC] Received Answer from ${senderSocketId}`);
       const pc = peersRef.current.get(senderSocketId);
       if (pc) {
         await pc.setRemoteDescription(new RTCSessionDescription(sdp));
@@ -364,7 +314,6 @@ export const TeamVideoMeeting = ({
       }
     };
 
-    // Socket Event: ICE Candidate received
     const handleIceCandidate = async ({ senderSocketId, candidate }) => {
       if (!candidate) return;
       const pc = peersRef.current.get(senderSocketId);
@@ -373,10 +322,9 @@ export const TeamVideoMeeting = ({
         try {
           await pc.addIceCandidate(new RTCIceCandidate(candidate));
         } catch (e) {
-          console.warn(`[WEBRTC] Error adding direct ICE candidate from ${senderSocketId}:`, e);
+          console.warn('[WEBRTC] Candidate add error:', e);
         }
       } else {
-        // Queue candidate until setRemoteDescription finishes
         if (!iceCandidateQueues.current.has(senderSocketId)) {
           iceCandidateQueues.current.set(senderSocketId, []);
         }
@@ -384,9 +332,7 @@ export const TeamVideoMeeting = ({
       }
     };
 
-    // Socket Event: Media toggled by peer
     const handleMediaToggled = ({ socketId, type, enabled }) => {
-      console.log(`[WEBRTC] Media toggle from ${socketId}: ${type}=${enabled}`);
       setParticipants((prev) => {
         const next = new Map(prev);
         const p = next.get(socketId);
@@ -400,17 +346,13 @@ export const TeamVideoMeeting = ({
       });
     };
 
-    // Socket Event: User Left
     const handleUserLeft = ({ socketId, userName }) => {
-      console.log(`[WEBRTC] User left: ${userName || socketId}`);
       info(`${userName || 'A participant'} left the meeting.`);
 
       if (peersRef.current.has(socketId)) {
         try {
           peersRef.current.get(socketId).close();
-        } catch (e) {
-          console.warn('[WEBRTC] Error closing peer connection on user leave:', e);
-        }
+        } catch (e) {}
         peersRef.current.delete(socketId);
       }
       if (remoteStreamsRef.current.has(socketId)) {
@@ -447,17 +389,13 @@ export const TeamVideoMeeting = ({
         socket.off('meeting_user_left', handleUserLeft);
       }
 
-      // Cleanup local tracks
       if (localStreamRef.current) {
         localStreamRef.current.getTracks().forEach((track) => track.stop());
         localStreamRef.current = null;
       }
 
-      // Cleanup all peer connections and remote streams
       peersRef.current.forEach((pc) => {
-        try {
-          pc.close();
-        } catch (e) {}
+        try { pc.close(); } catch (e) {}
       });
       peersRef.current.clear();
       remoteStreamsRef.current.forEach((stream) => {
@@ -468,7 +406,6 @@ export const TeamVideoMeeting = ({
     };
   }, [roomId, socket, createPeerConnection]);
 
-  // 4. Toggle Microphone (Audio Track)
   const toggleMicrophone = () => {
     const stream = localStreamRef.current;
     if (!stream) return;
@@ -490,7 +427,6 @@ export const TeamVideoMeeting = ({
     }
   };
 
-  // 5. Toggle Camera (Video Track)
   const toggleCamera = () => {
     const stream = localStreamRef.current;
     if (!stream) return;
@@ -512,7 +448,6 @@ export const TeamVideoMeeting = ({
     }
   };
 
-  // 6. Toggle Screen Sharing
   const toggleScreenShare = async () => {
     if (!isScreenSharing) {
       try {
@@ -523,7 +458,6 @@ export const TeamVideoMeeting = ({
 
         const screenTrack = sStream.getVideoTracks()[0];
 
-        // Replace track on all active peer connections
         peersRef.current.forEach((pc) => {
           const sender = pc.getSenders().find((s) => s.track && s.track.kind === 'video');
           if (sender) {
@@ -531,7 +465,6 @@ export const TeamVideoMeeting = ({
           }
         });
 
-        // Update local preview
         if (localVideoRef.current) {
           localVideoRef.current.srcObject = sStream;
         }
@@ -564,7 +497,6 @@ export const TeamVideoMeeting = ({
       setScreenStream(null);
     }
 
-    // Revert video track on all peer connections
     const stream = localStreamRef.current;
     if (stream) {
       const camTrack = stream.getVideoTracks()[0];
@@ -591,7 +523,6 @@ export const TeamVideoMeeting = ({
     }
   };
 
-  // 7. Fullscreen Toggle
   const toggleFullscreen = () => {
     if (!containerRef.current) return;
     if (!document.fullscreenElement) {
@@ -603,7 +534,6 @@ export const TeamVideoMeeting = ({
     }
   };
 
-  // 8. Leave Meeting Handler
   const handleLeave = () => {
     if (screenStream) {
       screenStream.getTracks().forEach((t) => t.stop());
@@ -619,9 +549,8 @@ export const TeamVideoMeeting = ({
   };
 
   const participantList = Array.from(participants.values());
-  const totalCount = participantList.length + 1; // + 1 for local user
+  const totalCount = participantList.length + 1;
 
-  // Adaptive Grid Layout Classes
   const getGridColsClass = () => {
     if (totalCount === 1) return 'grid-cols-1 max-w-2xl mx-auto';
     if (totalCount === 2) return 'grid-cols-1 md:grid-cols-2';
@@ -632,42 +561,41 @@ export const TeamVideoMeeting = ({
   return (
     <div
       ref={containerRef}
-      className={`flex flex-col bg-[#281A21] border border-[#703344] rounded-3xl overflow-hidden shadow-2xl relative ${
+      className={`flex flex-col bg-[#0A0A0A] border border-[#242424] rounded-3xl overflow-hidden shadow-soft relative ${
         isFullscreen ? 'h-screen w-screen rounded-none' : 'h-[750px] max-h-[85vh]'
       }`}
     >
       {/* Top Video Room Header */}
-      <div className="p-4 bg-[#4A2A35] border-b border-[#703344] flex flex-wrap items-center justify-between gap-4 z-10">
+      <div className="p-4 bg-[#111111] border-b border-[#1F1F1F] flex flex-wrap items-center justify-between gap-4 z-10">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-[#703344] border border-[#A84A4D]/40 text-[#CB6B5A] flex items-center justify-center shadow-inner">
-            <VideoIcon className="w-5 h-5" />
+          <div className="w-10 h-10 rounded-full bg-[#161616] border border-[#242424] text-[#E50914] flex items-center justify-center">
+            <VideoIcon className="w-4 h-4" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="font-extrabold text-base text-[#F6E8E2] tracking-tight truncate max-w-xs sm:max-w-md">
+              <h3 className="font-bold text-sm text-[#F5F5F5] tracking-tight truncate max-w-xs sm:max-w-md">
                 {meetingTitle}
               </h3>
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-[#5B8A68]/20 text-[#86B190] border border-[#5B8A68]/40 flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#86B190] animate-pulse" />
+              <span className="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold uppercase bg-[#20D47A]/10 text-[#20D47A] border border-[#20D47A]/30 flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#20D47A] animate-pulse" />
                 Live
               </span>
             </div>
-            <p className="text-xs text-[#DDA081] flex items-center gap-2 mt-0.5">
+            <p className="text-xs font-mono text-[#888888] flex items-center gap-2 mt-0.5">
               <span>{totalCount} Active {totalCount === 1 ? 'Participant' : 'Participants'}</span>
               <span>•</span>
-              <span className="text-[#86B190] font-semibold flex items-center gap-1">
+              <span className="text-[#20D47A] font-semibold flex items-center gap-1">
                 <ShieldCheck className="w-3.5 h-3.5" /> WebRTC Encrypted Mesh
               </span>
             </p>
           </div>
         </div>
 
-        {/* Top Right Controls */}
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={toggleFullscreen}
-            className="p-2.5 rounded-xl bg-[#281A21] hover:bg-[#703344] border border-[#703344] text-[#DDA081] hover:text-[#F6E8E2] transition-all cursor-pointer"
+            className="p-2.5 rounded-full bg-[#161616] hover:bg-[#202020] border border-[#242424] text-[#888888] hover:text-white transition-all cursor-pointer"
             title={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
           >
             {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
@@ -675,19 +603,18 @@ export const TeamVideoMeeting = ({
         </div>
       </div>
 
-      {/* Media Device Notice Banner if limited */}
       {mediaError && (
-        <div className="px-4 py-2 bg-[#D99443]/20 border-b border-[#D99443]/40 text-[#E5B079] text-xs font-semibold flex items-center gap-2">
+        <div className="px-4 py-2 bg-[#F2B705]/10 border-b border-[#F2B705]/30 text-[#F2B705] text-xs font-mono flex items-center gap-2">
           <AlertTriangle className="w-4 h-4 flex-shrink-0" />
           <span>{mediaError}</span>
         </div>
       )}
 
       {/* Main Video & Audio Tiles Grid */}
-      <div className="flex-1 p-4 sm:p-6 overflow-y-auto bg-[#281A21] flex items-center justify-center">
+      <div className="flex-1 p-4 sm:p-6 overflow-y-auto bg-black flex items-center justify-center">
         <div className={`w-full grid gap-4 ${getGridColsClass()}`}>
           {/* Local User Tile */}
-          <div className="relative aspect-video rounded-3xl overflow-hidden bg-[#4A2A35] border-2 border-[#703344] shadow-xl group flex items-center justify-center">
+          <div className="relative aspect-video rounded-3xl overflow-hidden bg-[#111111] border border-[#242424] shadow-soft group flex items-center justify-center">
             {isVideoEnabled || isScreenSharing ? (
               <video
                 ref={localVideoRef}
@@ -698,20 +625,19 @@ export const TeamVideoMeeting = ({
               />
             ) : (
               <div className="flex flex-col items-center justify-center space-y-2">
-                <div className="w-16 h-16 rounded-3xl bg-gradient-to-tr from-[#A84A4D] to-[#CB6B5A] text-[#F6E8E2] flex items-center justify-center text-xl font-extrabold shadow-lg">
+                <div className="w-14 h-14 rounded-full bg-[#161616] border border-[#242424] text-white flex items-center justify-center text-lg font-mono font-bold shadow-soft">
                   {user?.name?.charAt(0) || 'U'}
                 </div>
-                <span className="text-xs font-semibold text-[#DDA081]">Camera is off</span>
+                <span className="text-xs font-mono text-[#888888]">Camera is off</span>
               </div>
             )}
 
-            {/* Local Tile Floating Badges */}
             <div className="absolute top-3 left-3 flex items-center gap-1.5">
-              <span className="px-2.5 py-1 rounded-xl bg-black/60 backdrop-blur-md text-[11px] font-extrabold text-[#F6E8E2] border border-white/10 shadow-md flex items-center gap-1.5">
+              <span className="px-2.5 py-0.5 rounded-full bg-black/70 backdrop-blur-md text-[10px] font-mono font-bold text-[#F5F5F5] border border-[#242424] shadow-md flex items-center gap-1.5">
                 <span>{user?.name || 'You'} (You)</span>
               </span>
               {isScreenSharing && (
-                <span className="px-2 py-0.5 rounded-lg bg-[#A84A4D] text-[#F6E8E2] text-[10px] font-black uppercase tracking-wider flex items-center gap-1">
+                <span className="px-2 py-0.5 rounded-full bg-[#E50914] text-white text-[9px] font-mono font-bold uppercase tracking-wider flex items-center gap-1">
                   <Monitor className="w-3 h-3" /> Screen
                 </span>
               )}
@@ -719,10 +645,10 @@ export const TeamVideoMeeting = ({
 
             <div className="absolute top-3 right-3 flex items-center gap-1.5">
               <div
-                className={`p-1.5 rounded-xl backdrop-blur-md ${
+                className={`p-1.5 rounded-full backdrop-blur-md ${
                   !isAudioEnabled
-                    ? 'bg-[#C04A4D] text-white'
-                    : 'bg-black/50 text-[#86B190]'
+                    ? 'bg-[#FF1F2D] text-white'
+                    : 'bg-black/60 text-[#20D47A] border border-[#242424]'
                 }`}
               >
                 {!isAudioEnabled ? <MicOff className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5" />}
@@ -730,7 +656,7 @@ export const TeamVideoMeeting = ({
             </div>
           </div>
 
-          {/* Remote Participants Tiles (Dedicated Video & Always-Active Audio) */}
+          {/* Remote Participants Tiles */}
           {participantList.map((participant) => (
             <RemoteVideoTile
               key={participant.socketId}
@@ -740,61 +666,57 @@ export const TeamVideoMeeting = ({
         </div>
       </div>
 
-      {/* Bottom Floating Control Bar */}
-      <div className="p-4 bg-[#4A2A35] border-t border-[#703344] flex items-center justify-center gap-3 sm:gap-4 z-10">
-        {/* Microphone Toggle Button */}
+      {/* Bottom Control Bar */}
+      <div className="p-4 bg-[#111111] border-t border-[#1F1F1F] flex items-center justify-center gap-3 sm:gap-4 z-10">
         <button
           type="button"
           onClick={toggleMicrophone}
-          className={`p-3.5 rounded-2xl font-bold transition-all flex items-center gap-2 shadow-lg cursor-pointer ${
+          className={`p-3 sm:px-5 rounded-full font-mono font-bold transition-all flex items-center gap-2 cursor-pointer ${
             isAudioEnabled
-              ? 'bg-[#281A21] hover:bg-[#703344] text-[#F6E8E2] border border-[#703344]'
-              : 'bg-[#C04A4D] hover:bg-[#A84A4D] text-white'
+              ? 'bg-[#161616] hover:bg-[#202020] text-[#F5F5F5] border border-[#242424]'
+              : 'bg-[#FF1F2D] text-white shadow-[0_0_12px_rgba(255,31,45,0.4)]'
           }`}
           title={isAudioEnabled ? 'Mute Microphone' : 'Unmute Microphone'}
         >
-          {isAudioEnabled ? <Mic className="w-5 h-5" /> : <MicOff className="w-5 h-5" />}
+          {isAudioEnabled ? <Mic className="w-4 h-4" /> : <MicOff className="w-4 h-4" />}
           <span className="hidden sm:inline text-xs">{isAudioEnabled ? 'Mute' : 'Unmuted'}</span>
         </button>
 
-        {/* Camera Toggle Button */}
         <button
           type="button"
           onClick={toggleCamera}
-          className={`p-3.5 rounded-2xl font-bold transition-all flex items-center gap-2 shadow-lg cursor-pointer ${
+          className={`p-3 sm:px-5 rounded-full font-mono font-bold transition-all flex items-center gap-2 cursor-pointer ${
             isVideoEnabled
-              ? 'bg-[#281A21] hover:bg-[#703344] text-[#F6E8E2] border border-[#703344]'
-              : 'bg-[#C04A4D] hover:bg-[#A84A4D] text-white'
+              ? 'bg-[#161616] hover:bg-[#202020] text-[#F5F5F5] border border-[#242424]'
+              : 'bg-[#FF1F2D] text-white shadow-[0_0_12px_rgba(255,31,45,0.4)]'
           }`}
           title={isVideoEnabled ? 'Turn Off Camera' : 'Turn On Camera'}
         >
-          {isVideoEnabled ? <VideoIcon className="w-5 h-5" /> : <VideoOff className="w-5 h-5" />}
+          {isVideoEnabled ? <VideoIcon className="w-4 h-4" /> : <VideoOff className="w-4 h-4" />}
           <span className="hidden sm:inline text-xs">{isVideoEnabled ? 'Stop Video' : 'Start Video'}</span>
         </button>
 
-        {/* Screen Share Button */}
         <button
           type="button"
           onClick={toggleScreenShare}
-          className={`p-3.5 rounded-2xl font-bold transition-all flex items-center gap-2 shadow-lg cursor-pointer ${
+          className={`p-3 sm:px-5 rounded-full font-mono font-bold transition-all flex items-center gap-2 cursor-pointer ${
             isScreenSharing
-              ? 'bg-[#A84A4D] hover:bg-[#CB6B5A] text-[#F6E8E2]'
-              : 'bg-[#281A21] hover:bg-[#703344] text-[#DDA081] hover:text-[#F6E8E2] border border-[#703344]'
+              ? 'bg-[#E50914] text-white shadow-[0_0_12px_rgba(229,9,20,0.4)]'
+              : 'bg-[#161616] hover:bg-[#202020] text-[#888888] hover:text-white border border-[#242424]'
           }`}
           title={isScreenSharing ? 'Stop Screen Share' : 'Share Screen'}
         >
-          {isScreenSharing ? <MonitorOff className="w-5 h-5" /> : <Monitor className="w-5 h-5" />}
+          {isScreenSharing ? <MonitorOff className="w-4 h-4" /> : <Monitor className="w-4 h-4" />}
           <span className="hidden sm:inline text-xs">{isScreenSharing ? 'Stop Sharing' : 'Share Screen'}</span>
         </button>
 
-        {/* Leave / End Call Button */}
         <button
           type="button"
           onClick={handleLeave}
-          className="p-3.5 px-6 rounded-2xl bg-[#C04A4D] hover:bg-[#A84A4D] text-white font-extrabold text-xs transition-all flex items-center gap-2 shadow-lg cursor-pointer active:scale-95"
+          className="p-3 sm:px-6 rounded-full bg-[#E50914] hover:bg-[#FF1F2D] text-white font-mono font-bold text-xs transition-all flex items-center gap-2 shadow-[0_0_12px_rgba(229,9,20,0.4)] cursor-pointer active:scale-95"
           title="Leave Meeting"
         >
-          <PhoneOff className="w-5 h-5" />
+          <PhoneOff className="w-4 h-4" />
           <span>Leave</span>
         </button>
       </div>
@@ -802,15 +724,10 @@ export const TeamVideoMeeting = ({
   );
 };
 
-/**
- * Remote Participant Video & Audio Tile Component
- * Guaranteed persistent <audio> playback independent of video visibility.
- */
 const RemoteVideoTile = ({ participant }) => {
   const videoRef = useRef(null);
   const audioRef = useRef(null);
 
-  // Bind and play remote audio track
   useEffect(() => {
     const audioEl = audioRef.current;
     if (audioEl && participant.stream) {
@@ -830,7 +747,6 @@ const RemoteVideoTile = ({ participant }) => {
     }
   }, [participant.stream, participant.lastUpdated]);
 
-  // Bind remote video track
   useEffect(() => {
     const videoEl = videoRef.current;
     if (videoEl && participant.stream) {
@@ -844,43 +760,36 @@ const RemoteVideoTile = ({ participant }) => {
   const isAudioMuted = participant.isAudioMuted;
 
   return (
-    <div className="relative aspect-video rounded-3xl overflow-hidden bg-[#4A2A35] border-2 border-[#703344] shadow-xl flex items-center justify-center">
-      {/* 
-        CRITICAL MULTI-USER AUDIO PLAYBACK:
-        Always mounted, never muted, plays participant's incoming audio stream continuously
-        even when camera is disabled, video is loading, or tile re-renders.
-      */}
+    <div className="relative aspect-video rounded-3xl overflow-hidden bg-[#111111] border border-[#242424] shadow-soft flex items-center justify-center">
       <audio
         ref={audioRef}
         autoPlay
         playsInline
       />
 
-      {/* Video Stream or Avatar Fallback */}
       {participant.stream && !isVideoOff ? (
         <video
           ref={videoRef}
           autoPlay
           playsInline
-          muted // Muted on video tag so audio is cleanly handled exclusively by dedicated <audio> tag above
+          muted
           className="w-full h-full object-cover"
         />
       ) : (
         <div className="flex flex-col items-center justify-center space-y-2">
-          <div className="w-16 h-16 rounded-3xl bg-[#703344] border border-[#A84A4D]/40 text-[#CB6B5A] flex items-center justify-center text-xl font-extrabold shadow-inner">
+          <div className="w-14 h-14 rounded-full bg-[#161616] border border-[#242424] text-[#E50914] flex items-center justify-center text-lg font-mono font-bold shadow-inner">
             {participant.userName?.charAt(0) || 'P'}
           </div>
-          <span className="text-xs font-semibold text-[#DDA081]">{participant.userName || 'Peer'}</span>
+          <span className="text-xs font-mono text-[#888888]">{participant.userName || 'Peer'}</span>
         </div>
       )}
 
-      {/* Floating Badges */}
       <div className="absolute top-3 left-3 flex items-center gap-1.5">
-        <span className="px-2.5 py-1 rounded-xl bg-black/60 backdrop-blur-md text-[11px] font-extrabold text-[#F6E8E2] border border-white/10 shadow-md">
+        <span className="px-2.5 py-0.5 rounded-full bg-black/70 backdrop-blur-md text-[10px] font-mono font-bold text-[#F5F5F5] border border-[#242424] shadow-md">
           {participant.userName || 'Team Member'}
         </span>
         {participant.isScreenSharing && (
-          <span className="px-2 py-0.5 rounded-lg bg-[#A84A4D] text-[#F6E8E2] text-[10px] font-black uppercase tracking-wider flex items-center gap-1">
+          <span className="px-2 py-0.5 rounded-full bg-[#E50914] text-white text-[9px] font-mono font-bold uppercase tracking-wider flex items-center gap-1">
             <Monitor className="w-3 h-3" /> Screen
           </span>
         )}
@@ -888,8 +797,8 @@ const RemoteVideoTile = ({ participant }) => {
 
       <div className="absolute top-3 right-3 flex items-center gap-1.5">
         <div
-          className={`p-1.5 rounded-xl backdrop-blur-md ${
-            isAudioMuted ? 'bg-[#C04A4D] text-white' : 'bg-black/50 text-[#86B190]'
+          className={`p-1.5 rounded-full backdrop-blur-md ${
+            isAudioMuted ? 'bg-[#FF1F2D] text-white' : 'bg-black/60 text-[#20D47A] border border-[#242424]'
           }`}
           title={isAudioMuted ? 'Microphone Muted' : 'Microphone Active'}
         >

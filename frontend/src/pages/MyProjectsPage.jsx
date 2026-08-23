@@ -28,7 +28,6 @@ export const MyProjectsPage = () => {
           setCreatedProjects(createdRes.data.data);
         }
         if (memberRes.data.success) {
-          // Joined are projects where user is member but not owner
           const joined = memberRes.data.data.filter(p => p.owner?._id !== user?._id && p.owner !== user?._id);
           setJoinedProjects(joined);
         }
@@ -45,12 +44,12 @@ export const MyProjectsPage = () => {
   }, [user]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-7xl mx-auto pb-12">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-[#F6E8E2] tracking-tight">My Projects</h1>
-          <p className="text-xs sm:text-sm text-[#DDA081] mt-1">
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#F5F5F5] tracking-tight">My Projects</h1>
+          <p className="text-xs sm:text-sm text-[#888888] mt-1">
             Manage projects you created and collaborative teams you have joined.
           </p>
         </div>
@@ -63,23 +62,23 @@ export const MyProjectsPage = () => {
       </div>
 
       {/* Tab Switcher */}
-      <div className="flex items-center gap-4 border-b border-[#703344]">
+      <div className="flex items-center gap-2 border-b border-[#242424] pb-2">
         <button
           onClick={() => setTab('created')}
-          className={`pb-3 text-sm font-bold transition-all border-b-2 cursor-pointer ${
+          className={`px-4 py-1.5 rounded-full text-xs font-mono font-bold transition-all cursor-pointer ${
             tab === 'created'
-              ? 'border-[#A84A4D] text-[#F6E8E2]'
-              : 'border-transparent text-[#DDA081] hover:text-[#F6E8E2]'
+              ? 'bg-white text-black shadow-sm'
+              : 'text-[#888888] hover:text-white hover:bg-[#161616]'
           }`}
         >
           Created by You ({createdProjects.length})
         </button>
         <button
           onClick={() => setTab('joined')}
-          className={`pb-3 text-sm font-bold transition-all border-b-2 cursor-pointer ${
+          className={`px-4 py-1.5 rounded-full text-xs font-mono font-bold transition-all cursor-pointer ${
             tab === 'joined'
-              ? 'border-[#A84A4D] text-[#F6E8E2]'
-              : 'border-transparent text-[#DDA081] hover:text-[#F6E8E2]'
+              ? 'bg-white text-black shadow-sm'
+              : 'text-[#888888] hover:text-white hover:bg-[#161616]'
           }`}
         >
           Teams Joined ({joinedProjects.length})

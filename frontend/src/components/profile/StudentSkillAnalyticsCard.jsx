@@ -77,14 +77,13 @@ export const StudentSkillAnalyticsCard = ({ userId, initialUser }) => {
 
   if (loading) {
     return (
-      <div className="bg-[#4A2A35] rounded-3xl border border-[#703344] p-6 space-y-6 animate-pulse">
-        <div className="h-6 w-48 bg-[#703344] rounded-xl" />
+      <div className="bg-[#111111] rounded-3xl border border-[#242424] p-6 space-y-6 animate-pulse">
+        <div className="h-6 w-48 bg-[#161616] rounded-full" />
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="h-28 bg-[#281A21] rounded-2xl" />
-          <div className="h-28 bg-[#281A21] rounded-2xl" />
-          <div className="h-28 bg-[#281A21] rounded-2xl" />
+          <div className="h-28 bg-[#161616] rounded-2xl" />
+          <div className="h-28 bg-[#161616] rounded-2xl" />
+          <div className="h-28 bg-[#161616] rounded-2xl" />
         </div>
-        <div className="h-44 bg-[#281A21] rounded-2xl" />
       </div>
     );
   }
@@ -102,47 +101,47 @@ export const StudentSkillAnalyticsCard = ({ userId, initialUser }) => {
   } = analytics;
 
   return (
-    <div className="bg-gradient-to-b from-[#4A2A35] to-[#281A21] rounded-3xl border border-[#703344] p-6 sm:p-8 shadow-2xl space-y-8 relative overflow-hidden">
+    <div className="bg-[#111111] rounded-3xl border border-[#242424] p-6 sm:p-8 shadow-soft space-y-8 relative overflow-hidden">
       {/* Top Banner: Overall Score & Verified Data Badge */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-6 border-b border-[#703344] relative z-10">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 pb-6 border-b border-[#1F1F1F] relative z-10">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="p-1.5 rounded-xl bg-[#703344] text-[#CB6B5A] border border-[#A84A4D]/40">
-              <Sparkles className="w-4 h-4" />
+            <span className="p-1 rounded-full bg-[#161616] text-[#E50914] border border-[#242424]">
+              <Sparkles className="w-3.5 h-3.5" />
             </span>
-            <span className="text-xs font-extrabold uppercase tracking-widest text-[#CB6B5A]">
-              Verified Student Skill Analytics
+            <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#E50914]">
+              Verified Skill Analytics
             </span>
           </div>
 
-          <h2 className="text-xl sm:text-2xl font-black text-[#F6E8E2] tracking-tight">
+          <h2 className="text-xl font-bold text-[#F5F5F5] tracking-tight">
             Skill Scoring & Contribution Index
           </h2>
-          <p className="text-xs text-[#DDA081] mt-1">
+          <p className="text-xs font-mono text-[#888888] mt-1">
             Computed from real project activity, completed tasks, peer endorsements & skill proficiency.
           </p>
         </div>
 
         {/* Big Overall Score Card */}
-        <div className="flex items-center gap-5 bg-[#281A21]/90 backdrop-blur-md border border-[#703344] p-4 sm:p-5 rounded-2xl shadow-xl flex-shrink-0">
+        <div className="flex items-center gap-5 bg-[#161616] border border-[#242424] p-4 sm:p-5 rounded-2xl shadow-sm flex-shrink-0">
           <div className="text-center">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#DDA081] block mb-0.5">
+            <span className="text-[9px] font-mono font-bold uppercase tracking-wider text-[#888888] block mb-0.5">
               Overall Score
             </span>
-            <div className="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#CB6B5A] via-[#DDA081] to-[#F6E8E2]">
+            <div className="text-3xl font-bold text-white">
               {overallScore}
-              <span className="text-xs text-[#DDA081] font-normal">/100</span>
+              <span className="text-xs text-[#888888] font-normal">/100</span>
             </div>
           </div>
 
-          <div className="h-10 w-px bg-[#703344]" />
+          <div className="h-10 w-px bg-[#242424]" />
 
-          <div className="space-y-1 text-xs">
-            <div className="font-bold text-[#86B190] flex items-center gap-1.5">
+          <div className="space-y-1 text-xs font-mono">
+            <div className="font-bold text-[#20D47A] flex items-center gap-1.5">
               <ShieldCheck className="w-3.5 h-3.5" />
               <span>{overallTier}</span>
             </div>
-            <div className="text-[11px] text-[#DDA081] font-medium">
+            <div className="text-[10px] text-[#888888]">
               {skillScores.length} Skills Profiled
             </div>
           </div>
@@ -151,60 +150,60 @@ export const StudentSkillAnalyticsCard = ({ userId, initialUser }) => {
 
       {/* 4 Application Proof Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 relative z-10">
-        <div className="bg-[#281A21] rounded-2xl p-4 border border-[#703344] shadow-soft">
-          <div className="flex items-center justify-between text-[#DDA081] mb-2">
-            <span className="text-xs font-bold uppercase tracking-wider">Total Projects</span>
-            <FolderGit2 className="w-4 h-4 text-[#CB6B5A]" />
+        <div className="bg-[#161616] rounded-2xl p-4 border border-[#242424]">
+          <div className="flex items-center justify-between text-[#888888] mb-2">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider">Total Projects</span>
+            <FolderGit2 className="w-4 h-4 text-[#A1A1A1]" />
           </div>
-          <div className="text-2xl font-black text-[#F6E8E2]">{projects.total || 0}</div>
-          <div className="text-[11px] text-[#DDA081] mt-0.5">
-            {projects.created || 0} Lead • {projects.joined || 0} Team Member
+          <div className="text-xl font-bold text-[#F5F5F5]">{projects.total || 0}</div>
+          <div className="text-[10px] font-mono text-[#666666] mt-0.5">
+            {projects.created || 0} Lead • {projects.joined || 0} Member
           </div>
         </div>
 
-        <div className="bg-[#281A21] rounded-2xl p-4 border border-[#703344] shadow-soft">
-          <div className="flex items-center justify-between text-[#DDA081] mb-2">
-            <span className="text-xs font-bold uppercase tracking-wider">Tasks Done</span>
-            <CheckSquare className="w-4 h-4 text-[#86B190]" />
+        <div className="bg-[#161616] rounded-2xl p-4 border border-[#242424]">
+          <div className="flex items-center justify-between text-[#888888] mb-2">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider">Tasks Done</span>
+            <CheckSquare className="w-4 h-4 text-[#20D47A]" />
           </div>
-          <div className="text-2xl font-black text-[#86B190]">{contributions.completedTasks || 0}</div>
-          <div className="text-[11px] text-[#DDA081] mt-0.5">
+          <div className="text-xl font-bold text-[#20D47A]">{contributions.completedTasks || 0}</div>
+          <div className="text-[10px] font-mono text-[#666666] mt-0.5">
             Completed across team boards
           </div>
         </div>
 
-        <div className="bg-[#281A21] rounded-2xl p-4 border border-[#703344] shadow-soft">
-          <div className="flex items-center justify-between text-[#DDA081] mb-2">
-            <span className="text-xs font-bold uppercase tracking-wider">Contributions</span>
-            <Activity className="w-4 h-4 text-[#CB6B5A]" />
+        <div className="bg-[#161616] rounded-2xl p-4 border border-[#242424]">
+          <div className="flex items-center justify-between text-[#888888] mb-2">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider">Contributions</span>
+            <Activity className="w-4 h-4 text-[#E50914]" />
           </div>
-          <div className="text-2xl font-black text-[#CB6B5A]">{contributions.total || 0}</div>
-          <div className="text-[11px] text-[#DDA081] mt-0.5">
+          <div className="text-xl font-bold text-[#E50914]">{contributions.total || 0}</div>
+          <div className="text-[10px] font-mono text-[#666666] mt-0.5">
             {contributions.postsCreated || 0} Posts • {contributions.commentsAuthored || 0} Comments
           </div>
         </div>
 
-        <div className="bg-[#281A21] rounded-2xl p-4 border border-[#703344] shadow-soft">
-          <div className="flex items-center justify-between text-[#DDA081] mb-2">
-            <span className="text-xs font-bold uppercase tracking-wider">Endorsements</span>
-            <Star className="w-4 h-4 text-[#E5B079]" />
+        <div className="bg-[#161616] rounded-2xl p-4 border border-[#242424]">
+          <div className="flex items-center justify-between text-[#888888] mb-2">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider">Endorsements</span>
+            <Star className="w-4 h-4 text-[#F2B705]" />
           </div>
-          <div className="text-2xl font-black text-[#E5B079]">{endorsements.total || 0}</div>
-          <div className="text-[11px] text-[#DDA081] mt-0.5">
+          <div className="text-xl font-bold text-[#F2B705]">{endorsements.total || 0}</div>
+          <div className="text-[10px] font-mono text-[#666666] mt-0.5">
             Peer developer validations
           </div>
         </div>
       </div>
 
-      {/* Individual Skill Scores Table & Progress Bars */}
+      {/* Individual Skill Scores */}
       <div className="space-y-4 relative z-10">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-bold uppercase tracking-wider text-[#F6E8E2] flex items-center gap-2">
-            <BarChart2 className="w-4 h-4 text-[#CB6B5A]" />
+          <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-[#F5F5F5] flex items-center gap-2">
+            <BarChart2 className="w-4 h-4 text-[#E50914]" />
             <span>Individual Skill Competency Breakdown</span>
           </h3>
-          <span className="text-[11px] text-[#DDA081]">
-            Calculated score + verified projects & task multiplier
+          <span className="text-[10px] font-mono text-[#666666]">
+            Calculated score + task multiplier
           </span>
         </div>
 
@@ -219,59 +218,42 @@ export const StudentSkillAnalyticsCard = ({ userId, initialUser }) => {
             return (
               <div
                 key={idx}
-                className="bg-[#281A21] rounded-2xl p-4 border border-[#703344] hover:border-[#CB6B5A]/40 transition-all space-y-3"
+                className="bg-[#161616] rounded-2xl p-4 border border-[#242424] hover:border-[#333333] transition-all space-y-3"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold text-[#F6E8E2]">{skill.name}</span>
+                    <span className="text-xs font-bold font-mono text-[#F5F5F5]">{skill.name}</span>
                     {skill.verified && (
-                      <span title="Verified Skill">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-[#86B190]" />
-                      </span>
+                      <CheckCircle2 className="w-3.5 h-3.5 text-[#20D47A]" />
                     )}
-                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#4A2A35] text-[#DDA081] border border-[#703344]">
+                    <span className="text-[9px] font-mono px-2 py-0.2 rounded-full bg-[#111111] text-[#888888] border border-[#242424]">
                       {skill.category}
                     </span>
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-black text-[#CB6B5A]">{skill.score}%</span>
-                    <Badge
-                      variant={
-                        skill.masteryLevel === 'Mastery'
-                          ? 'terracotta'
-                          : skill.masteryLevel === 'Advanced'
-                          ? 'brand'
-                          : 'default'
-                      }
-                      size="sm"
-                    >
+                    <span className="text-xs font-mono font-bold text-[#E50914]">{skill.score}%</span>
+                    <span className="text-[9px] font-mono px-2 py-0.2 rounded-full bg-[#111111] text-[#A1A1A1] border border-[#242424]">
                       {skill.masteryLevel}
-                    </Badge>
+                    </span>
                   </div>
                 </div>
 
                 {/* Progress Bar */}
-                <div className="w-full bg-[#4A2A35] h-2 rounded-full overflow-hidden border border-[#703344]">
+                <div className="w-full bg-[#111111] h-1.5 rounded-full overflow-hidden border border-[#242424]">
                   <div
-                    className={`h-full rounded-full transition-all duration-500 ${
-                      skill.score >= 90
-                        ? 'bg-gradient-to-r from-[#A84A4D] to-[#CB6B5A]'
-                        : skill.score >= 80
-                        ? 'bg-[#CB6B5A]'
-                        : 'bg-[#5B8A68]'
-                    }`}
+                    className="h-full rounded-full bg-[#E50914] transition-all duration-500"
                     style={{ width: `${skill.score}%` }}
                   />
                 </div>
 
                 {/* Proof details and Endorse Action */}
-                <div className="flex items-center justify-between text-[11px] text-[#DDA081] pt-1">
+                <div className="flex items-center justify-between text-[10px] font-mono text-[#888888] pt-1">
                   <span>
-                    Self: <strong className="text-[#F6E8E2]">{skill.proficiency}</strong>
+                    Self: <strong className="text-[#F5F5F5]">{skill.proficiency}</strong>
                     {skill.endorsementsCount > 0 && (
-                      <span className="ml-2 text-[#E5B079] font-semibold">
-                        ★ {skill.endorsementsCount} Endorsement{skill.endorsementsCount > 1 ? 's' : ''}
+                      <span className="ml-2 text-[#F2B705]">
+                        ★ {skill.endorsementsCount}
                       </span>
                     )}
                   </span>
@@ -280,10 +262,10 @@ export const StudentSkillAnalyticsCard = ({ userId, initialUser }) => {
                     <button
                       onClick={() => handleEndorseSkill(skill.name)}
                       disabled={hasEndorsed || endorsingSkill === skill.name}
-                      className={`inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-lg border transition-all cursor-pointer ${
+                      className={`inline-flex items-center gap-1 text-[10px] font-mono px-2.5 py-0.5 rounded-full border transition-all cursor-pointer ${
                         hasEndorsed
-                          ? 'bg-[#D99443]/20 text-[#E5B079] border-[#D99443]/40 cursor-default'
-                          : 'bg-[#703344] text-[#F6E8E2] border-[#A84A4D]/40 hover:bg-[#A84A4D]'
+                          ? 'bg-[#F2B705]/10 text-[#F2B705] border-[#F2B705]/30'
+                          : 'bg-[#111111] text-white border-[#242424] hover:bg-[#202020]'
                       }`}
                     >
                       <ThumbsUp className="w-2.5 h-2.5" />
@@ -297,28 +279,28 @@ export const StudentSkillAnalyticsCard = ({ userId, initialUser }) => {
         </div>
       </div>
 
-      {/* Category Radar / Domain Distribution */}
+      {/* Category Domain Distribution */}
       {categoryBreakdown.length > 0 && (
-        <div className="bg-[#281A21] rounded-2xl p-5 border border-[#703344] space-y-3 relative z-10">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-[#DDA081]">
+        <div className="bg-[#161616] rounded-2xl p-5 border border-[#242424] space-y-3 relative z-10">
+          <h3 className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#888888]">
             Domain Competency Index
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {categoryBreakdown.map((cat, idx) => (
-              <div key={idx} className="bg-[#4A2A35] p-3 rounded-xl border border-[#703344]">
-                <div className="flex items-center justify-between text-xs mb-1">
-                  <span className="font-semibold text-[#F6E8E2]">{cat.category}</span>
-                  <span className="font-bold text-[#CB6B5A]">{cat.averageScore}%</span>
+              <div key={idx} className="bg-[#111111] p-3 rounded-xl border border-[#242424]">
+                <div className="flex items-center justify-between text-xs font-mono mb-1">
+                  <span className="text-[#F5F5F5]">{cat.category}</span>
+                  <span className="font-bold text-[#E50914]">{cat.averageScore}%</span>
                 </div>
-                <div className="w-full bg-[#281A21] h-1.5 rounded-full overflow-hidden">
+                <div className="w-full bg-[#161616] h-1 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-[#A84A4D] to-[#CB6B5A] rounded-full"
+                    className="h-full bg-[#E50914] rounded-full"
                     style={{ width: `${cat.averageScore}%` }}
                   />
                 </div>
-                <span className="text-[10px] text-[#DDA081] mt-1 block">
-                  {cat.skillsCount} skill{cat.skillsCount > 1 ? 's' : ''} mapped
+                <span className="text-[9px] font-mono text-[#666666] mt-1 block">
+                  {cat.skillsCount} mapped
                 </span>
               </div>
             ))}

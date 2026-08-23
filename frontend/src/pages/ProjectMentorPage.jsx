@@ -40,8 +40,8 @@ export const ProjectMentorPage = () => {
   if (loading) {
     return (
       <div className="max-w-5xl mx-auto space-y-6 py-6">
-        <div className="h-20 bg-[#4A2A35] border border-[#703344] rounded-3xl animate-pulse" />
-        <div className="h-[650px] bg-[#4A2A35] border border-[#703344] rounded-3xl animate-pulse" />
+        <div className="h-20 bg-[#111111] border border-[#242424] rounded-3xl animate-pulse" />
+        <div className="h-[650px] bg-[#111111] border border-[#242424] rounded-3xl animate-pulse" />
       </div>
     );
   }
@@ -49,8 +49,8 @@ export const ProjectMentorPage = () => {
   if (!project) {
     return (
       <div className="max-w-md mx-auto text-center py-16">
-        <p className="text-sm text-[#DDA081]">Project not found or inaccessible.</p>
-        <Link to="/projects" className="text-xs font-bold text-[#CB6B5A] mt-3 inline-block">
+        <p className="text-xs font-mono text-[#888888]">Project not found or inaccessible.</p>
+        <Link to="/projects" className="text-xs font-mono font-bold text-[#E50914] mt-3 inline-block">
           Return to Explore
         </Link>
       </div>
@@ -64,16 +64,18 @@ export const ProjectMentorPage = () => {
         <div className="flex items-center gap-3">
           <Link
             to={`/projects/${project._id}`}
-            className="p-2 rounded-xl bg-[#4A2A35] hover:bg-[#703344] border border-[#703344] text-[#F6E8E2] transition-all flex items-center gap-1.5 text-xs font-bold cursor-pointer"
+            className="px-3.5 py-1.5 rounded-full bg-[#161616] hover:bg-[#202020] border border-[#242424] text-[#F5F5F5] transition-all flex items-center gap-1.5 text-xs font-mono font-bold cursor-pointer"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-3.5 h-3.5" />
             <span>Overview</span>
           </Link>
 
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-lg font-black text-[#F6E8E2]">{project.title}</h2>
-              <Badge variant="brand">{project.category}</Badge>
+              <h2 className="text-base font-bold text-[#F5F5F5]">{project.title}</h2>
+              <span className="text-[9px] font-mono font-bold uppercase tracking-wider text-[#A1A1A1] bg-[#161616] px-2 py-0.5 rounded-full border border-[#242424]">
+                {project.category}
+              </span>
             </div>
           </div>
         </div>
@@ -81,16 +83,16 @@ export const ProjectMentorPage = () => {
         <div className="flex items-center gap-2">
           <Link
             to={`/projects/${project._id}/tasks`}
-            className="px-3 py-1.5 rounded-xl bg-[#4A2A35] hover:bg-[#703344] border border-[#703344] text-xs font-bold text-[#F6E8E2] transition-all flex items-center gap-1.5"
+            className="px-3.5 py-1.5 rounded-full bg-[#161616] hover:bg-[#202020] border border-[#242424] text-xs font-mono font-bold text-[#F5F5F5] transition-all flex items-center gap-1.5"
           >
-            <FolderKanban className="w-3.5 h-3.5 text-[#E5B079]" />
+            <FolderKanban className="w-3.5 h-3.5 text-[#F2B705]" />
             <span>Tasks</span>
           </Link>
           <Link
             to={`/projects/${project._id}/team`}
-            className="px-3 py-1.5 rounded-xl bg-[#4A2A35] hover:bg-[#703344] border border-[#703344] text-xs font-bold text-[#F6E8E2] transition-all flex items-center gap-1.5"
+            className="px-3.5 py-1.5 rounded-full bg-[#161616] hover:bg-[#202020] border border-[#242424] text-xs font-mono font-bold text-[#F5F5F5] transition-all flex items-center gap-1.5"
           >
-            <Users className="w-3.5 h-3.5 text-[#CB6B5A]" />
+            <Users className="w-3.5 h-3.5 text-[#E50914]" />
             <span>Team Roster</span>
           </Link>
         </div>

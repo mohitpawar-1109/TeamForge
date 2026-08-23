@@ -30,15 +30,14 @@ import { userAPI, projectAPI } from '../../services/api';
 import { Button } from '../common/Button';
 import { Badge } from '../common/Badge';
 
-// Entity Color System
+// Entity Color System for Nothing OS
 const ENTITY_COLORS = {
-  student: '#A84A4D', // Terracotta
-  skill: '#703344',   // Burgundy
-  project: '#CB6B5A', // Warm Coral
-  team: '#5B8A68'     // Muted Sage
+  student: '#E50914', // Nothing Red
+  skill: '#20D47A',   // Green
+  project: '#2AA8FF', // Electric Blue
+  team: '#F2B705'     // Amber
 };
 
-// 3D Graph Scene
 const GraphScene = ({
   nodes,
   links,
@@ -58,7 +57,6 @@ const GraphScene = ({
     }
   });
 
-  // Calculate dynamic line positions
   const linePositions = useMemo(() => {
     const pos = [];
     const nodeMap = new Map(nodes.map((n) => [n.id, n]));
@@ -75,12 +73,10 @@ const GraphScene = ({
     return new Float32Array(pos);
   }, [nodes, links]);
 
-  // Check if a link is active based on selection or hover
   const activeNodeId = selectedNode?.id || hoveredNode?.id;
 
   return (
     <group ref={groupRef}>
-      {/* Network Connection Lines */}
       {linePositions.length > 0 && (
         <lineSegments>
           <bufferGeometry>
@@ -92,20 +88,18 @@ const GraphScene = ({
             />
           </bufferGeometry>
           <lineBasicMaterial
-            color="#A84A4D"
+            color="#E50914"
             transparent
-            opacity={activeNodeId ? 0.2 : 0.35}
+            opacity={activeNodeId ? 0.15 : 0.25}
             blending={THREE.AdditiveBlending}
           />
         </lineSegments>
       )}
 
-      {/* Render 3D Nodes */}
       {nodes.map((node) => {
         const isSelected = selectedNode?.id === node.id;
         const isHovered = hoveredNode?.id === node.id;
 
-        // Relationship highlighting: check if connected to active node
         let isConnected = false;
         if (activeNodeId) {
           isConnected = links.some((l) => {
@@ -118,7 +112,7 @@ const GraphScene = ({
           });
         }
 
-        const baseColor = ENTITY_COLORS[node.type] || '#A84A4D';
+        const baseColor = ENTITY_COLORS[node.type] || '#E50914';
         const nodeSize = node.size || 0.32;
 
         return (
@@ -139,24 +133,22 @@ const GraphScene = ({
               document.body.style.cursor = 'auto';
             }}
           >
-            {/* Sphere Mesh */}
             <mesh scale={isSelected ? 1.6 : isHovered ? 1.4 : isConnected ? 1.25 : 1}>
               <sphereGeometry args={[nodeSize, 22, 22]} />
               <meshStandardMaterial
-                color={isSelected ? '#F6E8E2' : isConnected ? '#CB6B5A' : baseColor}
-                emissive={isSelected ? '#F6E8E2' : isConnected ? '#CB6B5A' : baseColor}
-                emissiveIntensity={isSelected ? 0.9 : isConnected ? 0.6 : isHovered ? 0.5 : 0.25}
+                color={isSelected ? '#FFFFFF' : isConnected ? '#FF1F2D' : baseColor}
+                emissive={isSelected ? '#FFFFFF' : isConnected ? '#FF1F2D' : baseColor}
+                emissiveIntensity={isSelected ? 0.9 : isConnected ? 0.6 : isHovered ? 0.5 : 0.3}
                 roughness={0.2}
                 metalness={0.4}
               />
             </mesh>
 
-            {/* Glowing Ring when selected or hovered */}
             {(isSelected || isHovered || isConnected) && (
               <mesh rotation={[Math.PI / 2, 0, 0]}>
                 <ringGeometry args={[nodeSize * 1.3, nodeSize * 1.5, 24]} />
                 <meshBasicMaterial
-                  color={isSelected ? '#F6E8E2' : baseColor}
+                  color={isSelected ? '#FFFFFF' : baseColor}
                   transparent
                   opacity={0.7}
                   side={THREE.DoubleSide}
@@ -164,29 +156,25 @@ const GraphScene = ({
               </mesh>
             )}
 
-            {/* HTML Label - Always visible by default */}
             <Html distanceFactor={13} center position={[0, nodeSize + 0.45, 0]}>
               <div
-                className={`bg-[#281A21]/95 backdrop-blur-md px-3 py-1.5 rounded-xl shadow-2xl pointer-events-none text-center whitespace-nowrap transition-all duration-150 ${
+                className={`bg-[#111111]/95 backdrop-blur-md px-3 py-1 rounded-full shadow-2xl pointer-events-none text-center whitespace-nowrap transition-all duration-150 ${
                   isSelected
-                    ? 'border-2 border-[#F6E8E2] shadow-[#A84A4D]/40 scale-110 z-20'
+                    ? 'border-2 border-white shadow-[0_0_15px_rgba(255,255,255,0.4)] scale-110 z-20'
                     : isHovered
-                    ? 'border border-[#CB6B5A] shadow-lg scale-105 z-10'
+                    ? 'border border-[#E50914] shadow-lg scale-105 z-10'
                     : isConnected
-                    ? 'border border-[#A84A4D]/60 shadow-md'
-                    : 'border border-[#703344]'
+                    ? 'border border-[#E50914]/60 shadow-md'
+                    : 'border border-[#242424]'
                 }`}
               >
                 <span
-                  className="text-[9px] font-black uppercase tracking-wider block"
+                  className="text-[8px] font-mono font-bold uppercase tracking-wider block"
                   style={{ color: baseColor }}
                 >
                   {node.type}
                 </span>
-                <p className="text-xs font-extrabold text-[#F6E8E2]">{node.name}</p>
-                {node.subtitle && (
-                  <p className="text-[10px] text-[#DDA081]">{node.subtitle}</p>
-                )}
+                <p className="text-[11px] font-mono font-bold text-[#F5F5F5]">{node.name}</p>
               </div>
             </Html>
           </group>
@@ -201,13 +189,12 @@ export const SkillNetwork3D = () => {
   const [links, setLinks] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Filters & State
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedType, setSelectedType] = useState('All'); // 'All' | 'student' | 'skill' | 'project' | 'team'
+  const [selectedType, setSelectedType] = useState('All');
   const [selectedNode, setSelectedNode] = useState(null);
   const [hoveredNode, setHoveredNode] = useState(null);
   const [autoRotate, setAutoRotate] = useState(true);
-  const [viewMode, setViewMode] = useState('3D'); // '3D' | '2D'
+  const [viewMode, setViewMode] = useState('3D');
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
   const controlsRef = useRef();
@@ -220,7 +207,6 @@ export const SkillNetwork3D = () => {
     return () => mq.removeEventListener('change', handler);
   }, []);
 
-  // Fetch real data from API and construct multi-entity graph
   const loadGraphData = async () => {
     try {
       setLoading(true);
@@ -232,12 +218,10 @@ export const SkillNetwork3D = () => {
       const users = usersRes.data?.data || [];
       const projects = projRes.data?.data || [];
 
-      // Fallback mock seeds if API has sparse items
       const skillMap = new Map();
       const rawNodes = [];
       const rawLinks = [];
 
-      // 1. Process Skills and Students
       users.slice(0, 16).forEach((u, uIdx) => {
         const uId = `user-${u._id || uIdx}`;
         const uSkills = (u.skills || []).map((s) => (typeof s === 'string' ? s : s.name)).filter(Boolean);
@@ -278,7 +262,6 @@ export const SkillNetwork3D = () => {
         });
       });
 
-      // 2. Process Projects
       projects.slice(0, 12).forEach((p, pIdx) => {
         const pId = `proj-${p._id || pIdx}`;
         const pSkills = p.requiredSkills || [];
@@ -295,7 +278,6 @@ export const SkillNetwork3D = () => {
           size: 0.42
         });
 
-        // Link project to required skills
         pSkills.forEach((skillName) => {
           const sKey = skillName.trim();
           if (!skillMap.has(sKey)) {
@@ -320,7 +302,6 @@ export const SkillNetwork3D = () => {
           });
         });
 
-        // Link project to owner/members
         if (p.owner) {
           const ownerId = `user-${p.owner._id || p.owner}`;
           rawLinks.push({
@@ -332,14 +313,12 @@ export const SkillNetwork3D = () => {
         }
       });
 
-      // Add all skills as nodes
       skillMap.forEach((s) => rawNodes.push(s));
 
-      // 3. Position nodes in 3D volume using spherical clustering
       const total = rawNodes.length;
       rawNodes.forEach((node, i) => {
         let radius = THREE.MathUtils.randFloat(3.5, 7.5);
-        if (node.type === 'skill') radius = THREE.MathUtils.randFloat(2.0, 4.5); // inner core
+        if (node.type === 'skill') radius = THREE.MathUtils.randFloat(2.0, 4.5);
         if (node.type === 'project') radius = THREE.MathUtils.randFloat(5.0, 7.0);
         if (node.type === 'student') radius = THREE.MathUtils.randFloat(4.0, 6.5);
 
@@ -364,7 +343,6 @@ export const SkillNetwork3D = () => {
     loadGraphData();
   }, []);
 
-  // Filtered nodes based on Type and Search Query
   const filteredNodes = useMemo(() => {
     let list = nodes;
     if (selectedType !== 'All') {
@@ -381,7 +359,6 @@ export const SkillNetwork3D = () => {
     return list;
   }, [nodes, selectedType, searchQuery]);
 
-  // Reset Camera
   const handleResetCamera = () => {
     if (controlsRef.current) {
       controlsRef.current.reset();
@@ -389,7 +366,6 @@ export const SkillNetwork3D = () => {
     setSelectedNode(null);
   };
 
-  // Connected entities for the Inspector Drawer
   const connectedEntities = useMemo(() => {
     if (!selectedNode) return [];
     const connectedIds = new Set();
@@ -406,25 +382,25 @@ export const SkillNetwork3D = () => {
   }, [selectedNode, links, nodes]);
 
   return (
-    <div className="bg-[#4A2A35] border border-[#703344] rounded-3xl overflow-hidden shadow-2xl relative flex flex-col h-[780px] max-h-[85vh]">
+    <div className="bg-[#111111] border border-[#242424] rounded-3xl overflow-hidden shadow-soft relative flex flex-col h-[780px] max-h-[85vh]">
       {/* Top Header & Toolbar */}
-      <div className="p-4 sm:p-5 bg-[#281A21] border-b border-[#703344] flex flex-wrap items-center justify-between gap-4 z-10">
+      <div className="p-4 sm:p-5 bg-[#161616] border-b border-[#242424] flex flex-wrap items-center justify-between gap-4 z-10">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-[#703344] border border-[#A84A4D]/40 text-[#CB6B5A] flex items-center justify-center shadow-inner">
+          <div className="w-10 h-10 rounded-full bg-[#111111] border border-[#242424] text-[#E50914] flex items-center justify-center">
             <Compass className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-base font-extrabold text-[#F6E8E2] tracking-tight">
+            <h3 className="text-sm font-mono font-bold text-[#F5F5F5] uppercase tracking-wider">
               Interactive 3D Entity Network
             </h3>
-            <p className="text-xs text-[#DDA081]">
+            <p className="text-xs font-mono text-[#888888]">
               {nodes.length} Nodes • {links.length} Relationships • Real-time Graph
             </p>
           </div>
         </div>
 
         {/* Entity Type Filter Tabs */}
-        <div className="flex items-center gap-1.5 bg-[#4A2A35] p-1 rounded-2xl border border-[#703344] overflow-x-auto no-scrollbar">
+        <div className="flex items-center gap-1 bg-[#111111] p-1 rounded-full border border-[#242424] overflow-x-auto no-scrollbar">
           {[
             { id: 'All', label: 'All' },
             { id: 'student', label: 'Students' },
@@ -434,10 +410,10 @@ export const SkillNetwork3D = () => {
             <button
               key={tab.id}
               onClick={() => setSelectedType(tab.id)}
-              className={`px-3 py-1 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
+              className={`px-3 py-1 rounded-full text-xs font-mono font-bold transition-all whitespace-nowrap cursor-pointer ${
                 selectedType === tab.id
-                  ? 'bg-[#A84A4D] text-[#F6E8E2] shadow-xs'
-                  : 'text-[#DDA081] hover:text-[#F6E8E2]'
+                  ? 'bg-white text-black shadow-sm'
+                  : 'text-[#888888] hover:text-white'
               }`}
             >
               {tab.label}
@@ -448,33 +424,33 @@ export const SkillNetwork3D = () => {
         {/* Action Controls */}
         <div className="flex items-center gap-2">
           <div className="relative">
-            <Search className="w-3.5 h-3.5 text-[#DDA081] absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-3.5 h-3.5 text-[#666666] absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               placeholder="Search nodes..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-[#281A21] border border-[#703344] rounded-xl pl-8 pr-3 py-1.5 text-xs text-[#F6E8E2] placeholder-[#DDA081]/60 focus:outline-none focus:border-[#CB6B5A] w-36 sm:w-48"
+              className="bg-[#111111] border border-[#242424] rounded-full pl-8 pr-3 py-1.5 text-xs font-mono text-[#F5F5F5] placeholder-[#555555] focus:outline-none focus:border-[#E50914] w-36 sm:w-44"
             />
           </div>
 
           <button
             type="button"
             onClick={() => setAutoRotate(!autoRotate)}
-            className={`p-2 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+            className={`p-2 rounded-full text-xs font-mono font-bold border transition-all cursor-pointer ${
               autoRotate
-                ? 'bg-[#703344] text-[#F6E8E2] border-[#A84A4D]/40'
-                : 'bg-[#281A21] text-[#DDA081] border-[#703344]'
+                ? 'bg-[#111111] text-white border-[#333333]'
+                : 'bg-[#111111] text-[#888888] border-[#242424]'
             }`}
             title="Toggle Auto-Rotation"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${autoRotate ? 'animate-spin-slow' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${autoRotate ? 'animate-spin-slow text-[#E50914]' : ''}`} />
           </button>
 
           <button
             type="button"
             onClick={() => setViewMode(viewMode === '3D' ? '2D' : '3D')}
-            className="px-3 py-1.5 bg-[#4A2A35] hover:bg-[#703344] text-[#F6E8E2] rounded-xl text-xs font-bold border border-[#703344] transition-all flex items-center gap-1.5 cursor-pointer"
+            className="px-3 py-1.5 bg-[#111111] hover:bg-[#202020] text-[#F5F5F5] rounded-full text-xs font-mono font-bold border border-[#242424] transition-all flex items-center gap-1.5 cursor-pointer"
           >
             {viewMode === '3D' ? <List className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
             <span>{viewMode === '3D' ? '2D List' : '3D Graph'}</span>
@@ -483,7 +459,7 @@ export const SkillNetwork3D = () => {
           <button
             type="button"
             onClick={handleResetCamera}
-            className="px-3 py-1.5 bg-[#703344] hover:bg-[#A84A4D] text-[#F6E8E2] rounded-xl text-xs font-bold transition-all cursor-pointer"
+            className="px-3 py-1.5 bg-[#161616] hover:bg-[#202020] border border-[#242424] text-[#F5F5F5] rounded-full text-xs font-mono font-bold transition-all cursor-pointer"
           >
             Reset
           </button>
@@ -491,14 +467,13 @@ export const SkillNetwork3D = () => {
       </div>
 
       {/* Main Canvas / 2D List Area */}
-      <div className="flex-1 relative overflow-hidden">
+      <div className="flex-1 relative overflow-hidden bg-[#050505]">
         {loading ? (
           <div className="h-full flex flex-col items-center justify-center space-y-3">
-            <div className="w-10 h-10 border-2 border-[#A84A4D] border-t-transparent rounded-full animate-spin" />
-            <p className="text-xs text-[#DDA081] font-semibold">Constructing 3D Entity Topology...</p>
+            <div className="w-8 h-8 border-2 border-[#E50914] border-t-transparent rounded-full animate-spin" />
+            <p className="text-xs font-mono text-[#888888]">Constructing 3D Entity Topology...</p>
           </div>
         ) : viewMode === '3D' ? (
-          /* 3D WebGL Canvas */
           <div className="w-full h-full relative cursor-grab active:cursor-grabbing">
             <Canvas
               camera={{ position: [0, 0, 11], fov: 48 }}
@@ -506,8 +481,8 @@ export const SkillNetwork3D = () => {
               gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
             >
               <ambientLight intensity={0.65} />
-              <pointLight position={[12, 12, 12]} intensity={1.3} color="#CB6B5A" />
-              <pointLight position={[-12, -12, -12]} intensity={0.9} color="#DDA081" />
+              <pointLight position={[12, 12, 12]} intensity={1.3} color="#E50914" />
+              <pointLight position={[-12, -12, -12]} intensity={0.9} color="#FFFFFF" />
               <Suspense fallback={null}>
                 <GraphScene
                   nodes={filteredNodes}
@@ -532,69 +507,67 @@ export const SkillNetwork3D = () => {
             </Canvas>
 
             {/* Bottom Legend */}
-            <div className="absolute bottom-4 left-4 z-10 bg-[#281A21]/90 backdrop-blur-md border border-[#703344] px-3.5 py-2 rounded-2xl shadow-xl flex items-center gap-3 text-[11px] font-bold">
-              <span className="text-[#DDA081] uppercase text-[9px] font-black">Legend:</span>
+            <div className="absolute bottom-4 left-4 z-10 bg-[#111111]/90 backdrop-blur-md border border-[#242424] px-3.5 py-1.5 rounded-full shadow-xl flex items-center gap-3 text-[10px] font-mono font-bold">
+              <span className="text-[#666666] uppercase text-[9px]">Legend:</span>
               <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#A84A4D] shadow-xs" />
-                <span className="text-[#F6E8E2]">Students</span>
+                <span className="w-2 h-2 rounded-full bg-[#E50914]" />
+                <span className="text-[#F5F5F5]">Students</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#703344] shadow-xs" />
-                <span className="text-[#F6E8E2]">Skills</span>
+                <span className="w-2 h-2 rounded-full bg-[#20D47A]" />
+                <span className="text-[#F5F5F5]">Skills</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#CB6B5A] shadow-xs" />
-                <span className="text-[#F6E8E2]">Projects</span>
+                <span className="w-2 h-2 rounded-full bg-[#2AA8FF]" />
+                <span className="text-[#F5F5F5]">Projects</span>
               </div>
             </div>
 
             {/* Interaction Hint */}
-            <div className="absolute bottom-4 right-4 z-10 hidden sm:block bg-[#281A21]/80 backdrop-blur-sm border border-[#703344] px-3 py-1.5 rounded-xl text-[10px] text-[#DDA081]">
+            <div className="absolute bottom-4 right-4 z-10 hidden sm:block bg-[#111111]/80 backdrop-blur-sm border border-[#242424] px-3 py-1 rounded-full text-[10px] font-mono text-[#666666]">
               Drag to rotate • Scroll to zoom • Click node to inspect
             </div>
           </div>
         ) : (
-          /* 2D List View */
           <div className="p-6 overflow-y-auto h-full space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredNodes.map((n) => (
                 <div
                   key={n.id}
                   onClick={() => setSelectedNode(n)}
-                  className={`p-4 rounded-2xl bg-[#281A21] border transition-all cursor-pointer ${
+                  className={`p-4 rounded-3xl bg-[#111111] border transition-all cursor-pointer ${
                     selectedNode?.id === n.id
-                      ? 'border-[#A84A4D] shadow-md'
-                      : 'border-[#703344] hover:border-[#A84A4D]/60'
+                      ? 'border-[#E50914] shadow-md'
+                      : 'border-[#242424] hover:border-[#333333]'
                   }`}
                 >
                   <div className="flex items-center justify-between gap-2 mb-2">
                     <span
-                      className="px-2 py-0.5 rounded-md text-[10px] font-black uppercase"
+                      className="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold uppercase"
                       style={{
-                        backgroundColor: `${ENTITY_COLORS[n.type]}30`,
+                        backgroundColor: `${ENTITY_COLORS[n.type]}20`,
                         color: ENTITY_COLORS[n.type]
                       }}
                     >
                       {n.type}
                     </span>
                   </div>
-                  <h4 className="text-sm font-bold text-[#F6E8E2]">{n.name}</h4>
-                  <p className="text-xs text-[#DDA081] mt-0.5 truncate">{n.subtitle}</p>
+                  <h4 className="text-sm font-bold text-[#F5F5F5]">{n.name}</h4>
+                  <p className="text-xs font-mono text-[#888888] mt-0.5 truncate">{n.subtitle}</p>
                 </div>
               ))}
             </div>
           </div>
         )}
 
-        {/* Right Relationship Inspector Drawer (When node is clicked) */}
+        {/* Right Relationship Inspector Drawer */}
         {selectedNode && (
-          <div className="absolute top-0 right-0 bottom-0 w-80 sm:w-96 bg-[#281A21]/98 backdrop-blur-xl border-l border-[#703344] p-5 overflow-y-auto space-y-5 shadow-2xl z-20 animate-in slide-in-from-right-8 duration-200">
-            {/* Header */}
-            <div className="flex items-start justify-between gap-3 pb-4 border-b border-[#703344]">
+          <div className="absolute top-0 right-0 bottom-0 w-80 sm:w-96 bg-[#111111]/98 backdrop-blur-xl border-l border-[#242424] p-5 overflow-y-auto space-y-5 shadow-2xl z-20">
+            <div className="flex items-start justify-between gap-3 pb-4 border-b border-[#1F1F1F]">
               <div className="flex items-center gap-3">
                 <div
-                  className="w-10 h-10 rounded-2xl flex items-center justify-center text-[#F6E8E2] font-bold shadow-md"
-                  style={{ backgroundColor: ENTITY_COLORS[selectedNode.type] || '#A84A4D' }}
+                  className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold shadow-md"
+                  style={{ backgroundColor: ENTITY_COLORS[selectedNode.type] || '#E50914' }}
                 >
                   {selectedNode.type === 'student' ? (
                     <Users className="w-5 h-5" />
@@ -606,48 +579,48 @@ export const SkillNetwork3D = () => {
                 </div>
                 <div>
                   <span
-                    className="text-[10px] font-black uppercase tracking-wider"
+                    className="text-[9px] font-mono font-bold uppercase tracking-wider"
                     style={{ color: ENTITY_COLORS[selectedNode.type] }}
                   >
-                    {selectedNode.type} Details
+                    {selectedNode.type} DETAILS
                   </span>
-                  <h4 className="text-base font-extrabold text-[#F6E8E2]">{selectedNode.name}</h4>
+                  <h4 className="text-base font-bold text-[#F5F5F5]">{selectedNode.name}</h4>
                 </div>
               </div>
 
               <button
                 type="button"
                 onClick={() => setSelectedNode(null)}
-                className="p-1.5 text-[#DDA081] hover:text-[#F6E8E2] rounded-xl hover:bg-[#4A2A35] cursor-pointer"
+                className="p-1.5 text-[#888888] hover:text-white rounded-full hover:bg-[#161616] cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            {/* Entity Stats & Subtitle */}
             <div className="space-y-2">
-              <p className="text-xs text-[#F6E8E2]/90 leading-relaxed">{selectedNode.subtitle}</p>
+              <p className="text-xs font-mono text-[#D0D0D0] leading-relaxed">{selectedNode.subtitle}</p>
               {selectedNode.experienceLevel && (
-                <Badge variant="brand">{selectedNode.experienceLevel} Level</Badge>
+                <span className="inline-block text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#161616] text-[#A1A1A1] border border-[#242424]">
+                  {selectedNode.experienceLevel} Level
+                </span>
               )}
             </div>
 
-            {/* Connected Relationships */}
             <div className="space-y-3 pt-2">
-              <h5 className="text-xs font-bold uppercase tracking-wider text-[#DDA081] flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-[#CB6B5A]" />
+              <h5 className="text-xs font-mono font-bold uppercase tracking-wider text-[#888888] flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-[#E50914]" />
                 <span>Connected Entities ({connectedEntities.length})</span>
               </h5>
 
               {connectedEntities.length === 0 ? (
-                <p className="text-xs text-[#DDA081]/70 italic">No direct connections discovered.</p>
+                <p className="text-xs font-mono text-[#666666] italic">No direct connections discovered.</p>
               ) : (
                 <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
                   {connectedEntities.map((conn) => (
                     <div
                       key={conn.id}
                       onClick={() => setSelectedNode(conn)}
-                      className="p-2.5 rounded-xl bg-[#4A2A35] hover:bg-[#703344] border border-[#703344] transition-all cursor-pointer flex items-center justify-between gap-2"
+                      className="p-2.5 rounded-2xl bg-[#161616] hover:bg-[#202020] border border-[#242424] transition-all cursor-pointer flex items-center justify-between gap-2"
                     >
                       <div className="min-w-0">
                         <div className="flex items-center gap-1.5">
@@ -655,21 +628,20 @@ export const SkillNetwork3D = () => {
                             className="w-2 h-2 rounded-full"
                             style={{ backgroundColor: ENTITY_COLORS[conn.type] }}
                           />
-                          <span className="text-xs font-bold text-[#F6E8E2] truncate">
+                          <span className="text-xs font-mono font-bold text-[#F5F5F5] truncate">
                             {conn.name}
                           </span>
                         </div>
-                        <span className="text-[10px] text-[#DDA081] capitalize">{conn.type}</span>
+                        <span className="text-[9px] font-mono text-[#888888] capitalize">{conn.type}</span>
                       </div>
-                      <ArrowRight className="w-3.5 h-3.5 text-[#DDA081]" />
+                      <ArrowRight className="w-3.5 h-3.5 text-[#888888]" />
                     </div>
                   ))}
                 </div>
               )}
             </div>
 
-            {/* Quick Actions Footer */}
-            <div className="pt-4 border-t border-[#703344] space-y-2">
+            <div className="pt-4 border-t border-[#1F1F1F] space-y-2">
               {selectedNode.type === 'project' && (
                 <Link
                   to={`/projects/${selectedNode.raw?._id || ''}`}
@@ -677,7 +649,7 @@ export const SkillNetwork3D = () => {
                 >
                   <button
                     type="button"
-                    className="w-full py-2 bg-[#A84A4D] hover:bg-[#CB6B5A] text-[#F6E8E2] rounded-xl text-xs font-bold transition-all text-center cursor-pointer"
+                    className="w-full py-2 bg-[#E50914] hover:bg-[#FF1F2D] text-white rounded-full text-xs font-mono font-bold transition-all text-center cursor-pointer shadow-[0_0_12px_rgba(229,9,20,0.4)]"
                   >
                     View Project Workspace
                   </button>
@@ -688,7 +660,7 @@ export const SkillNetwork3D = () => {
                 <Link to="/groups" className="w-full block">
                   <button
                     type="button"
-                    className="w-full py-2 bg-[#A84A4D] hover:bg-[#CB6B5A] text-[#F6E8E2] rounded-xl text-xs font-bold transition-all text-center flex items-center justify-center gap-1.5 cursor-pointer"
+                    className="w-full py-2 bg-[#E50914] hover:bg-[#FF1F2D] text-white rounded-full text-xs font-mono font-bold transition-all text-center flex items-center justify-center gap-1.5 cursor-pointer shadow-[0_0_12px_rgba(229,9,20,0.4)]"
                   >
                     <MessageSquare className="w-3.5 h-3.5" />
                     <span>Message Student</span>
@@ -699,7 +671,7 @@ export const SkillNetwork3D = () => {
               <button
                 type="button"
                 onClick={() => setSelectedNode(null)}
-                className="w-full py-2 bg-[#703344] hover:bg-[#A84A4D] text-[#F6E8E2] rounded-xl text-xs font-semibold transition-all cursor-pointer"
+                className="w-full py-2 bg-[#161616] hover:bg-[#202020] text-[#888888] hover:text-white rounded-full text-xs font-mono transition-all cursor-pointer border border-[#242424]"
               >
                 Close Inspector
               </button>

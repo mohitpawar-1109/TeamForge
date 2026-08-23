@@ -29,7 +29,6 @@ const TeamScene = ({
 }) => {
   const groupRef = useRef();
 
-  // Construct 3D coordinates for Project (Center), Members (Inner Ring), and Skills (Outer Ring)
   const { nodes, links } = useMemo(() => {
     const nList = [];
     const lList = [];
@@ -43,7 +42,7 @@ const TeamScene = ({
       y: 0,
       z: 0,
       size: 0.55,
-      color: '#CB6B5A' // Warm Coral
+      color: '#E50914' // Nothing Red
     };
     nList.push(centerNode);
 
@@ -69,15 +68,14 @@ const TeamScene = ({
         y,
         z,
         size: 0.38,
-        color: '#A84A4D' // Terracotta
+        color: '#FFFFFF' // White
       };
       nList.push(memberNode);
 
-      // Link member to project center
       lList.push({
         source: mId,
         target: 'project-center',
-        color: '#A84A4D'
+        color: '#FFFFFF'
       });
     });
 
@@ -106,11 +104,10 @@ const TeamScene = ({
         y,
         z,
         size: 0.3,
-        color: isCovered ? '#5B8A68' : '#C04A4D' // Sage (covered) or Terracotta-Red (missing)
+        color: isCovered ? '#20D47A' : '#FF1F2D' // Green (covered) or Red (missing)
       };
       nList.push(skillNode);
 
-      // Link skill to contributing members
       members.forEach((m, mIdx) => {
         const hasSkill = (m.user?.skills || []).some((s) => {
           const sName = typeof s === 'string' ? s : s.name;
@@ -120,7 +117,7 @@ const TeamScene = ({
           lList.push({
             source: `member-${m.user?._id || mIdx}`,
             target: sId,
-            color: '#5B8A68'
+            color: '#20D47A'
           });
         }
       });
@@ -136,7 +133,6 @@ const TeamScene = ({
     }
   });
 
-  // Calculate link lines
   const linePositions = useMemo(() => {
     const pos = [];
     const nodeMap = new Map(nodes.map((n) => [n.id, n]));
@@ -154,7 +150,6 @@ const TeamScene = ({
 
   return (
     <group ref={groupRef}>
-      {/* Dynamic Network Connection Lines */}
       {linePositions.length > 0 && (
         <lineSegments>
           <bufferGeometry>
@@ -166,15 +161,14 @@ const TeamScene = ({
             />
           </bufferGeometry>
           <lineBasicMaterial
-            color="#703344"
+            color="#333333"
             transparent
-            opacity={0.45}
+            opacity={0.6}
             blending={THREE.AdditiveBlending}
           />
         </lineSegments>
       )}
 
-      {/* Nodes */}
       {nodes.map((node) => {
         const isSelected = selectedNode?.id === node.id;
         const isHovered = hoveredNode?.id === node.id;
@@ -208,16 +202,15 @@ const TeamScene = ({
               />
             </mesh>
 
-            {/* Floating Tag */}
             {(isHovered || isSelected || node.type === 'project') && (
               <Html distanceFactor={12} center position={[0, node.size + 0.35, 0]}>
-                <div className="bg-[#281A21]/95 backdrop-blur-md border border-[#703344] px-2.5 py-1 rounded-xl shadow-xl pointer-events-none text-center whitespace-nowrap">
-                  <p className="text-[11px] font-extrabold text-[#F6E8E2]">{node.label}</p>
-                  {node.role && <p className="text-[9px] text-[#DDA081] uppercase">{node.role}</p>}
+                <div className="bg-[#111111]/95 backdrop-blur-md border border-[#242424] px-2.5 py-1 rounded-full shadow-soft pointer-events-none text-center whitespace-nowrap">
+                  <p className="text-[10px] font-mono font-bold text-[#F5F5F5]">{node.label}</p>
+                  {node.role && <p className="text-[9px] font-mono text-[#888888] uppercase">{node.role}</p>}
                   {node.type === 'skill' && (
                     <p
-                      className={`text-[9px] font-bold uppercase ${
-                        node.isCovered ? 'text-[#86B190]' : 'text-[#E07D82]'
+                      className={`text-[9px] font-mono font-bold uppercase ${
+                        node.isCovered ? 'text-[#20D47A]' : 'text-[#FF1F2D]'
                       }`}
                     >
                       {node.isCovered ? 'Covered' : 'Missing'}
@@ -249,19 +242,19 @@ export const TeamTopology3D = ({ project }) => {
   if (!project) return null;
 
   return (
-    <div className="bg-[#4A2A35] border border-[#703344] rounded-3xl overflow-hidden shadow-2xl relative flex flex-col h-[620px]">
+    <div className="bg-[#111111] border border-[#242424] rounded-3xl overflow-hidden shadow-soft relative flex flex-col h-[620px]">
       {/* Top Header */}
-      <div className="p-4 bg-[#281A21] border-b border-[#703344] flex items-center justify-between gap-4 z-10">
+      <div className="p-4 bg-[#161616] border-b border-[#242424] flex items-center justify-between gap-4 z-10">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-2xl bg-[#703344] border border-[#A84A4D]/40 text-[#CB6B5A] flex items-center justify-center">
+          <div className="w-8 h-8 rounded-full bg-[#111111] border border-[#242424] text-[#E50914] flex items-center justify-center">
             <Sparkles className="w-4 h-4" />
           </div>
           <div>
-            <h4 className="text-sm font-extrabold text-[#F6E8E2]">
-              3D Team Topology & Skill Synergy
+            <h4 className="text-xs font-mono font-bold text-[#F5F5F5] uppercase tracking-wider">
+              // 3D_TEAM_TOPOLOGY
             </h4>
-            <p className="text-[11px] text-[#DDA081]">
-              Interactive spatial view of team roles and required skills coverage
+            <p className="text-[10px] font-mono text-[#888888]">
+              Spatial view of team roles and required skills coverage
             </p>
           </div>
         </div>
@@ -270,10 +263,10 @@ export const TeamTopology3D = ({ project }) => {
           <button
             type="button"
             onClick={() => setAutoRotate(!autoRotate)}
-            className={`p-2 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+            className={`p-2 rounded-full text-xs font-mono font-bold border transition-all cursor-pointer ${
               autoRotate
-                ? 'bg-[#703344] text-[#F6E8E2] border-[#A84A4D]/40'
-                : 'bg-[#281A21] text-[#DDA081] border-[#703344]'
+                ? 'bg-[#111111] text-white border-[#333333]'
+                : 'bg-[#161616] text-[#888888] border-[#242424]'
             }`}
             title="Toggle Auto-Rotation"
           >
@@ -286,7 +279,7 @@ export const TeamTopology3D = ({ project }) => {
               if (controlsRef.current) controlsRef.current.reset();
               setSelectedNode(null);
             }}
-            className="px-3 py-1.5 bg-[#703344] hover:bg-[#A84A4D] text-[#F6E8E2] rounded-xl text-xs font-bold transition-all cursor-pointer"
+            className="px-3 py-1.5 bg-[#111111] hover:bg-[#202020] text-[#F5F5F5] border border-[#242424] rounded-full text-xs font-mono font-bold transition-all cursor-pointer"
           >
             Reset
           </button>
@@ -294,15 +287,15 @@ export const TeamTopology3D = ({ project }) => {
       </div>
 
       {/* 3D Canvas */}
-      <div className="flex-1 relative cursor-grab active:cursor-grabbing">
+      <div className="flex-1 relative cursor-grab active:cursor-grabbing bg-black">
         <Canvas
           camera={{ position: [0, 2, 9], fov: 46 }}
           dpr={[1, 1.5]}
           gl={{ antialias: true, alpha: true }}
         >
           <ambientLight intensity={0.7} />
-          <pointLight position={[10, 10, 10]} intensity={1.2} color="#CB6B5A" />
-          <pointLight position={[-10, -10, -10]} intensity={0.8} color="#DDA081" />
+          <pointLight position={[10, 10, 10]} intensity={1.2} color="#FFFFFF" />
+          <pointLight position={[-10, -10, -10]} intensity={0.8} color="#E50914" />
           <Suspense fallback={null}>
             <TeamScene
               projectTitle={project.title}
@@ -327,22 +320,22 @@ export const TeamTopology3D = ({ project }) => {
         </Canvas>
 
         {/* Legend */}
-        <div className="absolute bottom-3 left-3 bg-[#281A21]/90 backdrop-blur-md border border-[#703344] px-3 py-1.5 rounded-xl flex items-center gap-3 text-[10px] font-bold">
+        <div className="absolute bottom-3 left-3 bg-[#111111]/90 backdrop-blur-md border border-[#242424] px-3 py-1.5 rounded-full flex items-center gap-3 text-[10px] font-mono font-bold">
           <div className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-[#CB6B5A]" />
-            <span className="text-[#F6E8E2]">Project Core</span>
+            <span className="w-2 h-2 rounded-full bg-[#E50914]" />
+            <span className="text-[#F5F5F5]">Project Core</span>
           </div>
           <div className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-[#A84A4D]" />
-            <span className="text-[#F6E8E2]">Members</span>
+            <span className="w-2 h-2 rounded-full bg-white" />
+            <span className="text-[#F5F5F5]">Members</span>
           </div>
           <div className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-[#5B8A68]" />
-            <span className="text-[#F6E8E2]">Covered Skills</span>
+            <span className="w-2 h-2 rounded-full bg-[#20D47A]" />
+            <span className="text-[#F5F5F5]">Covered</span>
           </div>
           <div className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-[#C04A4D]" />
-            <span className="text-[#F6E8E2]">Missing Skills</span>
+            <span className="w-2 h-2 rounded-full bg-[#FF1F2D]" />
+            <span className="text-[#F5F5F5]">Missing</span>
           </div>
         </div>
       </div>

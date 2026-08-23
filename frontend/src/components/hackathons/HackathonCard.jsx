@@ -42,16 +42,10 @@ export const HackathonCard = ({ hackathon, onToggleSave, onToggleInterest }) => 
 
   const { matchPercentage = 0, matchedSkills = [], missingSkills = [] } = skillMatch;
 
-  const getMatchBadgeColor = (pct) => {
-    if (pct >= 75) return 'bg-[#5B8A68]/20 text-[#86B190] border-[#5B8A68]/40';
-    if (pct >= 40) return 'bg-[#703344] text-[#F6E8E2] border-[#A84A4D]/40';
-    return 'bg-[#D99443]/20 text-[#E5B079] border-[#D99443]/40';
-  };
-
   return (
-    <div className="group bg-[#4A2A35] border border-[#703344] hover:border-[#A84A4D]/60 rounded-3xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-[#A84A4D]/10 flex flex-col justify-between relative">
+    <div className="group bg-[#111111] border border-[#242424] hover:border-[#333333] rounded-3xl overflow-hidden transition-all duration-200 hover:shadow-soft flex flex-col justify-between relative">
       {/* Top Banner Image / Accent */}
-      <div className="relative h-40 w-full overflow-hidden bg-[#281A21]">
+      <div className="relative h-44 w-full overflow-hidden bg-[#0A0A0A]">
         {bannerImage ? (
           <img
             src={bannerImage}
@@ -59,32 +53,32 @@ export const HackathonCard = ({ hackathon, onToggleSave, onToggleInterest }) => 
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80 group-hover:opacity-100"
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-tr from-[#281A21] via-[#703344] to-[#4A2A35] flex items-center justify-center">
-            <Trophy className="w-12 h-12 text-[#DDA081]/40" />
+          <div className="w-full h-full bg-gradient-to-tr from-[#0A0A0A] via-[#161616] to-[#111111] flex items-center justify-center">
+            <Trophy className="w-12 h-12 text-[#666666]/40" />
           </div>
         )}
 
-        <div className="absolute inset-0 bg-gradient-to-t from-[#4A2A35] via-transparent to-black/40" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#111111] via-transparent to-black/50" />
 
         {/* Badges on Banner */}
         <div className="absolute top-3 left-3 flex items-center gap-1.5 flex-wrap">
           {featured && (
-            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-[#D99443] text-[#281A21] flex items-center gap-1 shadow-md">
-              <Flame className="w-3 h-3 fill-[#281A21]" /> Featured
+            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-[#F2B705] text-black flex items-center gap-1 shadow-md">
+              <Flame className="w-3 h-3 fill-black" /> FEATURED
             </span>
           )}
           <span
-            className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+            className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider ${
               mode === 'Online'
-                ? 'bg-[#5B8A68]/30 text-[#86B190] border border-[#5B8A68]/40'
+                ? 'bg-[#20D47A]/20 text-[#20D47A] border border-[#20D47A]/40'
                 : mode === 'Hybrid'
-                ? 'bg-[#703344] text-[#F6E8E2] border border-[#A84A4D]/40'
-                : 'bg-[#A84A4D]/30 text-[#CB6B5A] border border-[#A84A4D]/40'
+                ? 'bg-[#E50914]/20 text-[#FF1F2D] border border-[#E50914]/40'
+                : 'bg-[#2AA8FF]/20 text-[#2AA8FF] border border-[#2AA8FF]/40'
             }`}
           >
             {mode}
           </span>
-          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#281A21]/90 text-[#DDA081] border border-[#703344]">
+          <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-medium bg-[#111111]/90 text-[#A1A1A1] border border-[#242424]">
             {difficulty}
           </span>
         </div>
@@ -99,23 +93,23 @@ export const HackathonCard = ({ hackathon, onToggleSave, onToggleInterest }) => 
           }}
           className={`absolute top-3 right-3 p-2 rounded-xl backdrop-blur-md transition-all shadow-md cursor-pointer ${
             isSaved
-              ? 'bg-[#A84A4D] text-[#F6E8E2]'
-              : 'bg-[#281A21]/80 hover:bg-[#281A21] text-[#DDA081] hover:text-[#F6E8E2] border border-[#703344]'
+              ? 'bg-[#E50914] text-white shadow-[0_0_10px_rgba(229,9,20,0.5)]'
+              : 'bg-black/60 hover:bg-black/80 text-[#A1A1A1] hover:text-white border border-[#242424]'
           }`}
           title={isSaved ? 'Remove from Saved' : 'Save Hackathon'}
         >
-          <Bookmark className={`w-4 h-4 ${isSaved ? 'fill-[#F6E8E2]' : ''}`} />
+          <Bookmark className={`w-3.5 h-3.5 ${isSaved ? 'fill-white' : ''}`} />
         </button>
 
         {/* Prize Pool Tag */}
-        <div className="absolute bottom-3 left-3 flex items-center gap-1.5 px-3 py-1 rounded-xl bg-[#281A21]/90 border border-[#D99443]/40 text-[#E5B079] text-xs font-black shadow-lg">
-          <Trophy className="w-3.5 h-3.5 text-[#D99443]" />
+        <div className="absolute bottom-3 left-3 flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#111111]/95 border border-[#242424] text-[#F2B705] text-xs font-mono font-bold shadow-md">
+          <Trophy className="w-3.5 h-3.5 text-[#F2B705]" />
           <span>{prizePool} Prize Pool</span>
         </div>
 
         {/* Deadline Tag */}
-        <div className="absolute bottom-3 right-3 flex items-center gap-1 px-2.5 py-1 rounded-xl bg-[#281A21]/90 border border-[#703344] text-[#DDA081] text-[11px] font-semibold">
-          <Calendar className="w-3 h-3 text-[#CB6B5A]" />
+        <div className="absolute bottom-3 right-3 flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#111111]/95 border border-[#242424] text-[#A1A1A1] text-[11px] font-mono font-medium">
+          <Calendar className="w-3 h-3 text-[#666666]" />
           <span>{daysLeft > 0 ? `${daysLeft}d left` : 'Ends today'}</span>
         </div>
       </div>
@@ -123,11 +117,11 @@ export const HackathonCard = ({ hackathon, onToggleSave, onToggleInterest }) => 
       {/* Card Body */}
       <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
         <div>
-          <div className="flex items-center gap-2 mb-1.5 text-xs text-[#DDA081]">
+          <div className="flex items-center gap-2 mb-1.5 text-xs font-mono text-[#666666]">
             <span>{organizer?.name || 'TechForge League'}</span>
             <span>•</span>
             <span className="flex items-center gap-1">
-              <Users className="w-3 h-3 text-[#DDA081]" />
+              <Users className="w-3 h-3 text-[#666666]" />
               {teamSize?.min === teamSize?.max
                 ? `${teamSize.min} members`
                 : `${teamSize?.min || 1}-${teamSize?.max || 4} members`}
@@ -135,25 +129,21 @@ export const HackathonCard = ({ hackathon, onToggleSave, onToggleInterest }) => 
           </div>
 
           <Link to={`/hackathons/${_id}`}>
-            <h3 className="text-base font-extrabold text-[#F6E8E2] group-hover:text-[#CB6B5A] transition-colors line-clamp-1">
+            <h3 className="text-base font-bold text-[#F5F5F5] group-hover:text-white transition-colors line-clamp-1">
               {title}
             </h3>
           </Link>
 
-          <p className="text-xs text-[#DDA081] mt-1 line-clamp-2 leading-relaxed">
+          <p className="text-xs text-[#888888] mt-1 line-clamp-2 leading-relaxed">
             {tagline || hackathon.description?.replace(/#/g, '').slice(0, 100)}
           </p>
         </div>
 
         {/* TeamForge Skill Match Integration */}
-        <div className="space-y-2 pt-2 border-t border-[#703344]">
+        <div className="space-y-2.5 pt-2 border-t border-[#1F1F1F]">
           <div className="flex items-center justify-between">
-            <span
-              className={`px-2.5 py-1 rounded-xl text-xs font-bold border flex items-center gap-1.5 ${getMatchBadgeColor(
-                matchPercentage
-              )}`}
-            >
-              <Sparkles className="w-3.5 h-3.5" />
+            <span className="text-xs font-mono font-bold text-[#F5F5F5] flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-[#20D47A]" />
               <span>You match {matchPercentage}% of the required skills</span>
             </span>
           </div>
@@ -163,7 +153,7 @@ export const HackathonCard = ({ hackathon, onToggleSave, onToggleInterest }) => 
             {matchedSkills.slice(0, 3).map((skill, idx) => (
               <span
                 key={idx}
-                className="px-2 py-0.5 rounded-lg text-[10px] font-bold bg-[#5B8A68]/20 text-[#86B190] border border-[#5B8A68]/30 flex items-center gap-1"
+                className="px-2 py-0.5 rounded-full text-[10px] font-mono font-medium bg-[#20D47A]/10 text-[#20D47A] border border-[#20D47A]/30 flex items-center gap-1"
               >
                 <CheckCircle2 className="w-2.5 h-2.5" /> {skill}
               </span>
@@ -172,7 +162,7 @@ export const HackathonCard = ({ hackathon, onToggleSave, onToggleInterest }) => 
             {missingSkills.slice(0, 2).map((skill, idx) => (
               <span
                 key={idx}
-                className="px-2 py-0.5 rounded-lg text-[10px] font-semibold bg-[#281A21] text-[#DDA081] border border-dashed border-[#703344]"
+                className="px-2 py-0.5 rounded-full text-[10px] font-mono font-medium bg-[#161616] text-[#888888] border border-[#242424]"
                 title={`Skill gap: ${skill}`}
               >
                 + Need {skill}
@@ -180,7 +170,7 @@ export const HackathonCard = ({ hackathon, onToggleSave, onToggleInterest }) => 
             ))}
 
             {requiredSkills.length > 5 && (
-              <span className="px-1.5 py-0.5 text-[10px] text-[#DDA081]">
+              <span className="px-1.5 py-0.5 text-[10px] font-mono text-[#666666]">
                 +{requiredSkills.length - 5} more
               </span>
             )}
@@ -188,7 +178,7 @@ export const HackathonCard = ({ hackathon, onToggleSave, onToggleInterest }) => 
         </div>
 
         {/* Card Footer Actions */}
-        <div className="pt-3 border-t border-[#703344] flex items-center justify-between gap-3">
+        <div className="pt-3 border-t border-[#1F1F1F] flex items-center justify-between gap-3">
           <button
             type="button"
             onClick={(e) => {
@@ -196,13 +186,13 @@ export const HackathonCard = ({ hackathon, onToggleSave, onToggleInterest }) => 
               e.stopPropagation();
               onToggleInterest && onToggleInterest(_id);
             }}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+            className={`px-3.5 py-1.5 rounded-full text-xs font-mono transition-all flex items-center gap-1.5 cursor-pointer ${
               isInterested
-                ? 'bg-[#C04A4D]/20 text-[#E07D82] border border-[#C04A4D]/40'
-                : 'bg-[#281A21] hover:bg-[#703344] text-[#DDA081] hover:text-[#F6E8E2] border border-[#703344]'
+                ? 'bg-[#E50914]/20 text-[#FF1F2D] border border-[#E50914]/50'
+                : 'bg-transparent hover:bg-[#161616] text-[#A1A1A1] hover:text-white border border-[#242424]'
             }`}
           >
-            <Heart className={`w-3.5 h-3.5 ${isInterested ? 'fill-[#E07D82] text-[#E07D82]' : ''}`} />
+            <Heart className={`w-3.5 h-3.5 ${isInterested ? 'fill-[#FF1F2D] text-[#FF1F2D]' : ''}`} />
             <span>{isInterested ? 'Interested' : 'Interested?'}</span>
             {interestedCount > 0 && (
               <span className="text-[10px] opacity-75">({interestedCount})</span>
@@ -211,7 +201,7 @@ export const HackathonCard = ({ hackathon, onToggleSave, onToggleInterest }) => 
 
           <Link
             to={`/hackathons/${_id}`}
-            className="px-3.5 py-1.5 bg-[#A84A4D] hover:bg-[#CB6B5A] text-[#F6E8E2] rounded-xl text-xs font-bold transition-all flex items-center gap-1 shadow-sm group-hover:gap-1.5"
+            className="px-4 py-1.5 bg-[#E50914] hover:bg-[#FF1F2D] text-white rounded-full text-xs font-mono font-bold transition-all flex items-center gap-1 shadow-[0_0_15px_rgba(229,9,20,0.45)] group-hover:gap-1.5"
           >
             <span>Details</span>
             <ArrowRight className="w-3.5 h-3.5" />

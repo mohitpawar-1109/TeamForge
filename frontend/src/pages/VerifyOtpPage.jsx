@@ -5,7 +5,6 @@ import { authAPI } from '../services/api';
 import { useToast } from '../context/ToastContext';
 import { Button } from '../components/common/Button';
 
-// Mask email for privacy (e.g. mohitpawar@gmail.com -> m***r@gmail.com)
 const maskEmail = (email = '') => {
   if (!email || !email.includes('@')) return 'your email';
   const [user, domain] = email.split('@');
@@ -28,14 +27,12 @@ export const VerifyOtpPage = () => {
 
   const inputRefs = useRef([]);
 
-  // Redirect if no email was passed in navigation state
   useEffect(() => {
     if (!email) {
       navigate('/forgot-password');
     }
   }, [email, navigate]);
 
-  // Cooldown countdown timer for Resend button
   useEffect(() => {
     if (cooldown <= 0) return;
     const interval = setInterval(() => {
@@ -44,7 +41,6 @@ export const VerifyOtpPage = () => {
     return () => clearInterval(interval);
   }, [cooldown]);
 
-  // Focus the first input on load
   useEffect(() => {
     if (inputRefs.current[0]) {
       inputRefs.current[0].focus();
@@ -52,7 +48,6 @@ export const VerifyOtpPage = () => {
   }, []);
 
   const handleChange = (index, value) => {
-    // Only allow single digit numeric input
     const cleanVal = value.replace(/[^0-9]/g, '');
     if (!cleanVal && value !== '') return;
 
@@ -61,7 +56,6 @@ export const VerifyOtpPage = () => {
     setOtp(newOtp);
     setErrorMessage('');
 
-    // Auto-advance to next input if digit entered
     if (cleanVal && index < 5) {
       inputRefs.current[index + 1]?.focus();
     }
@@ -93,7 +87,6 @@ export const VerifyOtpPage = () => {
     setOtp(newOtp);
     setErrorMessage('');
 
-    // Focus last filled digit or the 6th input
     const nextFocusIndex = Math.min(pastedData.length, 5);
     inputRefs.current[nextFocusIndex]?.focus();
   };
@@ -118,7 +111,6 @@ export const VerifyOtpPage = () => {
 
       if (res.data.success) {
         success('Verification successful! Set your new password.');
-        // Navigate to Reset Password page with email and resetToken
         navigate('/reset-password', {
           state: {
             email,
@@ -162,24 +154,23 @@ export const VerifyOtpPage = () => {
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center gap-2 mb-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#A84A4D] to-[#CB6B5A] flex items-center justify-center text-[#F6E8E2] shadow-md shadow-[#A84A4D]/20">
-              <ShieldCheck className="w-5 h-5" />
-            </div>
-          </Link>
-          <h2 className="text-2xl font-extrabold text-[#F6E8E2] tracking-tight">Verify your email</h2>
-          <p className="text-xs text-[#DDA081] mt-1.5">
+          <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#111111] border border-[#242424] mb-3">
+            <span className="w-2 h-2 rounded-full bg-[#E50914] animate-pulse" />
+            <span className="text-[10px] font-mono font-bold tracking-widest text-[#F5F5F5]">TEAM (FORGE)</span>
+          </div>
+          <h2 className="text-2xl font-bold text-[#F5F5F5] tracking-tight">Verify your email</h2>
+          <p className="text-xs font-mono text-[#888888] mt-1.5">
             We sent a 6-digit verification code to:{' '}
-            <span className="font-semibold text-[#CB6B5A]">{maskEmail(email)}</span>
+            <span className="font-semibold text-[#E50914]">{maskEmail(email)}</span>
           </p>
         </div>
 
         {/* Card */}
-        <div className="bg-[#4A2A35] rounded-2xl border border-[#703344] p-6 sm:p-8 shadow-soft">
+        <div className="bg-[#111111] rounded-3xl border border-[#242424] p-6 sm:p-8 shadow-soft">
           <form onSubmit={handleVerify} className="space-y-6">
             {/* 6 Digit Inputs */}
             <div>
-              <div className="flex justify-center gap-2 sm:gap-3" onPaste={handlePaste}>
+              <div className="flex justify-center gap-2 sm:gap-2.5" onPaste={handlePaste}>
                 {otp.map((digit, index) => (
                   <input
                     key={index}
@@ -191,19 +182,19 @@ export const VerifyOtpPage = () => {
                     value={digit}
                     onChange={(e) => handleChange(index, e.target.value)}
                     onKeyDown={(e) => handleKeyDown(index, e)}
-                    className={`w-11 h-13 sm:w-12 sm:h-14 text-center text-xl font-extrabold rounded-xl border transition-all focus:outline-none ${
+                    className={`w-11 h-13 sm:w-12 sm:h-14 text-center text-xl font-mono font-bold rounded-2xl border transition-all focus:outline-none ${
                       errorMessage
-                        ? 'border-[#C04A4D] bg-[#C04A4D]/20 text-[#E07D82] focus:border-[#C04A4D]'
+                        ? 'border-[#FF1F2D] bg-[#E50914]/15 text-[#FF1F2D] focus:border-[#FF1F2D]'
                         : digit
-                        ? 'border-[#A84A4D] bg-[#703344]/40 text-[#F6E8E2]'
-                        : 'border-[#703344] bg-[#281A21] text-[#F6E8E2] focus:border-[#CB6B5A] focus:bg-[#281A21]'
+                        ? 'border-[#E50914] bg-[#161616] text-[#F5F5F5]'
+                        : 'border-[#242424] bg-[#161616] text-[#F5F5F5] focus:border-[#E50914]'
                     }`}
                   />
                 ))}
               </div>
 
               {errorMessage && (
-                <div className="flex items-center justify-center gap-1.5 mt-3 text-xs text-[#E07D82]">
+                <div className="flex items-center justify-center gap-1.5 mt-3 text-xs font-mono text-[#FF1F2D]">
                   <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
                   <span>{errorMessage}</span>
                 </div>
@@ -211,21 +202,21 @@ export const VerifyOtpPage = () => {
             </div>
 
             {/* Expiration and Resend Info */}
-            <div className="flex items-center justify-between text-xs text-[#DDA081] bg-[#281A21] p-3 rounded-xl border border-[#703344]">
-              <div className="flex items-center gap-1.5 text-[#DDA081]">
-                <Clock className="w-3.5 h-3.5 text-[#CB6B5A]" />
+            <div className="flex items-center justify-between text-xs font-mono text-[#888888] bg-[#161616] p-3 rounded-2xl border border-[#242424]">
+              <div className="flex items-center gap-1.5 text-[#888888]">
+                <Clock className="w-3.5 h-3.5 text-[#E50914]" />
                 <span>Expires in 10 mins</span>
               </div>
 
               <div>
                 {cooldown > 0 ? (
-                  <span className="text-[#DDA081]/70 font-medium">Resend in {cooldown}s</span>
+                  <span className="text-[#666666]">Resend in {cooldown}s</span>
                 ) : (
                   <button
                     type="button"
                     onClick={handleResend}
                     disabled={resending}
-                    className="text-[#CB6B5A] hover:text-[#DDA081] font-semibold inline-flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                    className="text-[#E50914] hover:underline font-bold inline-flex items-center gap-1 cursor-pointer disabled:opacity-50"
                   >
                     <RefreshCw className={`w-3 h-3 ${resending ? 'animate-spin' : ''}`} />
                     <span>Resend OTP</span>
@@ -247,10 +238,10 @@ export const VerifyOtpPage = () => {
             </Button>
           </form>
 
-          <div className="mt-6 pt-5 border-t border-[#703344] text-center">
+          <div className="mt-6 pt-5 border-t border-[#1F1F1F] text-center">
             <Link
               to="/forgot-password"
-              className="inline-flex items-center gap-1.5 text-xs text-[#DDA081] hover:text-[#CB6B5A] transition-colors"
+              className="inline-flex items-center gap-1.5 text-xs font-mono text-[#888888] hover:text-[#E50914] transition-colors"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Use a different email</span>

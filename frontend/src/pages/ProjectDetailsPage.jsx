@@ -72,8 +72,8 @@ export const ProjectDetailsPage = () => {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="h-48 rounded-3xl bg-[#4A2A35] border border-[#703344] animate-pulse" />
-        <div className="h-64 rounded-3xl bg-[#4A2A35] border border-[#703344] animate-pulse" />
+        <div className="h-48 rounded-3xl bg-[#111111] border border-[#242424] animate-pulse" />
+        <div className="h-64 rounded-3xl bg-[#111111] border border-[#242424] animate-pulse" />
       </div>
     );
   }
@@ -81,8 +81,8 @@ export const ProjectDetailsPage = () => {
   if (!project) {
     return (
       <div className="text-center py-12">
-        <p className="text-[#DDA081]">Project not found.</p>
-        <Link to="/projects" className="text-[#CB6B5A] font-bold mt-2 inline-block">Back to Explore</Link>
+        <p className="text-[#888888] font-mono">Project not found.</p>
+        <Link to="/projects" className="text-[#E50914] font-mono font-bold mt-2 inline-block">Back to Explore</Link>
       </div>
     );
   }
@@ -93,27 +93,35 @@ export const ProjectDetailsPage = () => {
   return (
     <div className="space-y-8">
       {/* Top Banner Card */}
-      <div className="bg-[#4A2A35] rounded-3xl border border-[#703344] p-6 sm:p-8 shadow-soft">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-[#703344]">
+      <div className="bg-[#111111] rounded-3xl border border-[#242424] p-6 sm:p-8 shadow-soft">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-[#1F1F1F]">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#F6E8E2] bg-[#703344] px-2.5 py-0.5 rounded-md border border-[#A84A4D]/40">
+              <span className="text-[9px] font-mono font-bold uppercase tracking-wider text-[#A1A1A1] bg-[#161616] px-2.5 py-0.5 rounded-full border border-[#242424]">
                 {project.category}
               </span>
-              <Badge variant="brand">{project.difficulty} Difficulty</Badge>
-              <Badge variant={project.status === 'Recruiting' ? 'success' : 'terracotta'}>{project.status}</Badge>
+              <span className="text-[9px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#161616] text-[#F5F5F5] border border-[#242424]">
+                {project.difficulty}
+              </span>
+              <span className={`text-[9px] font-mono font-bold uppercase px-2.5 py-0.5 rounded-full border ${
+                project.status === 'Recruiting'
+                  ? 'bg-[#20D47A]/10 text-[#20D47A] border-[#20D47A]/30'
+                  : 'bg-[#161616] text-[#A1A1A1] border-[#242424]'
+              }`}>
+                {project.status}
+              </span>
             </div>
 
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-[#F6E8E2] tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-bold text-[#F5F5F5] tracking-tight">
               {project.title}
             </h1>
-            <p className="text-xs text-[#DDA081] mt-1">
-              Created by <span className="font-semibold text-[#F6E8E2]">{project.owner?.name}</span> • Duration: {project.duration}
+            <p className="text-xs font-mono text-[#888888] mt-1">
+              Created by <span className="font-semibold text-[#F5F5F5]">{project.owner?.name}</span> • Duration: {project.duration}
             </p>
           </div>
 
           {/* Quick Actions */}
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2.5">
             <Link to={`/projects/${project._id}/mentor`}>
               <Button variant="primary" size="md" icon={Bot}>
                 AI Mentor
@@ -122,7 +130,7 @@ export const ProjectDetailsPage = () => {
 
             {isMember && (
               <Link to={`/projects/${project._id}/tasks`}>
-                <Button variant="secondary" size="md" icon={FolderKanban}>
+                <Button variant="outline" size="md" icon={FolderKanban}>
                   Project Tasks
                 </Button>
               </Link>
@@ -130,7 +138,7 @@ export const ProjectDetailsPage = () => {
 
             {isOwner && (
               <Link to={`/projects/${project._id}/matches`}>
-                <Button variant="secondary" size="md" icon={UserPlus}>
+                <Button variant="outline" size="md" icon={UserPlus}>
                   Find Teammates
                 </Button>
               </Link>
@@ -146,7 +154,7 @@ export const ProjectDetailsPage = () => {
               <button
                 onClick={handleDeleteProject}
                 title="Delete Project"
-                className="p-2.5 rounded-xl border border-[#C04A4D]/40 bg-[#C04A4D]/20 text-[#E07D82] hover:bg-[#C04A4D]/30 transition-colors cursor-pointer"
+                className="p-2.5 rounded-full border border-[#FF1F2D]/30 bg-[#FF1F2D]/10 text-[#FF1F2D] hover:bg-[#FF1F2D]/20 transition-colors cursor-pointer"
               >
                 <Trash2 className="w-4 h-4" />
               </button>
@@ -155,9 +163,9 @@ export const ProjectDetailsPage = () => {
         </div>
 
         {/* Project Description */}
-        <div className="py-6 border-b border-[#703344]">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-[#DDA081] mb-2">Overview & Objectives</h3>
-          <p className="text-sm text-[#F6E8E2]/90 leading-relaxed max-w-4xl">
+        <div className="py-6 border-b border-[#1F1F1F]">
+          <h3 className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#888888] mb-2">// OVERVIEW & OBJECTIVES</h3>
+          <p className="text-xs sm:text-sm font-mono text-[#CCCCCC] leading-relaxed max-w-4xl">
             {project.description}
           </p>
         </div>
@@ -165,10 +173,10 @@ export const ProjectDetailsPage = () => {
         {/* Required Skills & Roles */}
         <div className="pt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <h4 className="text-xs font-bold uppercase tracking-wider text-[#DDA081] mb-2">Required Skills</h4>
-            <div className="flex flex-wrap gap-2">
+            <h4 className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#888888] mb-2">// REQUIRED_SKILLS</h4>
+            <div className="flex flex-wrap gap-1.5">
               {project.requiredSkills?.map((skill, idx) => (
-                <span key={idx} className="px-3 py-1 rounded-xl bg-[#281A21] border border-[#703344] text-xs font-semibold text-[#F6E8E2]">
+                <span key={idx} className="px-3 py-0.5 rounded-full bg-[#161616] border border-[#242424] text-xs font-mono text-[#F5F5F5]">
                   {skill}
                 </span>
               ))}
@@ -176,10 +184,10 @@ export const ProjectDetailsPage = () => {
           </div>
 
           <div>
-            <h4 className="text-xs font-bold uppercase tracking-wider text-[#DDA081] mb-2">Target Roles</h4>
-            <div className="flex flex-wrap gap-2">
+            <h4 className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#888888] mb-2">// TARGET_ROLES</h4>
+            <div className="flex flex-wrap gap-1.5">
               {project.suggestedRoles?.map((role, idx) => (
-                <span key={idx} className="px-3 py-1 rounded-xl bg-[#703344] border border-[#A84A4D]/40 text-xs font-semibold text-[#F6E8E2]">
+                <span key={idx} className="px-3 py-0.5 rounded-full bg-[#161616] border border-[#242424] text-xs font-mono text-[#A1A1A1]">
                   {role}
                 </span>
               ))}
@@ -192,12 +200,12 @@ export const ProjectDetailsPage = () => {
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Bot className="w-5 h-5 text-[#CB6B5A]" />
-            <h2 className="text-lg font-bold text-[#F6E8E2]">Project AI Mentor</h2>
+            <Bot className="w-4 h-4 text-[#E50914]" />
+            <h2 className="text-sm font-mono font-bold text-[#F5F5F5] uppercase tracking-wider">Project AI Mentor</h2>
           </div>
           <Link
             to={`/projects/${project._id}/mentor`}
-            className="text-xs font-bold text-[#CB6B5A] hover:text-[#DDA081] transition-colors flex items-center gap-1"
+            className="text-xs font-mono font-bold text-[#E50914] hover:text-white transition-colors flex items-center gap-1"
           >
             <span>Open Fullscreen</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -216,28 +224,30 @@ export const ProjectDetailsPage = () => {
 
       {/* AI Insights Card if analyzed */}
       {project.aiAnalysis?.analyzed && (
-        <div className="bg-[#4A2A35] rounded-3xl border border-[#703344] p-6 sm:p-8">
+        <div className="bg-[#111111] rounded-3xl border border-[#242424] p-6 sm:p-8">
           <div className="flex items-center gap-2 mb-4">
-            <Brain className="w-5 h-5 text-[#CB6B5A]" />
-            <h3 className="text-base font-bold text-[#F6E8E2]">AI Architectural Analysis</h3>
+            <Brain className="w-4 h-4 text-[#E50914]" />
+            <h3 className="text-sm font-mono font-bold text-[#F5F5F5] uppercase tracking-wider">AI Architectural Analysis</h3>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs font-mono">
             <div>
-              <span className="font-bold text-[#DDA081] block mb-2">Suggested Team Roles:</span>
+              <span className="font-bold text-[#888888] block mb-2">// SUGGESTED_ROLES</span>
               <div className="flex flex-wrap gap-1.5">
                 {(project.aiAnalysis.suggestedRoles || []).map((role, idx) => (
-                  <Badge key={idx} variant="terracotta">{role}</Badge>
+                  <span key={idx} className="px-2.5 py-0.5 rounded-full bg-[#161616] border border-[#242424] text-xs text-[#F5F5F5]">
+                    {role}
+                  </span>
                 ))}
               </div>
             </div>
 
             <div>
-              <span className="font-bold text-[#DDA081] block mb-2">Potential Technical Challenges:</span>
-              <ul className="space-y-1 text-[#F6E8E2]/90">
+              <span className="font-bold text-[#888888] block mb-2">// TECHNICAL_CHALLENGES</span>
+              <ul className="space-y-1 text-[#888888]">
                 {(project.aiAnalysis.potentialChallenges || []).map((ch, idx) => (
                   <li key={idx} className="flex items-start gap-1.5">
-                    <span className="text-[#CB6B5A] font-bold">•</span>
+                    <span className="text-[#E50914] font-bold">•</span>
                     <span>{ch}</span>
                   </li>
                 ))}

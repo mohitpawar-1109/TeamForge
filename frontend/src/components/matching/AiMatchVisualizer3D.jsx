@@ -1,6 +1,7 @@
 import React, { useRef, useMemo, useState, useEffect, Suspense } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Html } from '@react-three/drei';
+import { Link } from 'react-router-dom';
 import * as THREE from 'three';
 import {
   Sparkles,
@@ -28,16 +29,12 @@ const MatchScene3D = ({
   user,
   candidate,
   matchingSkills,
-  progress, // 0 to 1
+  progress,
   prefersReducedMotion
 }) => {
   const groupRef = useRef();
   const beamRef = useRef();
 
-  // Positions in 3D space:
-  // User at top-left [-3.2, 1.8, 0]
-  // Teammate at bottom-right [3.2, -1.8, 0]
-  // Intermediate matching skills positioned in a graceful arc in the middle
   const userPos = [-3.2, 1.6, 0];
   const teammatePos = [3.2, -1.6, 0];
 
@@ -46,7 +43,6 @@ const MatchScene3D = ({
     const count = list.length;
     return list.map((skill, idx) => {
       const t = (idx + 1) / (count + 1);
-      // Interpolate along curved trajectory
       const x = -3.2 + t * 6.4;
       const y = Math.sin(t * Math.PI) * 1.5 - 0.2;
       const z = Math.cos(t * Math.PI * 2) * 0.8;
@@ -54,7 +50,6 @@ const MatchScene3D = ({
     });
   }, [matchingSkills]);
 
-  // Dynamic particle beam line vertices
   const { linePositions, lineColors } = useMemo(() => {
     const points = [userPos, ...skillPositions.map(s => [s.x, s.y, s.z]), teammatePos];
     const pos = [];
@@ -66,9 +61,8 @@ const MatchScene3D = ({
 
       pos.push(p1[0], p1[1], p1[2], p2[0], p2[1], p2[2]);
 
-      // Gradient color from Terracotta (#A84A4D) to Warm Coral (#CB6B5A)
-      cols.push(0.66, 0.29, 0.30); // Terracotta
-      cols.push(0.80, 0.42, 0.35); // Warm Coral
+      cols.push(0.9, 0.04, 0.08); // Red
+      cols.push(1.0, 1.0, 1.0); // White
     }
 
     return {
@@ -89,7 +83,6 @@ const MatchScene3D = ({
 
   return (
     <group ref={groupRef}>
-      {/* Dynamic Animated Connecting Beams */}
       <lineSegments ref={beamRef}>
         <bufferGeometry>
           <bufferAttribute
@@ -114,57 +107,57 @@ const MatchScene3D = ({
         />
       </lineSegments>
 
-      {/* 1. USER NODE */}
+      {/* USER NODE */}
       <group position={userPos}>
         <mesh scale={1.15}>
           <sphereGeometry args={[0.55, 32, 32]} />
           <meshStandardMaterial
-            color="#A84A4D"
-            emissive="#A84A4D"
+            color="#E50914"
+            emissive="#E50914"
             emissiveIntensity={0.6}
             roughness={0.2}
           />
         </mesh>
         <Html distanceFactor={12} center position={[0, -0.9, 0]}>
-          <div className="px-2.5 py-1 rounded-xl bg-[#281A21]/95 text-[#F6E8E2] border border-[#703344] text-[11px] font-extrabold whitespace-nowrap shadow-lg select-none">
+          <div className="px-2.5 py-0.5 rounded-full bg-[#111111]/95 text-[#F5F5F5] border border-[#242424] text-[10px] font-mono font-bold whitespace-nowrap shadow-soft select-none">
             👤 {user?.name ? user.name.split(' ')[0] : 'You'} (Lead)
           </div>
         </Html>
       </group>
 
-      {/* 2. MATCHING SKILL NODES */}
+      {/* MATCHING SKILL NODES */}
       {skillPositions.map((skill, idx) => (
         <group key={idx} position={[skill.x, skill.y, skill.z]}>
           <mesh scale={progress > 0.4 ? 1 : 0.6}>
             <sphereGeometry args={[0.32, 24, 24]} />
             <meshStandardMaterial
-              color="#703344"
-              emissive="#703344"
+              color="#333333"
+              emissive="#333333"
               emissiveIntensity={0.5}
               roughness={0.3}
             />
           </mesh>
           <Html distanceFactor={12} center position={[0, 0.55, 0]}>
-            <div className="px-2 py-0.5 rounded-lg bg-[#281A21]/95 text-[#DDA081] border border-[#703344] text-[10px] font-bold whitespace-nowrap shadow-md select-none">
+            <div className="px-2 py-0.5 rounded-full bg-[#111111]/95 text-[#888888] border border-[#242424] text-[9px] font-mono font-bold whitespace-nowrap shadow-soft select-none">
               ✓ {skill.name}
             </div>
           </Html>
         </group>
       ))}
 
-      {/* 3. TEAMMATE NODE */}
+      {/* TEAMMATE NODE */}
       <group position={teammatePos}>
         <mesh scale={progress >= 0.8 ? 1.25 : 0.8}>
           <sphereGeometry args={[0.6, 32, 32]} />
           <meshStandardMaterial
-            color="#CB6B5A"
-            emissive="#CB6B5A"
+            color="#FFFFFF"
+            emissive="#FFFFFF"
             emissiveIntensity={0.7}
             roughness={0.2}
           />
         </mesh>
         <Html distanceFactor={12} center position={[0, -0.95, 0]}>
-          <div className="px-2.5 py-1 rounded-xl bg-[#281A21]/95 text-[#F6E8E2] border border-[#A84A4D]/60 text-[11px] font-extrabold whitespace-nowrap shadow-xl select-none">
+          <div className="px-2.5 py-0.5 rounded-full bg-[#111111]/95 text-white border border-[#333333] text-[10px] font-mono font-bold whitespace-nowrap shadow-soft select-none">
             ⭐ {candidate?.name || 'Teammate'}
           </div>
         </Html>
@@ -181,7 +174,7 @@ export const AiMatchVisualizer3D = ({
   const { user } = useAuth();
   const { success, error: toastError } = useToast();
 
-  const [step, setStep] = useState(0); // 0: Idle/Start, 1..5: Sequence, 6: Result
+  const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [matchData, setMatchData] = useState(null);
   const [noMatchFound, setNoMatchFound] = useState(false);
@@ -212,7 +205,6 @@ export const AiMatchVisualizer3D = ({
     }
   }, []);
 
-  // Run AI Matching Engine Sequence
   const handleStartMatching = async () => {
     setLoading(true);
     setStep(1);
@@ -222,7 +214,6 @@ export const AiMatchVisualizer3D = ({
     setInvited(false);
 
     try {
-      // 1. Fetch Real Match Data from API
       let bestCandidate = null;
 
       if (projectId) {
@@ -244,7 +235,6 @@ export const AiMatchVisualizer3D = ({
           };
         }
       } else {
-        // Find best match via user network
         const netRes = await userAPI.getSkillNetwork();
         if (netRes.data.success && netRes.data.data?.users?.length > 0) {
           const validUsers = netRes.data.data.users.filter(u => u.dbId !== user?._id && u.id !== `user_${user?._id}`);
@@ -270,7 +260,6 @@ export const AiMatchVisualizer3D = ({
         }
       }
 
-      // If Reduced Motion is on, jump straight to result
       if (prefersReducedMotion) {
         if (bestCandidate) {
           setMatchData(bestCandidate);
@@ -283,7 +272,6 @@ export const AiMatchVisualizer3D = ({
         return;
       }
 
-      // Run visual progression steps (450ms each)
       for (let s = 1; s <= 5; s++) {
         setStep(s);
         setProgress(SEQUENCE_STEPS[s - 1].progress);
@@ -305,7 +293,6 @@ export const AiMatchVisualizer3D = ({
     }
   };
 
-  // Trigger invite
   const handleInviteTeammate = async () => {
     if (!matchData) return;
     setInviting(true);
@@ -329,18 +316,18 @@ export const AiMatchVisualizer3D = ({
   };
 
   return (
-    <div className="bg-[#4A2A35] rounded-3xl border border-[#703344] text-[#F6E8E2] overflow-hidden shadow-2xl relative">
+    <div className="bg-[#111111] rounded-3xl border border-[#242424] text-[#F5F5F5] overflow-hidden shadow-soft relative">
       {/* Top Banner Header */}
-      <div className="p-6 sm:p-7 bg-gradient-to-r from-[#281A21] via-[#4A2A35] to-[#281A21] border-b border-[#703344] flex items-center justify-between">
+      <div className="p-6 bg-[#161616] border-b border-[#242424] flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-[#703344] border border-[#A84A4D]/40 text-[#CB6B5A] flex items-center justify-center font-bold">
+          <div className="w-10 h-10 rounded-full bg-[#111111] border border-[#242424] text-[#E50914] flex items-center justify-center font-bold">
             <Brain className="w-5 h-5" />
           </div>
           <div>
-            <div className="text-[11px] font-bold uppercase tracking-wider text-[#DDA081]">
-              AI Match Engine
+            <div className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#888888]">
+              // AI_MATCH_ENGINE
             </div>
-            <h3 className="text-xl sm:text-2xl font-black text-[#F6E8E2]">
+            <h3 className="text-xl font-bold text-[#F5F5F5]">
               AI Teammate Discovery
             </h3>
           </div>
@@ -349,9 +336,9 @@ export const AiMatchVisualizer3D = ({
         {onClose && (
           <button
             onClick={onClose}
-            className="text-[#DDA081] hover:text-[#F6E8E2] p-1 rounded-xl bg-[#281A21] border border-[#703344] transition-colors cursor-pointer"
+            className="text-[#888888] hover:text-white p-2 rounded-full bg-[#111111] border border-[#242424] transition-colors cursor-pointer"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         )}
       </div>
@@ -359,16 +346,15 @@ export const AiMatchVisualizer3D = ({
       {/* Main Content Area */}
       <div className="p-6 sm:p-8 space-y-6">
         {step === 0 ? (
-          /* IDLE / START STAGE */
           <div className="py-12 text-center max-w-lg mx-auto space-y-6">
-            <div className="w-20 h-20 mx-auto rounded-3xl bg-[#703344] border border-[#A84A4D]/40 text-[#CB6B5A] flex items-center justify-center shadow-2xl animate-pulse">
-              <Sparkles className="w-10 h-10 text-[#DDA081]" />
+            <div className="w-16 h-16 mx-auto rounded-full bg-[#161616] border border-[#242424] text-[#E50914] flex items-center justify-center shadow-soft">
+              <Sparkles className="w-8 h-8 text-[#E50914]" />
             </div>
             <div>
-              <h4 className="text-2xl font-black text-[#F6E8E2]">
+              <h4 className="text-2xl font-bold text-[#F5F5F5]">
                 Find Your Best Compatible Teammate
               </h4>
-              <p className="text-sm text-[#DDA081] mt-2 leading-relaxed">
+              <p className="text-xs font-mono text-[#888888] mt-2 leading-relaxed">
                 Our multi-factor matching engine evaluates technical skills, domain interests, hackathon track records, and availability overlaps.
               </p>
             </div>
@@ -378,20 +364,18 @@ export const AiMatchVisualizer3D = ({
               size="lg"
               icon={Sparkles}
               onClick={handleStartMatching}
-              className="mx-auto shadow-xl shadow-[#A84A4D]/30 px-8 py-4 rounded-2xl"
+              className="mx-auto"
             >
               Find My Best Teammate
             </Button>
           </div>
         ) : step >= 1 && step <= 5 ? (
-          /* SCANNING SEQUENCE ANIMATION STAGE */
           <div className="py-10 text-center max-w-xl mx-auto space-y-6">
-            {/* 3D Wireframe / Particle Preview */}
-            <div className="h-44 w-full rounded-2xl bg-[#281A21] border border-[#703344] flex items-center justify-center relative overflow-hidden">
+            <div className="h-44 w-full rounded-2xl bg-black border border-[#242424] flex items-center justify-center relative overflow-hidden">
               {hasWebGL && !prefersReducedMotion ? (
                 <Canvas camera={{ position: [0, 0, 8], fov: 45 }}>
                   <ambientLight intensity={0.8} />
-                  <pointLight position={[10, 10, 10]} intensity={1.5} color="#CB6B5A" />
+                  <pointLight position={[10, 10, 10]} intensity={1.5} color="#FFFFFF" />
                   <Suspense fallback={null}>
                     <MatchScene3D
                       user={user}
@@ -404,39 +388,36 @@ export const AiMatchVisualizer3D = ({
                 </Canvas>
               ) : (
                 <div className="flex flex-col items-center justify-center space-y-3">
-                  <RefreshCw className="w-10 h-10 text-[#CB6B5A] animate-spin" />
+                  <RefreshCw className="w-8 h-8 text-[#E50914] animate-spin" />
                 </div>
               )}
             </div>
 
-            {/* Sequence Status Text */}
             <div className="space-y-2">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#703344] border border-[#A84A4D]/40 text-[#F6E8E2] text-xs font-bold uppercase tracking-wider">
-                <RefreshCw className="w-3.5 h-3.5 animate-spin text-[#CB6B5A]" />
+              <div className="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-[#161616] border border-[#242424] text-[#F5F5F5] text-[10px] font-mono font-bold uppercase tracking-wider">
+                <RefreshCw className="w-3 h-3 animate-spin text-[#E50914]" />
                 <span>Step {step} of 5</span>
               </div>
-              <h4 className="text-xl sm:text-2xl font-black text-[#F6E8E2] animate-pulse">
+              <h4 className="text-xl font-mono font-bold text-[#F5F5F5]">
                 {SEQUENCE_STEPS[step - 1]?.title}
               </h4>
             </div>
 
-            {/* Progress Bar */}
-            <div className="w-full bg-[#281A21] rounded-full h-2.5 overflow-hidden border border-[#703344]">
+            <div className="w-full bg-[#161616] rounded-full h-1.5 overflow-hidden border border-[#242424]">
               <div
-                className="bg-gradient-to-r from-[#A84A4D] via-[#CB6B5A] to-[#DDA081] h-full rounded-full transition-all duration-500 ease-out"
+                className="bg-[#E50914] h-full rounded-full transition-all duration-500 ease-out"
                 style={{ width: `${progress * 100}%` }}
               />
             </div>
           </div>
         ) : (
-          /* RESULT STAGE */
           noMatchFound ? (
             <div className="py-8 text-center max-w-md mx-auto space-y-4">
-              <div className="w-16 h-16 mx-auto rounded-2xl bg-[#D99443]/20 border border-[#D99443]/40 text-[#E5B079] flex items-center justify-center">
-                <AlertCircle className="w-8 h-8" />
+              <div className="w-14 h-14 mx-auto rounded-full bg-[#F2B705]/10 border border-[#F2B705]/30 text-[#F2B705] flex items-center justify-center">
+                <AlertCircle className="w-6 h-6" />
               </div>
-              <h4 className="text-xl font-bold text-[#F6E8E2]">No strong match found yet.</h4>
-              <p className="text-xs text-[#DDA081] leading-relaxed">
+              <h4 className="text-lg font-bold text-[#F5F5F5]">No strong match found yet.</h4>
+              <p className="text-xs font-mono text-[#888888] leading-relaxed">
                 Add more verified skills, interests, and project requirements to your profile to expand your compatibility score.
               </p>
               <div className="pt-2 flex items-center justify-center gap-3">
@@ -452,12 +433,11 @@ export const AiMatchVisualizer3D = ({
             </div>
           ) : (
             <div className="space-y-6">
-              {/* 3D Visualization Canvas showing connection formed */}
               {hasWebGL && !prefersReducedMotion && (
-                <div className="h-56 w-full rounded-2xl bg-[#281A21] border border-[#703344] overflow-hidden relative">
+                <div className="h-56 w-full rounded-2xl bg-black border border-[#242424] overflow-hidden relative">
                   <Canvas camera={{ position: [0, 0, 7.5], fov: 45 }}>
                     <ambientLight intensity={0.9} />
-                    <pointLight position={[10, 10, 10]} intensity={1.8} color="#CB6B5A" />
+                    <pointLight position={[10, 10, 10]} intensity={1.8} color="#FFFFFF" />
                     <Suspense fallback={null}>
                       <MatchScene3D
                         user={user}
@@ -472,32 +452,30 @@ export const AiMatchVisualizer3D = ({
               )}
 
               {/* Match Result Card */}
-              <div className="p-6 sm:p-7 rounded-3xl bg-[#281A21] border border-[#703344] shadow-2xl relative overflow-hidden">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-[#703344]">
-                  {/* Teammate Identity */}
+              <div className="p-6 sm:p-7 rounded-3xl bg-[#161616] border border-[#242424] shadow-soft relative overflow-hidden">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-[#242424]">
                   <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-[#A84A4D] to-[#CB6B5A] text-[#F6E8E2] font-black text-2xl flex items-center justify-center shadow-lg shadow-[#A84A4D]/20">
+                    <div className="w-14 h-14 rounded-full bg-[#111111] border border-[#242424] text-white font-mono font-bold text-xl flex items-center justify-center shadow-soft">
                       {matchData.name?.charAt(0)}
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <h4 className="text-xl sm:text-2xl font-black text-[#F6E8E2]">
+                        <h4 className="text-xl font-bold text-[#F5F5F5]">
                           {matchData.name}
                         </h4>
-                        <span className="px-3 py-0.5 rounded-full bg-[#5B8A68]/20 border border-[#5B8A68]/40 text-[#86B190] text-xs font-black">
+                        <span className="px-2.5 py-0.5 rounded-full bg-[#20D47A]/10 border border-[#20D47A]/30 text-[#20D47A] text-[10px] font-mono font-bold">
                           {matchData.score}% MATCH
                         </span>
                       </div>
-                      <p className="text-xs sm:text-sm text-[#DDA081] font-medium mt-0.5">
+                      <p className="text-xs font-mono text-[#888888] mt-0.5">
                         {matchData.headline}
                       </p>
-                      <p className="text-xs text-[#DDA081]/70 mt-0.5">
+                      <p className="text-[10px] font-mono text-[#666666] mt-0.5">
                         🎓 {matchData.college} • {matchData.course}
                       </p>
                     </div>
                   </div>
 
-                  {/* Actions */}
                   <div className="flex items-center gap-3">
                     <Button
                       variant="outline"
@@ -519,19 +497,17 @@ export const AiMatchVisualizer3D = ({
                   </div>
                 </div>
 
-                {/* Match Breakdowns */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6">
-                  {/* Matching Skills */}
-                  <div className="p-4 rounded-2xl bg-[#4A2A35] border border-[#703344] space-y-2">
-                    <span className="text-xs font-bold uppercase tracking-wider text-[#CB6B5A] flex items-center gap-1.5">
-                      <CheckCircle2 className="w-4 h-4" />
+                  <div className="p-4 rounded-2xl bg-[#111111] border border-[#242424] space-y-2">
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#888888] flex items-center gap-1.5">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-[#20D47A]" />
                       <span>Matching Skills</span>
                     </span>
                     <div className="flex flex-wrap gap-1.5 pt-1">
                       {matchData.matchingSkills?.map((s, idx) => (
                         <span
                           key={idx}
-                          className="px-2.5 py-1 rounded-xl bg-[#281A21] border border-[#703344] text-[#F6E8E2] text-xs font-bold flex items-center gap-1"
+                          className="px-2.5 py-0.5 rounded-full bg-[#161616] border border-[#242424] text-[#F5F5F5] text-[10px] font-mono flex items-center gap-1"
                         >
                           ✓ {typeof s === 'string' ? s : s.name}
                         </span>
@@ -539,17 +515,16 @@ export const AiMatchVisualizer3D = ({
                     </div>
                   </div>
 
-                  {/* Matching Interests */}
-                  <div className="p-4 rounded-2xl bg-[#4A2A35] border border-[#703344] space-y-2">
-                    <span className="text-xs font-bold uppercase tracking-wider text-[#CB6B5A] flex items-center gap-1.5">
-                      <Sparkles className="w-4 h-4" />
+                  <div className="p-4 rounded-2xl bg-[#111111] border border-[#242424] space-y-2">
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#888888] flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-[#E50914]" />
                       <span>Matching Interests</span>
                     </span>
                     <div className="flex flex-wrap gap-1.5 pt-1">
                       {matchData.matchingInterests?.map((i, idx) => (
                         <span
                           key={idx}
-                          className="px-2.5 py-1 rounded-xl bg-[#281A21] border border-[#703344] text-[#F6E8E2] text-xs font-bold flex items-center gap-1"
+                          className="px-2.5 py-0.5 rounded-full bg-[#161616] border border-[#242424] text-[#F5F5F5] text-[10px] font-mono flex items-center gap-1"
                         >
                           ✓ {i}
                         </span>
@@ -558,16 +533,14 @@ export const AiMatchVisualizer3D = ({
                   </div>
                 </div>
 
-                {/* Why this match reason */}
                 {matchData.reason && (
-                  <div className="mt-4 p-3.5 rounded-2xl bg-[#703344]/30 border border-[#703344] text-xs text-[#F6E8E2] leading-relaxed flex items-center gap-2">
-                    <Brain className="w-4 h-4 text-[#CB6B5A] shrink-0" />
-                    <span><strong>AI Match Rationale:</strong> {matchData.reason}</span>
+                  <div className="mt-4 p-3 rounded-2xl bg-[#111111] border border-[#242424] text-xs font-mono text-[#888888] flex items-center gap-2">
+                    <Brain className="w-4 h-4 text-[#E50914] shrink-0" />
+                    <span><strong className="text-[#F5F5F5]">AI Match Rationale:</strong> {matchData.reason}</span>
                   </div>
                 )}
               </div>
 
-              {/* Rerun Scan Button */}
               <div className="text-center pt-2">
                 <Button
                   variant="outline"
