@@ -15,9 +15,16 @@ if (publicKey && privateKey && urlEndpoint) {
       privateKey,
       urlEndpoint
     });
+    console.log('[ImageKit] Initialized successfully with endpoint:', urlEndpoint);
   } catch (err) {
-    console.warn('[ImageKit] Initialization error:', err.message);
+    console.error('[ImageKit] Initialization error:', err.message);
   }
+} else {
+  const missing = [];
+  if (!publicKey) missing.push('IMAGEKIT_PUBLIC_KEY');
+  if (!privateKey) missing.push('IMAGEKIT_PRIVATE_KEY');
+  if (!urlEndpoint) missing.push('IMAGEKIT_URL_ENDPOINT');
+  console.warn(`[ImageKit] Configuration missing: ${missing.join(', ')}`);
 }
 
 /**
@@ -26,7 +33,7 @@ if (publicKey && privateKey && urlEndpoint) {
  * @param {string} fileName - Original file name
  * @param {string} mimeType - MIME type of the file
  * @param {string} folder - Destination folder on ImageKit
- * @returns {Promise<{url: string, fileId: string, name: string, type: string, size: number, mimeType: string}>}
+ * @returns {Promise<{url: string, thumbnailUrl: string, fileId: string, name: string, type: string, size: number, mimeType: string}>}
  */
 export const uploadToImageKit = async (
   fileBuffer,
@@ -34,48 +41,50 @@ export const uploadToImageKit = async (
   mimeType = '',
   folder = '/teamforge/community'
 ) => {
+  if (!imagekit) {
+    const missing = [];
+    if (!process.env.IMAGEKIT_PUBLIC_KEY) missing.push('IMAGEKIT_PUBLIC_KEY');
+    if (!process.env.IMAGEKIT_PRIVATE_KEY) missing.push('IMAGEKIT_PRIVATE_KEY');
+    if (!process.env.IMAGEKIT_URL_ENDPOINT) missing.push('IMAGEKIT_URL_ENDPOINT');
+    throw new Error(`ImageKit server configuration missing: ${missing.join(', ')}. Please set environment variables.`);
+  }
+
+  if (!fileBuffer || fileBuffer.length === 0) {
+    throw new Error('Upload failed: File buffer is empty or invalid.');
+  }
+
   const isVideo = (mimeType && mimeType.startsWith('video/')) || /\.(mp4|webm|mov|mkv)$/i.test(fileName);
   const mediaType = isVideo ? 'video' : 'image';
   const sanitizedFileName = `${Date.now()}_${fileName.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
 
-  if (imagekit) {
-    try {
-      const response = await imagekit.upload({
-        file: fileBuffer,
-        fileName: sanitizedFileName,
-        folder,
-        useUniqueFileName: true
-      });
+  try {
+    const response = await imagekit.upload({
+      file: fileBuffer,
+      fileName: sanitizedFileName,
+      folder,
+      useUniqueFileName: true
+    });
 
-      return {
-        url: response.url,
-        thumbnailUrl: response.thumbnailUrl || response.url,
-        fileId: response.fileId,
-        name: response.name || fileName,
-        type: mediaType,
-        size: response.size || (fileBuffer ? fileBuffer.length : 0),
-        mimeType: mimeType || (isVideo ? 'video/mp4' : 'image/jpeg')
-      };
-    } catch (uploadError) {
-      console.error('[ImageKit Upload Error]:', uploadError);
-      throw new Error(`ImageKit upload failed: ${uploadError.message || 'Unknown error'}`);
-    }
+    console.log('[IMAGEKIT UPLOAD SUCCESS]:', {
+      fileId: response.fileId,
+      url: response.url,
+      name: response.name,
+      size: response.size
+    });
+
+    return {
+      url: response.url,
+      thumbnailUrl: response.thumbnailUrl || response.url,
+      fileId: response.fileId,
+      name: response.name || fileName,
+      type: mediaType,
+      size: response.size || (fileBuffer ? fileBuffer.length : 0),
+      mimeType: mimeType || (isVideo ? 'video/mp4' : 'image/jpeg')
+    };
+  } catch (uploadError) {
+    console.error('[IMAGEKIT UPLOAD ERROR]:', uploadError);
+    throw new Error(`ImageKit upload failed: ${uploadError.message || 'Unknown storage error'}`);
   }
-
-  // Graceful fallback if ImageKit credentials are not set
-  const base64Data = fileBuffer.toString('base64');
-  const fallbackMime = mimeType || (isVideo ? 'video/mp4' : 'image/jpeg');
-  const dataUri = `data:${fallbackMime};base64,${base64Data}`;
-
-  return {
-    url: dataUri,
-    thumbnailUrl: dataUri,
-    fileId: `local_${Date.now()}`,
-    name: fileName,
-    type: mediaType,
-    size: fileBuffer ? fileBuffer.length : 0,
-    mimeType: fallbackMime
-  };
 };
 
 /**
@@ -95,3 +104,4 @@ export const deleteFromImageKit = async (fileId) => {
 };
 
 export default imagekit;
+

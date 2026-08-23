@@ -22,6 +22,7 @@ import messageRoutes from './routes/message.routes.js';
 import groupRoutes from './routes/group.routes.js';
 import hackathonRoutes from './routes/hackathon.routes.js';
 import meetingRoutes from './routes/meeting.routes.js';
+import { uploadToImageKit } from './config/imagekit.js';
 
 dotenv.config();
 
@@ -68,6 +69,28 @@ app.get('/api/health', (req, res) => {
     version: '1.0.0',
     timestamp: new Date().toISOString()
   });
+});
+
+// ImageKit Direct Test Upload Endpoint
+app.post('/api/media/test-upload', async (req, res) => {
+  try {
+    const sampleBuffer = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', 'base64');
+    const uploaded = await uploadToImageKit(sampleBuffer, `test_${Date.now()}.png`, 'image/png');
+    res.json({
+      success: true,
+      fileId: uploaded.fileId,
+      url: uploaded.url,
+      thumbnailUrl: uploaded.thumbnailUrl,
+      name: uploaded.name,
+      size: uploaded.size
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      stage: 'imagekit',
+      error: err.message
+    });
+  }
 });
 
 // REST API Endpoints
