@@ -264,6 +264,46 @@ export const googleAuth = async (req, res, next) => {
   }
 };
 
+// @desc    Temporary Diagnostic Endpoint to test email delivery independently
+// @route   POST /api/auth/test-email
+// @access  Public (Diagnostic)
+export const testEmail = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'Email is required for test dispatch.' });
+    }
+
+    const { sendTestEmail, maskEmail } = await import('../services/email.service.js');
+    console.log('\n[TEST EMAIL] Request received for:', maskEmail(email));
+
+    const result = await sendTestEmail(email);
+
+    res.json({
+      success: true,
+      message: 'Test email successfully dispatched to SMTP provider.',
+      transporterType: result.transporterType,
+      messageId: result.info.messageId,
+      accepted: result.info.accepted,
+      rejected: result.info.rejected,
+      response: result.info.response
+    });
+  } catch (error) {
+    console.error('[TEST EMAIL FAILED]:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to dispatch test email.',
+      error: {
+        code: error.code,
+        message: error.message,
+        command: error.command,
+        responseCode: error.responseCode,
+        response: error.response
+      }
+    });
+  }
+};
+
 // @desc    Initiate Forgot Password Flow (Generates Hashed OTP & Dispatches Email)
 // @route   POST /api/auth/forgot-password
 // @access  Public
@@ -271,15 +311,27 @@ export const forgotPassword = async (req, res, next) => {
   try {
     const { email } = req.body;
 
+    console.log('\n[FORGOT PASSWORD]');
+    console.log('Request received');
+
     if (!email) {
+      console.log('[FORGOT PASSWORD] Rejected: No email provided.');
       return res.status(400).json({ success: false, message: 'Please provide a valid email address.' });
     }
 
+    const { maskEmail } = await import('../services/email.service.js');
     const normalizedEmail = email.trim().toLowerCase();
+
+    console.log('[FORGOT PASSWORD]');
+    console.log(`Email received: ${maskEmail(normalizedEmail)}`);
+
     const user = await User.findOne({ email: normalizedEmail });
+    console.log('[FORGOT PASSWORD]');
+    console.log(`User found: ${!!user}`);
 
     // Handle Google-only account without a local password
     if (user && user.authProvider === 'google' && !user.password) {
+      console.log('[FORGOT PASSWORD] Google-only account detected.');
       return res.status(400).json({
         success: false,
         isGoogleUser: true,
@@ -295,6 +347,7 @@ export const forgotPassword = async (req, res, next) => {
       });
 
       if (recentOtp) {
+        console.log('[FORGOT PASSWORD] Rate limit active: OTP requested within last 60 seconds.');
         return res.json({
           success: true,
           message: 'A verification code was recently sent. Please check your inbox or wait 60 seconds before requesting again.'
@@ -302,7 +355,9 @@ export const forgotPassword = async (req, res, next) => {
       }
 
       // Generate cryptographically secure 6-digit OTP
-      const rawOtp = crypto.randomInt(100000, 999999).toString();
+      const rawOtp = crypto.randomInt(100000, 1000000).toString();
+      console.log('[FORGOT PASSWORD]');
+      console.log('OTP generated: true');
 
       // Hash the OTP with SHA-256 for secure database storage
       const otpHash = crypto.createHash('sha256').update(rawOtp).digest('hex');
@@ -313,7 +368,7 @@ export const forgotPassword = async (req, res, next) => {
       // Clean up previous unverified OTPs for this email
       await PasswordReset.deleteMany({ email: normalizedEmail, verified: false });
 
-      // Save hashed OTP record
+      // Save hashed OTP record in MongoDB
       await PasswordReset.create({
         email: normalizedEmail,
         otpHash,
@@ -321,9 +376,28 @@ export const forgotPassword = async (req, res, next) => {
         attempts: 0,
         verified: false
       });
+      console.log('[FORGOT PASSWORD]');
+      console.log('OTP saved: true');
 
-      // Dispatch OTP email
-      await sendPasswordResetEmail(normalizedEmail, user.name, rawOtp);
+      // Dispatch OTP email through configured email service
+      console.log('[FORGOT PASSWORD]');
+      console.log('Attempting email send...');
+
+      const emailResult = await sendPasswordResetEmail(normalizedEmail, user.name, rawOtp);
+
+      if (!emailResult.success) {
+        console.log('[FORGOT PASSWORD]');
+        console.log('Email send result: FAILED');
+        return res.status(500).json({
+          success: false,
+          message: 'Unable to send OTP email.'
+        });
+      }
+
+      console.log('[FORGOT PASSWORD]');
+      console.log('Email send result: SUCCESS');
+    } else {
+      console.log('[FORGOT PASSWORD] Account does not exist. Returning generic security response.');
     }
 
     // Generic response prevents account enumeration security vulnerabilities
@@ -332,7 +406,7 @@ export const forgotPassword = async (req, res, next) => {
       message: 'If an account exists for this email, a verification code has been sent.'
     });
   } catch (error) {
-    console.error('[Forgot Password Error]:', error);
+    console.error('[FORGOT PASSWORD] Internal Error:', error);
     next(error);
   }
 };
@@ -344,12 +418,14 @@ export const verifyOtp = async (req, res, next) => {
   try {
     const { email, otp } = req.body;
 
+    console.log('\n[VERIFY OTP] Request received');
     if (!email || !otp) {
       return res.status(400).json({ success: false, message: 'Please provide both email and the 6-digit OTP.' });
     }
 
     const normalizedEmail = email.trim().toLowerCase();
     const cleanOtp = otp.toString().trim();
+    console.log(`[VERIFY OTP] Email: ${normalizedEmail}`);
 
     const resetRecord = await PasswordReset.findOne({
       email: normalizedEmail,
@@ -358,6 +434,7 @@ export const verifyOtp = async (req, res, next) => {
     }).sort({ createdAt: -1 });
 
     if (!resetRecord) {
+      console.log('[VERIFY OTP] Rejected: No active, unexpired OTP record found for this email.');
       return res.status(400).json({
         success: false,
         message: 'Verification code has expired or is invalid. Please request a new one.'
@@ -366,6 +443,7 @@ export const verifyOtp = async (req, res, next) => {
 
     // Max 5 attempts rate limiting
     if (resetRecord.attempts >= 5) {
+      console.log('[VERIFY OTP] Rejected: Maximum attempt limit (5) exceeded. Invalidating record.');
       await PasswordReset.deleteMany({ email: normalizedEmail });
       return res.status(429).json({
         success: false,
@@ -380,6 +458,7 @@ export const verifyOtp = async (req, res, next) => {
       resetRecord.attempts += 1;
       await resetRecord.save();
       const remaining = 5 - resetRecord.attempts;
+      console.log(`[VERIFY OTP] Hash mismatch. Attempt ${resetRecord.attempts} of 5. Remaining: ${remaining}`);
       return res.status(400).json({
         success: false,
         message: `Invalid verification code. ${remaining} ${remaining === 1 ? 'attempt' : 'attempts'} remaining.`
@@ -394,13 +473,14 @@ export const verifyOtp = async (req, res, next) => {
     resetRecord.resetTokenHash = resetTokenHash;
     await resetRecord.save();
 
+    console.log('[VERIFY OTP] ✅ OTP verification successful. Reset token issued.');
     res.json({
       success: true,
       resetToken: rawResetToken,
       message: 'Email verified successfully. You may now reset your password.'
     });
   } catch (error) {
-    console.error('[Verify OTP Error]:', error);
+    console.error('[VERIFY OTP] Error:', error);
     next(error);
   }
 };
@@ -412,6 +492,7 @@ export const resetPassword = async (req, res, next) => {
   try {
     const { email, resetToken, newPassword } = req.body;
 
+    console.log('\n[RESET PASSWORD] Request received');
     if (!email || !resetToken || !newPassword) {
       return res.status(400).json({
         success: false,
@@ -438,6 +519,7 @@ export const resetPassword = async (req, res, next) => {
     });
 
     if (!validResetRecord) {
+      console.log('[RESET PASSWORD] Rejected: Invalid or expired reset token session.');
       return res.status(400).json({
         success: false,
         message: 'Invalid or expired password reset session. Please request a new verification code.'
@@ -455,13 +537,14 @@ export const resetPassword = async (req, res, next) => {
 
     // Clean up all password reset records for this email
     await PasswordReset.deleteMany({ email: normalizedEmail });
+    console.log(`[RESET PASSWORD] ✅ Password successfully updated for ${normalizedEmail}. Reset sessions cleared.`);
 
     res.json({
       success: true,
       message: 'Password reset successful! You can now sign in with your new password.'
     });
   } catch (error) {
-    console.error('[Reset Password Error]:', error);
+    console.error('[RESET PASSWORD] Error:', error);
     next(error);
   }
 };

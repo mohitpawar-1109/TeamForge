@@ -19,10 +19,10 @@ export default {
           700: '#703344',
           800: '#4A2A35',
           900: '#351F28',
-          950: '#281A21',
+          950: '#150d10ff',
         },
         dark: {
-          bg: '#281A21',
+          bg: '#150d10ff',
           surface: '#4A2A35',
           card: '#4A2A35',
           elevated: '#703344',
@@ -30,9 +30,9 @@ export default {
           'border-subtle': 'rgba(221, 160, 129, 0.15)',
         },
         autumn: {
-          bg: '#281A21',
+          bg: '#150d10ff',
           'bg-alt': '#351F28',
-          'bg-deep': '#281A21',
+          'bg-deep': '#150d10ff',
           surface: '#4A2A35',
           'surface-hover': '#703344',
           card: '#4A2A35',
@@ -52,7 +52,7 @@ export default {
         },
         slate: {
           850: '#351F28',
-          950: '#281A21',
+          950: '#150d10ff',
         }
       },
       fontFamily: {

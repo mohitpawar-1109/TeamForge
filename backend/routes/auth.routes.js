@@ -6,7 +6,8 @@ import {
   forgotPassword,
   verifyOtp,
   resetPassword,
-  getMe
+  getMe,
+  testEmail
 } from '../controllers/auth.controller.js';
 import { protect } from '../middleware/auth.middleware.js';
 
@@ -18,6 +19,7 @@ router.post('/google', googleAuth);
 router.post('/forgot-password', forgotPassword);
 router.post('/verify-otp', verifyOtp);
 router.post('/reset-password', resetPassword);
+router.post('/test-email', testEmail);
 router.get('/me', protect, getMe);
 
 export default router;

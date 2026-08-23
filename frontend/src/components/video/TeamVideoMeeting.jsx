@@ -16,7 +16,8 @@ import {
   AlertTriangle,
   User,
   Settings,
-  MessageSquare
+  MessageSquare,
+  Volume2
 } from 'lucide-react';
 import { useSocket } from '../../context/SocketContext';
 import { useAuth } from '../../context/AuthContext';
@@ -24,8 +25,9 @@ import { useToast } from '../../context/ToastContext';
 import { meetingAPI } from '../../services/api';
 
 /**
- * TeamForge WebRTC Video Collaboration Room
- * Full-mesh peer-to-peer audio/video streaming with screen share, authorization, and media controls.
+ * TeamForge WebRTC Video & Multi-Participant Audio Collaboration Room
+ * Full-mesh peer-to-peer audio/video streaming with screen share, authorization,
+ * dedicated per-participant audio streams, ICE candidate queuing, and media controls.
  */
 export const TeamVideoMeeting = ({
   roomId,
@@ -48,15 +50,33 @@ export const TeamVideoMeeting = ({
   // Connection & Room States
   const [meetingTitle, setMeetingTitle] = useState('Team Video Meeting');
   const [connectionStatus, setConnectionStatus] = useState('connecting'); // 'connecting' | 'connected' | 'disconnected'
-  const [participants, setParticipants] = useState(new Map()); // socketId -> { info, stream, peerConnection }
+  const [participants, setParticipants] = useState(new Map()); // socketId -> { info, stream, lastUpdated }
   const [mediaError, setMediaError] = useState(null);
 
-  // Refs
+  // Refs for stable, non-stale WebRTC resources across closures
   const localVideoRef = useRef(null);
+  const localStreamRef = useRef(null);
   const peersRef = useRef(new Map()); // socketId -> RTCPeerConnection
   const remoteStreamsRef = useRef(new Map()); // socketId -> MediaStream
+  const iceCandidateQueues = useRef(new Map()); // socketId -> Array<candidate>
   const iceServersRef = useRef([{ urls: 'stun:stun.l.google.com:19302' }]);
   const containerRef = useRef(null);
+
+  // Helper: Flush queued ICE candidates after remote description is set
+  const processQueuedIceCandidates = async (targetSocketId, pc) => {
+    const queued = iceCandidateQueues.current.get(targetSocketId);
+    if (queued && queued.length > 0) {
+      console.log(`[WEBRTC] Processing ${queued.length} queued ICE candidates for ${targetSocketId}`);
+      for (const candidate of queued) {
+        try {
+          await pc.addIceCandidate(new RTCIceCandidate(candidate));
+        } catch (err) {
+          console.warn(`[WEBRTC] Error adding queued ICE candidate for ${targetSocketId}:`, err);
+        }
+      }
+      iceCandidateQueues.current.delete(targetSocketId);
+    }
+  };
 
   // 1. Initialize Local Media Stream
   const initLocalMedia = async () => {
@@ -69,13 +89,14 @@ export const TeamVideoMeeting = ({
           audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true }
         });
       } catch (camErr) {
-        console.warn('Camera/Mic permission failed, attempting audio only:', camErr.message);
+        console.warn('[WEBRTC] Camera/Mic combined permission failed, attempting audio only:', camErr.message);
         try {
-          stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          stream = await navigator.mediaDevices.getUserMedia({
+            audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true }
+          });
           setIsVideoEnabled(false);
         } catch (micErr) {
-          console.warn('Microphone permission also failed. Using simulated dummy track for reception:', micErr.message);
-          // Create dummy silent audio track so WebRTC negotiation completes cleanly
+          console.warn('[WEBRTC] Microphone permission also failed. Generating dummy audio track for negotiation:', micErr.message);
           const ctx = new (window.AudioContext || window.webkitAudioContext)();
           const osc = ctx.createOscillator();
           const dst = ctx.createMediaStreamDestination();
@@ -84,34 +105,52 @@ export const TeamVideoMeeting = ({
           stream = dst.stream;
           setIsAudioEnabled(false);
           setIsVideoEnabled(false);
-          setMediaError('Camera & Microphone unavailable. You can still view other participants.');
+          setMediaError('Camera & Microphone unavailable. You can still view and hear other participants.');
         }
       }
 
+      // Log local audio tracks
+      stream.getAudioTracks().forEach((track) => {
+        console.log(`[WEBRTC] LOCAL AUDIO TRACK: id=${track.id}, enabled=${track.enabled}, readyState=${track.readyState}`);
+      });
+      stream.getVideoTracks().forEach((track) => {
+        console.log(`[WEBRTC] LOCAL VIDEO TRACK: id=${track.id}, enabled=${track.enabled}, readyState=${track.readyState}`);
+      });
+
+      localStreamRef.current = stream;
       setLocalStream(stream);
       if (localVideoRef.current) {
         localVideoRef.current.srcObject = stream;
       }
       return stream;
     } catch (err) {
-      console.error('Failed to acquire media stream:', err);
+      console.error('[WEBRTC] Failed to acquire media stream:', err);
       setMediaError('Could not access media devices.');
       return null;
     }
   };
 
   // 2. Create WebRTC Peer Connection for a remote peer
-  const createPeerConnection = useCallback((targetSocketId, currentLocalStream) => {
+  const createPeerConnection = useCallback((targetSocketId) => {
+    // Prevent duplicate peer connections for the same socket
+    if (peersRef.current.has(targetSocketId)) {
+      console.log(`[WEBRTC] Reusing existing RTCPeerConnection for ${targetSocketId}`);
+      return peersRef.current.get(targetSocketId);
+    }
+
+    console.log(`[WEBRTC] Creating new RTCPeerConnection for peer ${targetSocketId}`);
     const pc = new RTCPeerConnection({
       iceServers: iceServersRef.current
     });
 
     peersRef.current.set(targetSocketId, pc);
 
-    // Add local tracks to peer connection
-    if (currentLocalStream) {
-      currentLocalStream.getTracks().forEach((track) => {
-        pc.addTrack(track, currentLocalStream);
+    // Add all current local tracks to this peer connection
+    const currentStream = localStreamRef.current;
+    if (currentStream) {
+      currentStream.getTracks().forEach((track) => {
+        console.log(`[WEBRTC] Adding local track (${track.kind}, id=${track.id}) to peer ${targetSocketId}`);
+        pc.addTrack(track, currentStream);
       });
     }
 
@@ -125,35 +164,54 @@ export const TeamVideoMeeting = ({
       }
     };
 
-    // Remote track arrived
+    // Remote track arrived (audio or video)
     pc.ontrack = (event) => {
-      console.log(`[WebRTC] Received remote track (${event.track.kind}) from ${targetSocketId}`);
+      const track = event.track;
+      console.log(`[WEBRTC] Remote track received from ${targetSocketId}: kind=${track.kind}, id=${track.id}, enabled=${track.enabled}, readyState=${track.readyState}`);
+
+      if (track.kind === 'audio') {
+        console.log(`[WEBRTC] REMOTE AUDIO TRACK RECEIVED from ${targetSocketId}`);
+      }
+
       let remoteStream = remoteStreamsRef.current.get(targetSocketId);
       if (!remoteStream) {
         remoteStream = new MediaStream();
         remoteStreamsRef.current.set(targetSocketId, remoteStream);
       }
-      remoteStream.addTrack(event.track);
+
+      // Replace existing tracks of the same kind to prevent duplication
+      remoteStream.getTracks().filter((t) => t.kind === track.kind).forEach((t) => {
+        remoteStream.removeTrack(t);
+      });
+      remoteStream.addTrack(track);
+
+      // Track lifecycle logging
+      track.onmute = () => console.log(`[WEBRTC] Remote track muted (${track.kind}) from ${targetSocketId}`);
+      track.onunmute = () => console.log(`[WEBRTC] Remote track unmuted (${track.kind}) from ${targetSocketId}`);
+      track.onended = () => console.log(`[WEBRTC] Remote track ended (${track.kind}) from ${targetSocketId}`);
 
       setParticipants((prev) => {
         const next = new Map(prev);
         const p = next.get(targetSocketId) || { socketId: targetSocketId };
         next.set(targetSocketId, {
           ...p,
-          stream: remoteStream
+          stream: remoteStream,
+          lastUpdated: Date.now()
         });
         return next;
       });
     };
 
+    // Connection state diagnostics
     pc.onconnectionstatechange = () => {
-      console.log(`[WebRTC] Connection state with ${targetSocketId}:`, pc.connectionState);
+      console.log(`[WEBRTC] ${targetSocketId} connectionState: ${pc.connectionState}`);
       if (pc.connectionState === 'connected') {
         setConnectionStatus('connected');
       } else if (pc.connectionState === 'failed' || pc.connectionState === 'closed') {
-        // Cleanup failed peer
+        console.warn(`[WEBRTC] Peer ${targetSocketId} connection failed or closed.`);
         peersRef.current.delete(targetSocketId);
         remoteStreamsRef.current.delete(targetSocketId);
+        iceCandidateQueues.current.delete(targetSocketId);
         setParticipants((prev) => {
           const next = new Map(prev);
           next.delete(targetSocketId);
@@ -162,12 +220,19 @@ export const TeamVideoMeeting = ({
       }
     };
 
+    pc.oniceconnectionstatechange = () => {
+      console.log(`[WEBRTC] ${targetSocketId} iceConnectionState: ${pc.iceConnectionState}`);
+    };
+
+    pc.onsignalingstatechange = () => {
+      console.log(`[WEBRTC] ${targetSocketId} signalingState: ${pc.signalingState}`);
+    };
+
     return pc;
   }, [socket]);
 
   // 3. Main Room Join & Signaling Event Handlers
   useEffect(() => {
-    let activeStream = null;
     let isMounted = true;
 
     const setupMeeting = async () => {
@@ -195,7 +260,7 @@ export const TeamVideoMeeting = ({
         }
 
         // Initialize local video/audio
-        activeStream = await initLocalMedia();
+        await initLocalMedia();
 
         if (!isMounted) return;
 
@@ -209,16 +274,18 @@ export const TeamVideoMeeting = ({
 
           setConnectionStatus('connected');
           const existing = resp.existingParticipants || [];
+          console.log(`[WEBRTC] Joined room ${roomId}. Found ${existing.length} existing participants:`, existing);
 
           // Connect to each existing participant by creating an Offer
           for (const participant of existing) {
             const targetSocketId = participant.socketId;
             setParticipants((prev) => new Map(prev).set(targetSocketId, { ...participant }));
 
-            const pc = createPeerConnection(targetSocketId, activeStream);
+            const pc = createPeerConnection(targetSocketId);
             const offer = await pc.createOffer();
             await pc.setLocalDescription(offer);
 
+            console.log(`[WEBRTC] Sending Offer to existing participant ${targetSocketId}`);
             socket.emit('webrtc_offer', {
               targetSocketId,
               sdp: offer,
@@ -231,7 +298,7 @@ export const TeamVideoMeeting = ({
           }
         });
       } catch (err) {
-        console.error('Error establishing meeting session:', err);
+        console.error('[WEBRTC] Error establishing meeting session:', err);
         error(err.response?.data?.message || 'Failed to authenticate meeting.');
         onLeave && onLeave();
       }
@@ -239,8 +306,9 @@ export const TeamVideoMeeting = ({
 
     setupMeeting();
 
-    // Socket Event: New User Joined -> prepare for their offer
+    // Socket Event: New User Joined -> store participant metadata and await their offer
     const handleUserJoined = ({ participant }) => {
+      console.log(`[WEBRTC] New participant joined room: ${participant.userName} (${participant.socketId})`);
       info(`${participant.userName} joined the meeting.`);
       setParticipants((prev) => {
         const next = new Map(prev);
@@ -251,10 +319,10 @@ export const TeamVideoMeeting = ({
 
     // Socket Event: WebRTC Offer received
     const handleOffer = async ({ senderSocketId, sdp, callerInfo }) => {
-      console.log(`[WebRTC] Received offer from ${senderSocketId}`);
+      console.log(`[WEBRTC] Received Offer from ${senderSocketId}`);
       let pc = peersRef.current.get(senderSocketId);
       if (!pc) {
-        pc = createPeerConnection(senderSocketId, activeStream || localStream);
+        pc = createPeerConnection(senderSocketId);
       }
 
       setParticipants((prev) => {
@@ -269,9 +337,12 @@ export const TeamVideoMeeting = ({
       });
 
       await pc.setRemoteDescription(new RTCSessionDescription(sdp));
+      await processQueuedIceCandidates(senderSocketId, pc);
+
       const answer = await pc.createAnswer();
       await pc.setLocalDescription(answer);
 
+      console.log(`[WEBRTC] Sending Answer back to ${senderSocketId}`);
       socket.emit('webrtc_answer', {
         targetSocketId: senderSocketId,
         sdp: answer,
@@ -285,27 +356,37 @@ export const TeamVideoMeeting = ({
 
     // Socket Event: WebRTC Answer received
     const handleAnswer = async ({ senderSocketId, sdp }) => {
-      console.log(`[WebRTC] Received answer from ${senderSocketId}`);
+      console.log(`[WEBRTC] Received Answer from ${senderSocketId}`);
       const pc = peersRef.current.get(senderSocketId);
       if (pc) {
         await pc.setRemoteDescription(new RTCSessionDescription(sdp));
+        await processQueuedIceCandidates(senderSocketId, pc);
       }
     };
 
     // Socket Event: ICE Candidate received
     const handleIceCandidate = async ({ senderSocketId, candidate }) => {
+      if (!candidate) return;
       const pc = peersRef.current.get(senderSocketId);
-      if (pc && candidate) {
+
+      if (pc && pc.remoteDescription && pc.remoteDescription.type) {
         try {
           await pc.addIceCandidate(new RTCIceCandidate(candidate));
         } catch (e) {
-          console.warn('Error adding ICE candidate:', e);
+          console.warn(`[WEBRTC] Error adding direct ICE candidate from ${senderSocketId}:`, e);
         }
+      } else {
+        // Queue candidate until setRemoteDescription finishes
+        if (!iceCandidateQueues.current.has(senderSocketId)) {
+          iceCandidateQueues.current.set(senderSocketId, []);
+        }
+        iceCandidateQueues.current.get(senderSocketId).push(candidate);
       }
     };
 
     // Socket Event: Media toggled by peer
     const handleMediaToggled = ({ socketId, type, enabled }) => {
+      console.log(`[WEBRTC] Media toggle from ${socketId}: ${type}=${enabled}`);
       setParticipants((prev) => {
         const next = new Map(prev);
         const p = next.get(socketId);
@@ -313,7 +394,7 @@ export const TeamVideoMeeting = ({
           if (type === 'audio') p.isAudioMuted = !enabled;
           if (type === 'video') p.isVideoOff = !enabled;
           if (type === 'screen') p.isScreenSharing = enabled;
-          next.set(socketId, { ...p });
+          next.set(socketId, { ...p, lastUpdated: Date.now() });
         }
         return next;
       });
@@ -321,12 +402,23 @@ export const TeamVideoMeeting = ({
 
     // Socket Event: User Left
     const handleUserLeft = ({ socketId, userName }) => {
+      console.log(`[WEBRTC] User left: ${userName || socketId}`);
       info(`${userName || 'A participant'} left the meeting.`);
+
       if (peersRef.current.has(socketId)) {
-        peersRef.current.get(socketId).close();
+        try {
+          peersRef.current.get(socketId).close();
+        } catch (e) {
+          console.warn('[WEBRTC] Error closing peer connection on user leave:', e);
+        }
         peersRef.current.delete(socketId);
       }
-      remoteStreamsRef.current.delete(socketId);
+      if (remoteStreamsRef.current.has(socketId)) {
+        const stream = remoteStreamsRef.current.get(socketId);
+        stream.getTracks().forEach((t) => t.stop());
+        remoteStreamsRef.current.delete(socketId);
+      }
+      iceCandidateQueues.current.delete(socketId);
       setParticipants((prev) => {
         const next = new Map(prev);
         next.delete(socketId);
@@ -356,24 +448,36 @@ export const TeamVideoMeeting = ({
       }
 
       // Cleanup local tracks
-      if (activeStream) {
-        activeStream.getTracks().forEach((track) => track.stop());
+      if (localStreamRef.current) {
+        localStreamRef.current.getTracks().forEach((track) => track.stop());
+        localStreamRef.current = null;
       }
 
-      // Cleanup all peer connections
-      peersRef.current.forEach((pc) => pc.close());
+      // Cleanup all peer connections and remote streams
+      peersRef.current.forEach((pc) => {
+        try {
+          pc.close();
+        } catch (e) {}
+      });
       peersRef.current.clear();
+      remoteStreamsRef.current.forEach((stream) => {
+        stream.getTracks().forEach((t) => t.stop());
+      });
       remoteStreamsRef.current.clear();
+      iceCandidateQueues.current.clear();
     };
   }, [roomId, socket, createPeerConnection]);
 
   // 4. Toggle Microphone (Audio Track)
   const toggleMicrophone = () => {
-    if (!localStream) return;
-    const audioTrack = localStream.getAudioTracks()[0];
-    if (audioTrack) {
+    const stream = localStreamRef.current;
+    if (!stream) return;
+    const audioTracks = stream.getAudioTracks();
+    if (audioTracks.length > 0) {
       const nextState = !isAudioEnabled;
-      audioTrack.enabled = nextState;
+      audioTracks.forEach((track) => {
+        track.enabled = nextState;
+      });
       setIsAudioEnabled(nextState);
 
       if (socket) {
@@ -388,11 +492,14 @@ export const TeamVideoMeeting = ({
 
   // 5. Toggle Camera (Video Track)
   const toggleCamera = () => {
-    if (!localStream) return;
-    const videoTrack = localStream.getVideoTracks()[0];
-    if (videoTrack) {
+    const stream = localStreamRef.current;
+    if (!stream) return;
+    const videoTracks = stream.getVideoTracks();
+    if (videoTracks.length > 0) {
       const nextState = !isVideoEnabled;
-      videoTrack.enabled = nextState;
+      videoTracks.forEach((track) => {
+        track.enabled = nextState;
+      });
       setIsVideoEnabled(nextState);
 
       if (socket) {
@@ -440,12 +547,11 @@ export const TeamVideoMeeting = ({
           });
         }
 
-        // Handle user stopping share via browser native banner
         screenTrack.onended = () => {
           stopScreenSharing();
         };
       } catch (err) {
-        console.warn('Screen share canceled or failed:', err);
+        console.warn('[WEBRTC] Screen share canceled or failed:', err);
       }
     } else {
       stopScreenSharing();
@@ -459,8 +565,9 @@ export const TeamVideoMeeting = ({
     }
 
     // Revert video track on all peer connections
-    if (localStream) {
-      const camTrack = localStream.getVideoTracks()[0];
+    const stream = localStreamRef.current;
+    if (stream) {
+      const camTrack = stream.getVideoTracks()[0];
       peersRef.current.forEach((pc) => {
         const sender = pc.getSenders().find((s) => s.track && s.track.kind === 'video');
         if (sender && camTrack) {
@@ -469,7 +576,7 @@ export const TeamVideoMeeting = ({
       });
 
       if (localVideoRef.current) {
-        localVideoRef.current.srcObject = localStream;
+        localVideoRef.current.srcObject = stream;
       }
     }
 
@@ -501,8 +608,9 @@ export const TeamVideoMeeting = ({
     if (screenStream) {
       screenStream.getTracks().forEach((t) => t.stop());
     }
-    if (localStream) {
-      localStream.getTracks().forEach((t) => t.stop());
+    if (localStreamRef.current) {
+      localStreamRef.current.getTracks().forEach((t) => t.stop());
+      localStreamRef.current = null;
     }
     if (socket) {
       socket.emit('leave_meeting', { roomId });
@@ -548,7 +656,7 @@ export const TeamVideoMeeting = ({
               <span>{totalCount} Active {totalCount === 1 ? 'Participant' : 'Participants'}</span>
               <span>•</span>
               <span className="text-[#86B190] font-semibold flex items-center gap-1">
-                <ShieldCheck className="w-3.5 h-3.5" /> WebRTC Encrypted
+                <ShieldCheck className="w-3.5 h-3.5" /> WebRTC Encrypted Mesh
               </span>
             </p>
           </div>
@@ -575,7 +683,7 @@ export const TeamVideoMeeting = ({
         </div>
       )}
 
-      {/* Main Video Tiles Grid */}
+      {/* Main Video & Audio Tiles Grid */}
       <div className="flex-1 p-4 sm:p-6 overflow-y-auto bg-[#281A21] flex items-center justify-center">
         <div className={`w-full grid gap-4 ${getGridColsClass()}`}>
           {/* Local User Tile */}
@@ -622,7 +730,7 @@ export const TeamVideoMeeting = ({
             </div>
           </div>
 
-          {/* Remote Participants Tiles */}
+          {/* Remote Participants Tiles (Dedicated Video & Always-Active Audio) */}
           {participantList.map((participant) => (
             <RemoteVideoTile
               key={participant.socketId}
@@ -694,26 +802,67 @@ export const TeamVideoMeeting = ({
   );
 };
 
-// Remote Participant Video Tile
+/**
+ * Remote Participant Video & Audio Tile Component
+ * Guaranteed persistent <audio> playback independent of video visibility.
+ */
 const RemoteVideoTile = ({ participant }) => {
   const videoRef = useRef(null);
+  const audioRef = useRef(null);
 
+  // Bind and play remote audio track
   useEffect(() => {
-    if (videoRef.current && participant.stream) {
-      videoRef.current.srcObject = participant.stream;
+    const audioEl = audioRef.current;
+    if (audioEl && participant.stream) {
+      if (audioEl.srcObject !== participant.stream) {
+        audioEl.srcObject = participant.stream;
+      }
+      const playPromise = audioEl.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            console.log(`[WEBRTC] Audio successfully playing for participant ${participant.userName || participant.socketId}`);
+          })
+          .catch((err) => {
+            console.warn(`[WEBRTC] Remote audio play() blocked for ${participant.userName || participant.socketId}:`, err);
+          });
+      }
     }
-  }, [participant.stream]);
+  }, [participant.stream, participant.lastUpdated]);
+
+  // Bind remote video track
+  useEffect(() => {
+    const videoEl = videoRef.current;
+    if (videoEl && participant.stream) {
+      if (videoEl.srcObject !== participant.stream) {
+        videoEl.srcObject = participant.stream;
+      }
+    }
+  }, [participant.stream, participant.lastUpdated, participant.isVideoOff]);
 
   const isVideoOff = participant.isVideoOff || !participant.stream;
   const isAudioMuted = participant.isAudioMuted;
 
   return (
     <div className="relative aspect-video rounded-3xl overflow-hidden bg-[#4A2A35] border-2 border-[#703344] shadow-xl flex items-center justify-center">
+      {/* 
+        CRITICAL MULTI-USER AUDIO PLAYBACK:
+        Always mounted, never muted, plays participant's incoming audio stream continuously
+        even when camera is disabled, video is loading, or tile re-renders.
+      */}
+      <audio
+        ref={audioRef}
+        autoPlay
+        playsInline
+      />
+
+      {/* Video Stream or Avatar Fallback */}
       {participant.stream && !isVideoOff ? (
         <video
           ref={videoRef}
           autoPlay
           playsInline
+          muted // Muted on video tag so audio is cleanly handled exclusively by dedicated <audio> tag above
           className="w-full h-full object-cover"
         />
       ) : (
@@ -742,6 +891,7 @@ const RemoteVideoTile = ({ participant }) => {
           className={`p-1.5 rounded-xl backdrop-blur-md ${
             isAudioMuted ? 'bg-[#C04A4D] text-white' : 'bg-black/50 text-[#86B190]'
           }`}
+          title={isAudioMuted ? 'Microphone Muted' : 'Microphone Active'}
         >
           {isAudioMuted ? <MicOff className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5" />}
         </div>
