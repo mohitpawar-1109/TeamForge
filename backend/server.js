@@ -61,6 +61,12 @@ if (process.env.NODE_ENV !== 'production') {
   app.use(morgan('dev'));
 }
 
+// Version header for deployment verification
+app.use((req, res, next) => {
+  res.setHeader('X-TeamForge-Backend-Version', 'media-upload-v2');
+  next();
+});
+
 // API Health Check
 app.get('/api/health', (req, res) => {
   res.json({
@@ -78,8 +84,10 @@ app.post('/api/media/test-upload', async (req, res) => {
     const uploaded = await uploadToImageKit(sampleBuffer, `test_${Date.now()}.png`, 'image/png');
     res.json({
       success: true,
-      fileId: uploaded.fileId,
+      provider: 'imagekit',
       url: uploaded.url,
+      fileId: uploaded.fileId,
+      folder: '/teamforge/community',
       thumbnailUrl: uploaded.thumbnailUrl,
       name: uploaded.name,
       size: uploaded.size
@@ -87,7 +95,7 @@ app.post('/api/media/test-upload', async (req, res) => {
   } catch (err) {
     res.status(500).json({
       success: false,
-      stage: 'imagekit',
+      provider: 'imagekit',
       error: err.message
     });
   }

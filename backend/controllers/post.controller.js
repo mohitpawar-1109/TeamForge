@@ -27,6 +27,19 @@ export const createPost = async (req, res, next) => {
       currentMembers
     } = req.body;
 
+    console.log('[POST /api/posts] content-type:', req.headers['content-type']);
+    console.log('[POST /api/posts] body keys:', Object.keys(req.body || {}));
+    console.log(
+      '[POST /api/posts] files:',
+      (Array.isArray(req.files) ? req.files : []).map(file => ({
+        fieldname: file.fieldname,
+        originalname: file.originalname,
+        mimetype: file.mimetype,
+        size: file.size,
+        hasBuffer: !!file.buffer
+      }))
+    );
+
     // Process uploaded files from Multer
     const mediaFiles = Array.isArray(req.files)
       ? req.files
@@ -197,6 +210,16 @@ export const createPost = async (req, res, next) => {
     const populatedPost = await Post.findById(post._id)
       .populate('author', 'name email headline avatar college course year')
       .populate('members', 'name email headline avatar college course year');
+
+    console.log('[POST CREATED]', {
+      id: populatedPost._id,
+      mediaCount: populatedPost.media?.length || 0,
+      media: populatedPost.media?.map(m => ({
+        type: m.type,
+        url: m.url,
+        fileId: m.fileId
+      }))
+    });
 
     res.status(201).json({
       success: true,
