@@ -20,6 +20,7 @@ import { POST_TYPES, PostTypeSelector } from './PostTypeSelector';
 import { Button } from '../common/Button';
 
 export const CreatePost = ({ onPostCreated }) => {
+
   const { user } = useAuth();
   const { success, error, info } = useToast();
 
@@ -354,8 +355,8 @@ export const CreatePost = ({ onPostCreated }) => {
               mediaMode === 'image'
                 ? 'Add a caption for your images (optional)...'
                 : mediaMode === 'video'
-                ? 'Add a description for your video (optional)...'
-                : selectedTypeConfig.placeholder
+                  ? 'Add a description for your video (optional)...'
+                  : selectedTypeConfig.placeholder
             }
             className="w-full px-4 py-3 text-sm bg-[#111113] border border-[#27272A] text-[#FAFAFA] rounded-2xl focus:bg-[#09090B] focus:border-indigo-500 focus:outline-none transition-all placeholder:text-zinc-500 resize-y min-h-[90px]"
           />
@@ -740,11 +741,10 @@ export const CreatePost = ({ onPostCreated }) => {
             <button
               type="button"
               onClick={() => imageInputRef.current?.click()}
-              className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer shadow-xs active:scale-95 ${
-                mediaMode === 'image'
+              className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer shadow-xs active:scale-95 ${mediaMode === 'image'
                   ? 'bg-indigo-950/70 text-indigo-300 border-indigo-500/50'
                   : 'bg-[#111113] hover:bg-[#27272A] text-zinc-300 hover:text-indigo-400 border-[#27272A]'
-              }`}
+                }`}
               title="Attach Images (JPG, PNG, WEBP, GIF up to 25MB, max 6 images)"
             >
               <ImageIcon className="w-4 h-4 text-indigo-400" />
@@ -760,11 +760,10 @@ export const CreatePost = ({ onPostCreated }) => {
             <button
               type="button"
               onClick={() => videoInputRef.current?.click()}
-              className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer shadow-xs active:scale-95 ${
-                mediaMode === 'video'
+              className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer shadow-xs active:scale-95 ${mediaMode === 'video'
                   ? 'bg-purple-950/70 text-purple-300 border-purple-500/50'
                   : 'bg-[#111113] hover:bg-[#27272A] text-zinc-300 hover:text-purple-400 border-[#27272A]'
-              }`}
+                }`}
               title="Attach Video (MP4, WEBM, MOV up to 100MB, 1 video per post)"
             >
               <VideoIcon className="w-4 h-4 text-purple-400" />
