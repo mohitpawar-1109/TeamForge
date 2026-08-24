@@ -209,6 +209,35 @@ export const DashboardPage = () => {
         )}
       </div>
 
+      {/* FEEDBACK SECTION */}
+      {completedProjectsCount > 0 && (
+        <div className="bg-[#111111] rounded-3xl border border-[#242424] p-6 shadow-soft mt-8 mb-8">
+          <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#1F1F1F]">
+            <h3 className="text-sm font-mono font-bold text-[#F5F5F5] uppercase tracking-wider">Feedback Required</h3>
+          </div>
+          <p className="text-xs font-mono text-[#888888] mb-4">You have completed projects waiting for feedback.</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {myProjects.filter(p => p.status === 'Completed').slice(0, 3).map(proj => (
+              <div key={proj._id} className="bg-[#161616] p-4 rounded-2xl border border-[#242424]">
+                <h4 className="font-bold text-[#F5F5F5] text-sm mb-3">{proj.title}</h4>
+                <div className="flex gap-2">
+                  <Link to={`/projects/${proj._id}/team`}>
+                    <button className="px-3 py-1.5 bg-[#111111] hover:bg-[#202020] border border-[#242424] rounded-full text-[10px] font-mono text-[#A1A1A1] transition-colors">
+                      Rate Teammates
+                    </button>
+                  </Link>
+                  <Link to={`/projects/${proj._id}`}>
+                    <button className="px-3 py-1.5 bg-[#111111] hover:bg-[#202020] border border-[#242424] rounded-full text-[10px] font-mono text-[#A1A1A1] transition-colors">
+                      Rate Project
+                    </button>
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* MY ACTIVE PROJECTS & RECENT INVITATIONS GRID */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* My Projects */}

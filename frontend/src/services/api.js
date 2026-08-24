@@ -196,5 +196,12 @@ export const trustAPI = {
   getUserTrustScore: (userId) => API.get(`/users/${userId}/trust-score`)
 };
 
+export const feedbackAPI = {
+  submitUserFeedback: (userId, data) => API.post(`/feedback/user/${userId}`, data),
+  submitProjectFeedback: (projectId, data) => API.post(`/feedback/project/${projectId}`, data),
+  getUserFeedback: (userId) => API.get(`/feedback/user/${userId}`),
+  getProjectFeedback: (projectId) => API.get(`/feedback/project/${projectId}`)
+};
+
 export default API;
 

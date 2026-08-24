@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Star, X, AlertTriangle, Send } from 'lucide-react';
-import api from '../../services/api';
+import { feedbackAPI } from '../../services/api';
 import { useToast } from '../../context/ToastContext';
 
 export const ProjectFeedbackModal = ({ isOpen, onClose, project, onSuccess }) => {
@@ -25,9 +25,14 @@ export const ProjectFeedbackModal = ({ isOpen, onClose, project, onSuccess }) =>
       return;
     }
 
+    if (!comment || comment.trim().length < 10) {
+      addToast('error', 'Please provide a comment of at least 10 characters.');
+      return;
+    }
+
     setSubmitting(true);
     try {
-      await api.post(`/feedback/project/${project._id}`, {
+      await feedbackAPI.submitProjectFeedback(project._id, {
         type: 'project',
         project: project._id,
         rating,
@@ -75,10 +80,10 @@ export const ProjectFeedbackModal = ({ isOpen, onClose, project, onSuccess }) =>
 
   return (
     <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-      <div className="bg-[#050505] border border-[#1F1F1F] rounded-3xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200">
+      <div className="bg-[#050505] border border-[#1F1F1F] rounded-3xl w-full max-w-[560px] max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
         
         {/* Header */}
-        <div className="px-6 py-4 border-b border-[#1F1F1F] flex justify-between items-center bg-[#0A0A0A]">
+        <div className="shrink-0 px-6 py-4 border-b border-[#1F1F1F] flex justify-between items-center bg-[#0A0A0A]">
           <h2 className="text-sm font-bold font-mono tracking-wider text-white flex items-center gap-2">
             <Star className="w-4 h-4 text-[#20D47A]" />
             RATE COMPLETED PROJECT
@@ -89,8 +94,9 @@ export const ProjectFeedbackModal = ({ isOpen, onClose, project, onSuccess }) =>
         </div>
 
         {/* Content */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          <div className="flex items-center justify-center bg-[#111111] p-4 rounded-2xl border border-[#1F1F1F]">
+        <form onSubmit={handleSubmit} className="flex flex-col min-h-0">
+          <div className="p-6 space-y-6 overflow-y-auto min-h-0">
+            <div className="flex items-center justify-center bg-[#111111] p-4 rounded-2xl border border-[#1F1F1F]">
             <div className="text-center space-y-1">
               <div className="text-sm font-bold text-white uppercase tracking-wider">{project.title}</div>
               <div className="text-[10px] font-mono text-[#888888] tracking-wider">Leave feedback for this project's execution and outcome</div>
@@ -127,17 +133,18 @@ export const ProjectFeedbackModal = ({ isOpen, onClose, project, onSuccess }) =>
 
           <div className="space-y-2">
             <label className="text-[10px] font-mono font-bold text-[#888888] uppercase tracking-widest block">
-              Additional Thoughts (Optional)
+              Additional Thoughts *
             </label>
             <textarea
-              className="w-full bg-[#111111] border border-[#242424] rounded-xl p-3 text-xs font-mono text-white placeholder-[#555555] focus:border-[#20D47A] focus:outline-none transition-all resize-none h-24"
-              placeholder="What went well? What could be improved in future projects?"
+              className="w-full box-border bg-[#111111] border border-[#242424] rounded-xl p-3 text-xs font-mono text-white placeholder-[#555555] focus:border-[#20D47A] focus:outline-none transition-all resize-y min-h-[96px] max-h-[240px]"
+              placeholder="What went well? What could be improved in future projects? (Min 10 characters)"
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              maxLength={500}
+              maxLength={1000}
+              required
             />
-            <div className="text-right text-[10px] font-mono text-[#666666]">
-              {comment.length}/500
+            <div className={`text-right text-[10px] font-mono ${comment.length < 10 ? 'text-[#20D47A]' : 'text-[#666666]'}`}>
+              {comment.length}/1000 {comment.length < 10 && '(Min 10)'}
             </div>
           </div>
           
@@ -147,9 +154,10 @@ export const ProjectFeedbackModal = ({ isOpen, onClose, project, onSuccess }) =>
               This feedback builds the project's reputation and contributes to the portfolio strength of all involved members.
             </p>
           </div>
+          </div>
 
           {/* Footer Actions */}
-          <div className="flex justify-end gap-3 pt-4 border-t border-[#1F1F1F]">
+          <div className="shrink-0 bg-[#050505] p-6 pt-4 border-t border-[#1F1F1F] flex justify-end gap-3 sticky bottom-0">
             <button
               type="button"
               onClick={onClose}

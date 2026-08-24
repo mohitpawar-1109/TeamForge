@@ -16,6 +16,10 @@ export const createFeedback = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Invalid feedback type.' });
     }
 
+    if (!comment || comment.trim().length < 10) {
+      return res.status(400).json({ success: false, message: 'Feedback must contain at least 10 characters.' });
+    }
+
     if (type === 'user' && reviewerId === targetId) {
       return res.status(400).json({ success: false, message: 'You cannot review yourself.' });
     }

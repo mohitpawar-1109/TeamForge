@@ -364,9 +364,9 @@ export const ProjectTeamPage = () => {
                         {project.status === 'Completed' && memberUser._id !== user?._id && (
                           <button
                             onClick={() => setFeedbackTarget(memberUser)}
-                            className="font-bold text-[#E50914] hover:underline flex items-center gap-1"
+                            className="font-bold text-[#20D47A] border border-[#20D47A]/30 bg-[#20D47A]/10 hover:bg-[#20D47A]/20 px-3 py-1.5 rounded-full flex items-center gap-1.5 transition-all"
                           >
-                            <Star className="w-3 h-3" /> Rate
+                            + Add Feedback
                           </button>
                         )}
                       </div>

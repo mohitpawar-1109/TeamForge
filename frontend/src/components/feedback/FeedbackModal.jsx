@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Star, X, AlertTriangle, Send } from 'lucide-react';
-import api from '../../services/api';
+import api, { feedbackAPI } from '../../services/api';
 import { useToast } from '../../context/ToastContext';
+import { useAuth } from '../../context/AuthContext';
 
 export const FeedbackModal = ({ isOpen, onClose, targetUser, projectId, onSuccess }) => {
   const [rating, setRating] = useState(0);
@@ -14,7 +15,37 @@ export const FeedbackModal = ({ isOpen, onClose, targetUser, projectId, onSucces
     professionalism: 0
   });
   const [submitting, setSubmitting] = useState(false);
+  const [selectedProject, setSelectedProject] = useState(projectId || '');
+  const [sharedProjects, setSharedProjects] = useState([]);
+  const [loadingProjects, setLoadingProjects] = useState(!projectId);
   const { addToast } = useToast();
+  const { user: currentUser } = useAuth();
+
+  useEffect(() => {
+    if (isOpen && !projectId && targetUser && currentUser) {
+      const fetchSharedProjects = async () => {
+        try {
+          setLoadingProjects(true);
+          const res = await api.get('/projects', { params: { member: targetUser._id } });
+          if (res.data.success) {
+            const projects = res.data.data.filter(p => 
+              p.status === 'Completed' && 
+              p.members.some(m => m.user._id === currentUser._id || m.user === currentUser._id)
+            );
+            setSharedProjects(projects);
+            if (projects.length === 1) setSelectedProject(projects[0]._id);
+          }
+        } catch (err) {
+          console.error('Failed to fetch shared projects', err);
+        } finally {
+          setLoadingProjects(false);
+        }
+      };
+      fetchSharedProjects();
+    } else if (projectId) {
+      setSelectedProject(projectId);
+    }
+  }, [isOpen, projectId, targetUser, currentUser]);
 
   if (!isOpen || !targetUser) return null;
 
@@ -25,11 +56,21 @@ export const FeedbackModal = ({ isOpen, onClose, targetUser, projectId, onSucces
       return;
     }
 
+    if (!selectedProject) {
+      addToast('error', 'Please select a shared project.');
+      return;
+    }
+
+    if (!comment || comment.trim().length < 10) {
+      addToast('error', 'Please provide a comment of at least 10 characters.');
+      return;
+    }
+
     setSubmitting(true);
     try {
-      await api.post(`/feedback/user/${targetUser._id}`, {
+      await feedbackAPI.submitUserFeedback(targetUser._id, {
         type: 'user',
-        project: projectId,
+        project: selectedProject,
         rating,
         categories,
         comment
@@ -75,10 +116,10 @@ export const FeedbackModal = ({ isOpen, onClose, targetUser, projectId, onSucces
 
   return (
     <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-      <div className="bg-[#050505] border border-[#1F1F1F] rounded-3xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200">
+      <div className="bg-[#050505] border border-[#1F1F1F] rounded-3xl w-full max-w-[560px] max-h-[90vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
         
         {/* Header */}
-        <div className="px-6 py-4 border-b border-[#1F1F1F] flex justify-between items-center bg-[#0A0A0A]">
+        <div className="shrink-0 px-6 py-4 border-b border-[#1F1F1F] flex justify-between items-center bg-[#0A0A0A]">
           <h2 className="text-sm font-bold font-mono tracking-wider text-white flex items-center gap-2">
             <Star className="w-4 h-4 text-[#E50914]" />
             RATE COLLABORATOR
@@ -89,8 +130,9 @@ export const FeedbackModal = ({ isOpen, onClose, targetUser, projectId, onSucces
         </div>
 
         {/* Content */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          <div className="flex items-center gap-4 bg-[#111111] p-4 rounded-2xl border border-[#1F1F1F]">
+        <form onSubmit={handleSubmit} className="flex flex-col min-h-0">
+          <div className="p-6 space-y-6 overflow-y-auto min-h-0">
+            <div className="flex items-center gap-4 bg-[#111111] p-4 rounded-2xl border border-[#1F1F1F]">
             <img 
               src={targetUser.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${targetUser.name}`}
               alt={targetUser.name}
@@ -103,6 +145,32 @@ export const FeedbackModal = ({ isOpen, onClose, targetUser, projectId, onSucces
           </div>
 
           <div className="space-y-4">
+            {!projectId && (
+              <div className="pb-4 border-b border-[#1F1F1F]">
+                <label className="text-[10px] font-mono font-bold text-[#888888] uppercase tracking-widest block mb-2">
+                  Select Project Context *
+                </label>
+                {loadingProjects ? (
+                  <div className="text-xs text-[#666666] font-mono">Loading projects...</div>
+                ) : sharedProjects.length > 0 ? (
+                  <select
+                    value={selectedProject}
+                    onChange={(e) => setSelectedProject(e.target.value)}
+                    className="w-full bg-[#111111] border border-[#242424] rounded-lg p-2.5 text-xs font-mono text-white focus:border-[#E50914] focus:outline-none transition-all"
+                  >
+                    <option value="">-- Select a Completed Project --</option>
+                    {sharedProjects.map(p => (
+                      <option key={p._id} value={p._id}>{p.title}</option>
+                    ))}
+                  </select>
+                ) : (
+                  <div className="text-xs text-[#E50914] font-mono bg-[#E50914]/10 p-2.5 rounded-lg border border-[#E50914]/20">
+                    You must share a completed project with {targetUser.name} to leave feedback.
+                  </div>
+                )}
+              </div>
+            )}
+
             <div className="flex flex-col items-center justify-center space-y-2 pb-4 border-b border-[#1F1F1F]">
               <span className="text-[10px] font-mono font-bold text-[#A1A1A1] uppercase tracking-widest">Overall Experience</span>
               <div className="scale-125">
@@ -132,17 +200,18 @@ export const FeedbackModal = ({ isOpen, onClose, targetUser, projectId, onSucces
 
           <div className="space-y-2">
             <label className="text-[10px] font-mono font-bold text-[#888888] uppercase tracking-widest block">
-              Additional Comments (Optional)
+              Additional Comments *
             </label>
             <textarea
-              className="w-full bg-[#111111] border border-[#242424] rounded-xl p-3 text-xs font-mono text-white placeholder-[#555555] focus:border-[#E50914] focus:outline-none transition-all resize-none h-24"
-              placeholder="How was it working with them? What are their strengths?"
+              className="w-full box-border bg-[#111111] border border-[#242424] rounded-xl p-3 text-xs font-mono text-white placeholder-[#555555] focus:border-[#E50914] focus:outline-none transition-all resize-y min-h-[96px] max-h-[240px]"
+              placeholder="How was it working with them? What are their strengths? (Min 10 characters)"
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              maxLength={500}
+              maxLength={1000}
+              required
             />
-            <div className="text-right text-[10px] font-mono text-[#666666]">
-              {comment.length}/500
+            <div className={`text-right text-[10px] font-mono ${comment.length < 10 ? 'text-[#E50914]' : 'text-[#666666]'}`}>
+              {comment.length}/1000 {comment.length < 10 && '(Min 10)'}
             </div>
           </div>
           
@@ -152,9 +221,10 @@ export const FeedbackModal = ({ isOpen, onClose, targetUser, projectId, onSucces
               Feedback becomes part of the user's permanent algorithmic reputation. Please be constructive, fair, and professional.
             </p>
           </div>
+          </div>
 
           {/* Footer Actions */}
-          <div className="flex justify-end gap-3 pt-4 border-t border-[#1F1F1F]">
+          <div className="shrink-0 bg-[#050505] p-6 pt-4 border-t border-[#1F1F1F] flex justify-end gap-3 sticky bottom-0">
             <button
               type="button"
               onClick={onClose}
@@ -164,7 +234,7 @@ export const FeedbackModal = ({ isOpen, onClose, targetUser, projectId, onSucces
             </button>
             <button
               type="submit"
-              disabled={submitting}
+              disabled={submitting || (!projectId && !selectedProject)}
               className="bg-[#E50914] hover:bg-[#C40812] text-white px-6 py-2.5 rounded-full font-mono text-xs font-bold transition-all flex items-center gap-2 disabled:opacity-50"
             >
               {submitting ? (

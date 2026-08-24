@@ -13,9 +13,11 @@ import {
   Trash2,
   Brain,
   Bot,
-  Quote
+  Quote,
+  Star,
+  Check
 } from 'lucide-react';
-import { projectAPI } from '../services/api';
+import { projectAPI, feedbackAPI } from '../services/api';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
@@ -25,7 +27,7 @@ import { ProjectCredibilityCard } from '../components/verification/ProjectCredib
 import { ProjectFeedbackModal } from '../components/feedback/ProjectFeedbackModal';
 import { Button } from '../components/common/Button';
 import { Badge } from '../components/common/Badge';
-import { Star } from 'lucide-react';
+
 
 export const ProjectDetailsPage = () => {
   const { id } = useParams();
@@ -45,7 +47,7 @@ export const ProjectDetailsPage = () => {
       const [projRes, gapRes, feedbackRes] = await Promise.all([
         projectAPI.getProjectById(id),
         projectAPI.getSkillGap(id),
-        api.get(`/feedback/project/${id}`).catch(() => ({ data: { data: [] } }))
+        feedbackAPI.getProjectFeedback(id).catch(() => ({ data: { data: [] } }))
       ]);
 
       if (projRes.data.success) {
@@ -140,15 +142,21 @@ export const ProjectDetailsPage = () => {
             </Link>
 
             {(isMember || isOwner) && project.status === 'Completed' && (
-              <Button 
-                variant="outline" 
-                size="md" 
-                icon={Star}
-                onClick={() => setShowFeedbackModal(true)}
-                className="text-[#20D47A] border-[#20D47A]/30 hover:bg-[#20D47A]/10"
-              >
-                Rate Project
-              </Button>
+              feedbacks.some(f => f.reviewer._id === user?._id || f.reviewer === user?._id) ? (
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-[#20D47A]/10 text-[#20D47A] border border-[#20D47A]/20 text-xs font-mono font-bold">
+                  <Check className="w-4 h-4" /> Feedback Submitted
+                </div>
+              ) : (
+                <Button 
+                  variant="outline" 
+                  size="md" 
+                  icon={Star}
+                  onClick={() => setShowFeedbackModal(true)}
+                  className="text-[#20D47A] border-[#20D47A]/30 hover:bg-[#20D47A]/10"
+                >
+                  + Give Project Feedback
+                </Button>
+              )
             )}
 
             {isMember && (

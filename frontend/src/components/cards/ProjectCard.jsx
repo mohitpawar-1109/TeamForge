@@ -2,12 +2,18 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Users, Sparkles, Clock, ArrowRight } from 'lucide-react';
 import { Badge } from '../common/Badge';
+import { useAuth } from '../../context/AuthContext';
 
 export const ProjectCard = ({ project, showMatchScore = true }) => {
+  const { user } = useAuth();
   const memberCount = project.members?.length || 1;
   const teamSize = project.teamSize || 4;
   const isFull = memberCount >= teamSize;
   const matchScore = project.userMatchScore || 85;
+  const isParticipant = user && (project.members || []).some(m => {
+    const mId = (m.user?._id || m.user)?.toString();
+    return mId === user._id?.toString();
+  });
 
   return (
     <div className="group bg-[#111111] rounded-3xl border border-[#242424] p-5 sm:p-6 hover:border-[#333333] transition-all duration-200 flex flex-col justify-between shadow-soft">
@@ -74,13 +80,24 @@ export const ProjectCard = ({ project, showMatchScore = true }) => {
         </div>
 
         {/* Action Button */}
-        <Link
-          to={`/projects/${project._id}`}
-          className="w-full inline-flex items-center justify-center gap-2 py-2 px-3 rounded-full bg-[#161616] hover:bg-[#202020] text-[#F5F5F5] hover:text-white font-mono font-bold text-xs border border-[#242424] hover:border-[#333333] transition-all cursor-pointer"
-        >
-          <span>View Project</span>
-          <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-        </Link>
+        <div className="flex flex-col sm:flex-row gap-2 mt-4">
+          <Link
+            to={`/projects/${project._id}`}
+            className="w-full inline-flex items-center justify-center gap-2 py-2 px-3 rounded-full bg-[#161616] hover:bg-[#202020] text-[#F5F5F5] hover:text-white font-mono font-bold text-xs border border-[#242424] hover:border-[#333333] transition-all cursor-pointer"
+          >
+            <span>View Project</span>
+            <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+          </Link>
+          
+          {isParticipant && project.status === 'Completed' && (
+            <Link
+              to={`/projects/${project._id}`}
+              className="w-full sm:w-auto inline-flex items-center justify-center py-2 px-4 rounded-full bg-[#20D47A]/10 hover:bg-[#20D47A]/20 text-[#20D47A] font-mono font-bold text-xs border border-[#20D47A]/30 transition-all cursor-pointer whitespace-nowrap"
+            >
+              Give Feedback
+            </Link>
+          )}
+        </div>
       </div>
     </div>
   );

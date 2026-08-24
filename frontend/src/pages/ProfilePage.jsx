@@ -17,12 +17,13 @@ import {
   Star,
   Quote
 } from 'lucide-react';
-import { userAPI } from '../services/api';
+import { userAPI, feedbackAPI } from '../services/api';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/common/Button';
 import { Badge } from '../components/common/Badge';
 import { StudentSkillAnalyticsCard } from '../components/profile/StudentSkillAnalyticsCard';
+import { FeedbackModal } from '../components/feedback/FeedbackModal';
 
 export const ProfilePage = () => {
   const { user: currentUser } = useAuth();
@@ -32,30 +33,31 @@ export const ProfilePage = () => {
   const [profile, setProfile] = useState(null);
   const [feedbacks, setFeedbacks] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        setLoading(true);
-        if (targetId && targetId !== currentUser?._id) {
-          const res = await userAPI.getUserById(targetId);
-          if (res.data.success) {
-            setProfile(res.data.data);
-            const feedbackRes = await api.get(`/feedback/user/${targetId}`);
-            setFeedbacks(feedbackRes.data.data || []);
-          }
-        } else {
-          setProfile(currentUser);
-          const feedbackRes = await api.get(`/feedback/user/${currentUser._id}`);
+  const fetchProfile = async () => {
+    try {
+      setLoading(true);
+      if (targetId && targetId !== currentUser?._id) {
+        const res = await userAPI.getUserById(targetId);
+        if (res.data.success) {
+          setProfile(res.data.data);
+          const feedbackRes = await feedbackAPI.getUserFeedback(targetId);
           setFeedbacks(feedbackRes.data.data || []);
         }
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
+      } else {
+        setProfile(currentUser);
+        const feedbackRes = await feedbackAPI.getUserFeedback(currentUser._id);
+        setFeedbacks(feedbackRes.data.data || []);
       }
-    };
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchProfile();
   }, [targetId, currentUser]);
 
@@ -136,10 +138,24 @@ export const ProfilePage = () => {
         {/* Reputation Score Card */}
         <div className="pt-6 mt-6 border-t border-[#1F1F1F]">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#666666]">Reputation Score</h3>
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#E50914]/10 text-[#E50914] border border-[#E50914]/20 uppercase font-bold flex items-center gap-1">
-              <Crown className="w-3 h-3" /> {profile.reputationLevel || 'New'}
-            </span>
+            <div className="flex items-center gap-4">
+              <h3 className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#666666]">Reputation Score</h3>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#E50914]/10 text-[#E50914] border border-[#E50914]/20 uppercase font-bold flex items-center gap-1">
+                <Crown className="w-3 h-3" /> {profile.reputationLevel || 'New'}
+              </span>
+            </div>
+            {!isSelf ? (
+              <button
+                onClick={() => setShowFeedbackModal(true)}
+                className="px-3 py-1.5 rounded-full bg-[#161616] hover:bg-[#202020] border border-[#242424] text-xs font-mono font-bold text-white flex items-center gap-2 transition-all cursor-pointer shadow-sm"
+              >
+                + Add Feedback
+              </button>
+            ) : (
+              <a href="#reviews" className="px-3 py-1.5 rounded-full bg-[#161616] hover:bg-[#202020] border border-[#242424] text-[10px] font-mono text-[#A1A1A1] flex items-center gap-2 transition-all cursor-pointer shadow-sm">
+                View Your Feedback
+              </a>
+            )}
           </div>
           <div className="flex items-center gap-6">
             <div className="flex-1">
@@ -217,7 +233,7 @@ export const ProfilePage = () => {
       </div>
 
       {/* Reviews Section */}
-      <div className="bg-[#111111] rounded-3xl border border-[#242424] p-6 shadow-soft">
+      <div id="reviews" className="bg-[#111111] rounded-3xl border border-[#242424] p-6 shadow-soft">
         <h3 className="text-sm font-bold text-[#F5F5F5] font-mono uppercase tracking-wider mb-4 flex items-center gap-2">
           <Quote className="w-4 h-4 text-[#E50914]" />
           Peer Feedback & Reviews
@@ -265,6 +281,16 @@ export const ProfilePage = () => {
           </div>
         )}
       </div>
+
+      <FeedbackModal
+        isOpen={showFeedbackModal}
+        onClose={() => setShowFeedbackModal(false)}
+        targetUser={profile}
+        onSuccess={() => {
+          // Re-fetch profile to show new score/reviews
+          fetchProfile();
+        }}
+      />
     </div>
   );
 };
