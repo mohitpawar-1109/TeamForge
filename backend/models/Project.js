@@ -56,6 +56,10 @@ const projectSchema = new mongoose.Schema({
   aiAnalysis: aiAnalysisSchema,
   status: { type: String, enum: ['Recruiting', 'In Progress', 'Completed', 'Paused'], default: 'Recruiting' },
   progress: { type: Number, default: 0, min: 0, max: 100 },
+  projectReputationScore: { type: Number, default: 0, min: 0, max: 100 },
+  averageRating: { type: Number, default: 0, min: 0, max: 5 },
+  feedbackCount: { type: Number, default: 0 },
+  verifiedFeedbackCount: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now }
 }, {
   toJSON: {

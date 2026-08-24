@@ -12,15 +12,20 @@ import {
   ArrowRight,
   Trash2,
   Brain,
-  Bot
+  Bot,
+  Quote
 } from 'lucide-react';
 import { projectAPI } from '../services/api';
+import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { SkillGapVisualizer } from '../components/matching/SkillGapVisualizer';
 import { AiProjectMentorView } from '../components/ai/AiProjectMentorView';
+import { ProjectCredibilityCard } from '../components/verification/ProjectCredibilityCard';
+import { ProjectFeedbackModal } from '../components/feedback/ProjectFeedbackModal';
 import { Button } from '../components/common/Button';
 import { Badge } from '../components/common/Badge';
+import { Star } from 'lucide-react';
 
 export const ProjectDetailsPage = () => {
   const { id } = useParams();
@@ -31,13 +36,16 @@ export const ProjectDetailsPage = () => {
   const [project, setProject] = useState(null);
   const [skillGap, setSkillGap] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [feedbacks, setFeedbacks] = useState([]);
 
   const fetchProjectData = async () => {
     try {
       setLoading(true);
-      const [projRes, gapRes] = await Promise.all([
+      const [projRes, gapRes, feedbackRes] = await Promise.all([
         projectAPI.getProjectById(id),
-        projectAPI.getSkillGap(id)
+        projectAPI.getSkillGap(id),
+        api.get(`/feedback/project/${id}`).catch(() => ({ data: { data: [] } }))
       ]);
 
       if (projRes.data.success) {
@@ -45,6 +53,9 @@ export const ProjectDetailsPage = () => {
       }
       if (gapRes.data.success) {
         setSkillGap(gapRes.data.data);
+      }
+      if (feedbackRes?.data?.success || feedbackRes?.data?.data) {
+        setFeedbacks(feedbackRes.data.data || []);
       }
     } catch (err) {
       console.error('Error fetching project:', err);
@@ -127,6 +138,18 @@ export const ProjectDetailsPage = () => {
                 AI Mentor
               </Button>
             </Link>
+
+            {(isMember || isOwner) && project.status === 'Completed' && (
+              <Button 
+                variant="outline" 
+                size="md" 
+                icon={Star}
+                onClick={() => setShowFeedbackModal(true)}
+                className="text-[#20D47A] border-[#20D47A]/30 hover:bg-[#20D47A]/10"
+              >
+                Rate Project
+              </Button>
+            )}
 
             {isMember && (
               <Link to={`/projects/${project._id}/tasks`}>
@@ -214,6 +237,12 @@ export const ProjectDetailsPage = () => {
         <AiProjectMentorView projectId={project._id} projectData={project} />
       </div>
 
+      {/* Project Credibility & Authenticity Index */}
+      <ProjectCredibilityCard
+        project={project}
+        isMemberOrOwner={isOwner || isMember}
+      />
+
       {/* Skill Gap Analysis & Gap-Filling Student Recommendations */}
       <SkillGapVisualizer
         gapData={skillGap}
@@ -256,6 +285,75 @@ export const ProjectDetailsPage = () => {
           </div>
         </div>
       )}
+
+      {/* Project Feedback & Reviews */}
+      {project.status === 'Completed' && (
+        <div className="bg-[#111111] rounded-3xl border border-[#242424] p-6 sm:p-8">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-bold text-[#F5F5F5] font-mono uppercase tracking-wider flex items-center gap-2">
+              <Quote className="w-4 h-4 text-[#E50914]" />
+              Project Reviews
+            </h3>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-mono font-bold uppercase text-[#888888]">Average Rating:</span>
+              <span className="text-sm font-bold text-[#F5F5F5] flex items-center gap-1 bg-[#161616] px-2 py-0.5 rounded border border-[#242424]">
+                <Star className="w-3 h-3 text-[#E50914] fill-current" />
+                {project.averageRating?.toFixed(1) || 'N/A'}
+              </span>
+            </div>
+          </div>
+
+          {feedbacks.length === 0 ? (
+            <p className="text-xs font-mono text-[#888888]">No feedback has been left for this project yet.</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {feedbacks.map((f, i) => (
+                <div key={i} className="bg-[#161616] border border-[#242424] rounded-2xl p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <img 
+                        src={f.reviewer.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${f.reviewer.name}`}
+                        alt={f.reviewer.name}
+                        className="w-8 h-8 rounded-full border border-[#242424]"
+                      />
+                      <div>
+                        <div className="text-xs font-bold text-white">{f.reviewer.name}</div>
+                        <div className="text-[9px] font-mono text-[#888888]">{new Date(f.createdAt).toLocaleDateString()}</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1 bg-[#050505] px-2 py-1 rounded-md border border-[#242424]">
+                      <Star className="w-3 h-3 text-[#E50914] fill-current" />
+                      <span className="text-xs font-mono font-bold text-white">{f.rating.toFixed(1)}</span>
+                    </div>
+                  </div>
+                  {f.comment && (
+                    <p className="text-[11px] font-mono text-[#A1A1A1] italic leading-relaxed">
+                      "{f.comment}"
+                    </p>
+                  )}
+                  <div className="mt-3 pt-3 border-t border-[#1F1F1F] flex flex-wrap gap-2">
+                    {Object.entries(f.categories || {}).map(([key, val]) => (
+                      val > 0 && (
+                        <span key={key} className="text-[9px] font-mono uppercase tracking-wider bg-[#050505] text-[#888888] px-2 py-0.5 rounded border border-[#242424]">
+                          {key}: {val}
+                        </span>
+                      )
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Modals */}
+      <ProjectFeedbackModal
+        isOpen={showFeedbackModal}
+        onClose={() => setShowFeedbackModal(false)}
+        project={project}
+        onSuccess={fetchProjectData}
+      />
     </div>
   );
 };

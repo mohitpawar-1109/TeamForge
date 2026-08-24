@@ -12,8 +12,10 @@ import { AiProjectMentorView } from '../components/ai/AiProjectMentorView';
 import { TeamTopology3D } from '../components/team/TeamTopology3D';
 import { TeamVideoMeeting } from '../components/video/TeamVideoMeeting';
 import { TeamPerformanceAnalytics } from '../components/analytics/TeamPerformanceAnalytics';
+import { FeedbackModal } from '../components/feedback/FeedbackModal';
 import { Button } from '../components/common/Button';
 import { Badge } from '../components/common/Badge';
+import { Star } from 'lucide-react';
 
 export const ProjectTeamPage = () => {
   const { id } = useParams();
@@ -25,6 +27,7 @@ export const ProjectTeamPage = () => {
   const [skillGap, setSkillGap] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('analytics');
+  const [feedbackTarget, setFeedbackTarget] = useState(null);
 
   const fetchTeamData = async () => {
     try {
@@ -356,7 +359,17 @@ export const ProjectTeamPage = () => {
                     </div>
 
                     <div className="pt-3 border-t border-[#1F1F1F] flex items-center justify-between text-[10px] font-mono text-[#888888]">
-                      <span>Joined {new Date(m.joinedAt || Date.now()).toLocaleDateString()}</span>
+                      <div className="flex items-center gap-2">
+                        <span>Joined {new Date(m.joinedAt || Date.now()).toLocaleDateString()}</span>
+                        {project.status === 'Completed' && memberUser._id !== user?._id && (
+                          <button
+                            onClick={() => setFeedbackTarget(memberUser)}
+                            className="font-bold text-[#E50914] hover:underline flex items-center gap-1"
+                          >
+                            <Star className="w-3 h-3" /> Rate
+                          </button>
+                        )}
+                      </div>
                       <Link to={`/profile?id=${memberUser._id}`} className="font-bold text-[#E50914] hover:underline">
                         View Profile →
                       </Link>
@@ -368,6 +381,14 @@ export const ProjectTeamPage = () => {
           </div>
         </div>
       )}
+
+      {/* Modals */}
+      <FeedbackModal
+        isOpen={!!feedbackTarget}
+        onClose={() => setFeedbackTarget(null)}
+        targetUser={feedbackTarget}
+        projectId={project._id}
+      />
     </div>
   );
 };

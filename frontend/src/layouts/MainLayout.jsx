@@ -18,7 +18,8 @@ import {
   Search,
   Trophy,
   Download,
-  Plus
+  Plus,
+  Crown
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { usePwa } from '../context/PwaContext';
@@ -45,6 +46,7 @@ export const MainLayout = () => {
     { label: 'Hackathons', path: '/hackathons', icon: Trophy, badge: 'Prizes' },
     { label: 'Groups & Chat', path: '/groups', icon: Users, badge: 'Live' },
     { label: 'Community', path: '/community', icon: MessageSquare },
+    { label: 'Leaderboard', path: '/leaderboard', icon: Crown, badge: 'Rankings' },
     { label: 'Explore', path: '/projects', icon: Compass },
     { label: 'Skill Network', path: '/network', icon: Network },
     { label: 'My Projects', path: '/my-projects', icon: FolderGit2 },

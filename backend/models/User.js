@@ -39,6 +39,11 @@ const userSchema = new mongoose.Schema({
   githubUrl: { type: String, default: '' },
   linkedinUrl: { type: String, default: '' },
   portfolioUrl: { type: String, default: '' },
+  reputationScore: { type: Number, default: 0, min: 0, max: 100 },
+  averageRating: { type: Number, default: 0, min: 0, max: 5 },
+  feedbackCount: { type: Number, default: 0 },
+  verifiedFeedbackCount: { type: Number, default: 0 },
+  reputationLevel: { type: String, default: 'New' },
   createdAt: { type: Date, default: Date.now }
 });
 

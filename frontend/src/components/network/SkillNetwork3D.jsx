@@ -230,6 +230,7 @@ export const SkillNetwork3D = () => {
       users.slice(0, 16).forEach((u, uIdx) => {
         const uId = `user-${u._id || uIdx}`;
         const uSkills = (u.skills || []).map((s) => (typeof s === 'string' ? s : s.name)).filter(Boolean);
+        const verifiedSkills = (u.skills || []).filter(s => typeof s === 'object' && s.verified).map(s => s.name);
 
         rawNodes.push({
           id: uId,
@@ -238,8 +239,9 @@ export const SkillNetwork3D = () => {
           subtitle: u.headline || 'Software Developer',
           experienceLevel: u.experienceLevel || 'Intermediate',
           skills: uSkills,
+          verifiedSkills: verifiedSkills,
           raw: u,
-          size: 0.32
+          size: verifiedSkills.length > 0 ? 0.38 : 0.32
         });
 
         uSkills.forEach((skillName) => {
@@ -606,11 +608,19 @@ export const SkillNetwork3D = () => {
 
             <div className="space-y-2">
               <p className="text-xs font-mono text-[#D0D0D0] leading-relaxed">{selectedNode.subtitle}</p>
-              {selectedNode.experienceLevel && (
-                <span className="inline-block text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#161616] text-[#A1A1A1] border border-[#242424]">
-                  {selectedNode.experienceLevel} Level
-                </span>
-              )}
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {selectedNode.experienceLevel && (
+                  <span className="inline-block text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#161616] text-[#A1A1A1] border border-[#242424]">
+                    {selectedNode.experienceLevel} Level
+                  </span>
+                )}
+                {selectedNode.verifiedSkills && selectedNode.verifiedSkills.length > 0 && (
+                  <span className="inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#20D47A]/10 text-[#20D47A] border border-[#20D47A]/30 font-bold">
+                    <CheckCircle2 className="w-3 h-3" />
+                    <span>{selectedNode.verifiedSkills.length} Verified Skills</span>
+                  </span>
+                )}
+              </div>
             </div>
 
             <div className="space-y-3 pt-2">
@@ -664,15 +674,30 @@ export const SkillNetwork3D = () => {
               )}
 
               {selectedNode.type === 'student' && (
-                <Link to="/groups" className="w-full block">
-                  <button
-                    type="button"
-                    className="w-full py-2.5 bg-[#E50914] hover:bg-[#FF1F2D] text-white rounded-full text-xs font-mono font-bold transition-all text-center flex items-center justify-center gap-1.5 cursor-pointer shadow-[0_0_12px_rgba(229,9,20,0.4)]"
+                <>
+                  <Link
+                    to={`/profile?id=${selectedNode.raw?._id || ''}`}
+                    className="w-full block"
                   >
-                    <MessageSquare className="w-3.5 h-3.5" />
-                    <span>Message Student</span>
-                  </button>
-                </Link>
+                    <button
+                      type="button"
+                      className="w-full py-2.5 bg-[#E50914] hover:bg-[#FF1F2D] text-white rounded-full text-xs font-mono font-bold transition-all text-center flex items-center justify-center gap-1.5 cursor-pointer shadow-[0_0_12px_rgba(229,9,20,0.4)]"
+                    >
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>View Verified Profile</span>
+                    </button>
+                  </Link>
+
+                  <Link to="/groups" className="w-full block">
+                    <button
+                      type="button"
+                      className="w-full py-2 bg-[#161616] hover:bg-[#202020] text-white rounded-full text-xs font-mono font-bold transition-all text-center flex items-center justify-center gap-1.5 cursor-pointer border border-[#242424]"
+                    >
+                      <MessageSquare className="w-3.5 h-3.5 text-[#E50914]" />
+                      <span>Message Student</span>
+                    </button>
+                  </Link>
+                </>
               )}
 
               <button

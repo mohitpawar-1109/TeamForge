@@ -174,5 +174,27 @@ export const meetingAPI = {
   getMeetingStatus: (roomId) => API.get(`/meetings/${roomId}/status`)
 };
 
+export const verificationAPI = {
+  // Onboarding & Registration Assessment
+  generateAssessment: (data) => API.post('/skill-assessment/generate', data),
+  submitAssessment: (assessmentId, data) => API.post(`/skill-assessment/${encodeURIComponent(assessmentId)}/submit`, data),
+  getAssessmentResult: (assessmentId) => API.get(`/skill-assessment/${encodeURIComponent(assessmentId)}/result`),
+
+  // Profile Hub Assessment & Verification
+  startSkillTest: (skillName, data) => API.post(`/skills/${encodeURIComponent(skillName)}/start-test`, data),
+  submitSkillTest: (skillName, data) => API.post(`/skills/${encodeURIComponent(skillName)}/submit-test`, data),
+  getSkillResults: (skillName) => API.get(`/skills/${encodeURIComponent(skillName)}/results`),
+  getUserSkillVerifications: (userId) => API.get(`/users/${userId}/skill-verifications`),
+  submitUserFeedback: (userId, data) => API.post(`/users/${userId}/feedback`, data),
+  getUserFeedback: (userId) => API.get(`/users/${userId}/feedback`),
+  submitProjectFeedback: (projectId, data) => API.post(`/projects/${projectId}/feedback`, data),
+  getProjectFeedback: (projectId) => API.get(`/projects/${projectId}/feedback`),
+  getProjectCredibility: (projectId) => API.get(`/projects/${projectId}/credibility`)
+};
+
+export const trustAPI = {
+  getUserTrustScore: (userId) => API.get(`/users/${userId}/trust-score`)
+};
+
 export default API;
 

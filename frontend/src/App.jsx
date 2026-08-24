@@ -37,6 +37,7 @@ import { NotificationsPage } from './pages/NotificationsPage';
 import { ExploreHackathonsPage } from './pages/ExploreHackathonsPage';
 import { HackathonDetailsPage } from './pages/HackathonDetailsPage';
 import { MeetingPage } from './pages/MeetingPage';
+import { LeaderboardPage } from './pages/LeaderboardPage';
 import { PwaProvider } from './context/PwaContext';
 import { PwaInstallPrompt } from './components/pwa/PwaInstallPrompt';
 import { OfflineBanner } from './components/pwa/OfflineBanner';
@@ -85,6 +86,7 @@ export default function App() {
                   <Route path="/community" element={<CommunityPage />} />
                   <Route path="/projects" element={<ExploreProjectsPage />} />
                   <Route path="/network" element={<SkillNetworkPage />} />
+                  <Route path="/leaderboard" element={<LeaderboardPage />} />
                   <Route path="/projects/create" element={<CreateProjectPage />} />
                   <Route path="/projects/:id" element={<ProjectDetailsPage />} />
                   <Route path="/projects/:id/mentor" element={<ProjectMentorPage />} />

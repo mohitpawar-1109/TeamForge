@@ -80,12 +80,32 @@ export const calculateCandidateMatch = (project, candidateUser) => {
     expScore = 65;
   }
 
-  // Final Weighted Match Score
-  const rawScore = (skillMatchScore * 0.50) + (interestMatchScore * 0.20) + (availMatchScore * 0.20) + (expScore * 0.10);
+  // Check for Verified Skills bonus
+  const userSkillObjs = candidateUser.skills || [];
+  const verifiedMatchedSkills = matchedSkillsList.filter(req => {
+    return userSkillObjs.some(us => {
+      const uName = (us.name || '').toLowerCase();
+      const matches = uName === req || uName.includes(req) || req.includes(uName);
+      return matches && (us.verified || us.verifiedScore >= 70);
+    });
+  });
+
+  const verifiedBonus = verifiedMatchedSkills.length > 0 
+    ? Math.min(10, Math.round((verifiedMatchedSkills.length / Math.max(1, matchedSkillsList.length)) * 10))
+    : 0;
+
+  // Add reputation score as a supporting signal (up to +5 bonus)
+  const reputationBonus = candidateUser.reputationScore ? Math.round((candidateUser.reputationScore / 100) * 5) : 0;
+
+  // Final Weighted Match Score (Enhanced with Verified Skills & Reputation)
+  const rawScore = (skillMatchScore * 0.50) + (interestMatchScore * 0.20) + (availMatchScore * 0.20) + (expScore * 0.10) + verifiedBonus + reputationBonus;
   const matchScore = Math.min(99, Math.max(25, Math.round(rawScore)));
 
   // Generate Clear Explanations ("Why this match?")
   const explanations = [];
+  if (verifiedMatchedSkills.length > 0) {
+    explanations.push(`Verified proficiency in ${verifiedMatchedSkills.slice(0, 2).map(s => s.toUpperCase()).join(', ')} (${verifiedMatchedSkills.length} skill${verifiedMatchedSkills.length > 1 ? 's' : ''} verified)`);
+  }
   if (matchedSkillsList.length > 0) {
     explanations.push(`Has ${matchedSkillsList.length} required skill${matchedSkillsList.length > 1 ? 's' : ''} (${matchedSkillsList.slice(0, 3).map(s => s.toUpperCase()).join(', ')})`);
   }
@@ -107,9 +127,11 @@ export const calculateCandidateMatch = (project, candidateUser) => {
       skills: skillMatchScore,
       interests: interestMatchScore,
       availability: availMatchScore,
-      experience: expScore
+      experience: expScore,
+      verifiedBonus
     },
     matchedSkills: matchedSkillsList,
+    verifiedMatchedSkills,
     missingSkills: missingSkillsList,
     explanations
   };

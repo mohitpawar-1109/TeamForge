@@ -40,6 +40,7 @@ const notificationSchema = new mongoose.Schema({
       'team_update',
       'ai_recommendation',
       'hackathon_deadline',
+      'feedback',
       'general'
     ],
     default: 'general'

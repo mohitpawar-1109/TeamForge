@@ -12,9 +12,13 @@ import {
   Linkedin,
   Globe,
   Sparkles,
-  ShieldCheck
+  ShieldCheck,
+  Crown,
+  Star,
+  Quote
 } from 'lucide-react';
 import { userAPI } from '../services/api';
+import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/common/Button';
 import { Badge } from '../components/common/Badge';
@@ -26,6 +30,7 @@ export const ProfilePage = () => {
   const targetId = searchParams.get('id');
 
   const [profile, setProfile] = useState(null);
+  const [feedbacks, setFeedbacks] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -34,9 +39,15 @@ export const ProfilePage = () => {
         setLoading(true);
         if (targetId && targetId !== currentUser?._id) {
           const res = await userAPI.getUserById(targetId);
-          if (res.data.success) setProfile(res.data.data);
+          if (res.data.success) {
+            setProfile(res.data.data);
+            const feedbackRes = await api.get(`/feedback/user/${targetId}`);
+            setFeedbacks(feedbackRes.data.data || []);
+          }
         } else {
           setProfile(currentUser);
+          const feedbackRes = await api.get(`/feedback/user/${currentUser._id}`);
+          setFeedbacks(feedbackRes.data.data || []);
         }
       } catch (err) {
         console.error(err);
@@ -121,6 +132,31 @@ export const ProfilePage = () => {
             <div className="text-xl font-bold text-[#F5F5F5] mt-0.5">{profile.weeklyHours || 15} hrs</div>
           </div>
         </div>
+
+        {/* Reputation Score Card */}
+        <div className="pt-6 mt-6 border-t border-[#1F1F1F]">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#666666]">Reputation Score</h3>
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#E50914]/10 text-[#E50914] border border-[#E50914]/20 uppercase font-bold flex items-center gap-1">
+              <Crown className="w-3 h-3" /> {profile.reputationLevel || 'New'}
+            </span>
+          </div>
+          <div className="flex items-center gap-6">
+            <div className="flex-1">
+              <div className="w-full h-2 bg-[#242424] rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-gradient-to-r from-[#F5F5F5] to-[#E50914]" 
+                  style={{ width: `${profile.reputationScore || 0}%` }}
+                />
+              </div>
+            </div>
+            <span className="font-mono font-bold text-2xl text-white">{profile.reputationScore || 0}</span>
+          </div>
+          <div className="flex items-center gap-4 mt-3 text-[10px] font-mono text-[#888888]">
+            <span className="flex items-center gap-1"><Star className="w-3 h-3 text-[#E50914] fill-current" /> {profile.averageRating?.toFixed(1) || '0.0'} Avg Rating</span>
+            <span>{profile.verifiedFeedbackCount || 0} Verified Reviews</span>
+          </div>
+        </div>
       </div>
 
       {/* Verified Student Skill Scoring & Analytics */}
@@ -178,6 +214,56 @@ export const ProfilePage = () => {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Reviews Section */}
+      <div className="bg-[#111111] rounded-3xl border border-[#242424] p-6 shadow-soft">
+        <h3 className="text-sm font-bold text-[#F5F5F5] font-mono uppercase tracking-wider mb-4 flex items-center gap-2">
+          <Quote className="w-4 h-4 text-[#E50914]" />
+          Peer Feedback & Reviews
+        </h3>
+        
+        {feedbacks.length === 0 ? (
+          <p className="text-xs font-mono text-[#888888]">No feedback received yet.</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {feedbacks.map((f, i) => (
+              <div key={i} className="bg-[#161616] border border-[#242424] rounded-2xl p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <img 
+                      src={f.reviewer.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${f.reviewer.name}`}
+                      alt={f.reviewer.name}
+                      className="w-8 h-8 rounded-full border border-[#242424]"
+                    />
+                    <div>
+                      <div className="text-xs font-bold text-white">{f.reviewer.name}</div>
+                      <div className="text-[9px] font-mono text-[#888888]">{f.project?.title}</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 bg-[#050505] px-2 py-1 rounded-md border border-[#242424]">
+                    <Star className="w-3 h-3 text-[#E50914] fill-current" />
+                    <span className="text-xs font-mono font-bold text-white">{f.rating.toFixed(1)}</span>
+                  </div>
+                </div>
+                {f.comment && (
+                  <p className="text-[11px] font-mono text-[#A1A1A1] italic leading-relaxed">
+                    "{f.comment}"
+                  </p>
+                )}
+                <div className="mt-3 pt-3 border-t border-[#1F1F1F] flex flex-wrap gap-2">
+                  {Object.entries(f.categories || {}).map(([key, val]) => (
+                    val > 0 && (
+                      <span key={key} className="text-[9px] font-mono uppercase tracking-wider bg-[#050505] text-[#888888] px-2 py-0.5 rounded border border-[#242424]">
+                        {key}: {val}
+                      </span>
+                    )
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
