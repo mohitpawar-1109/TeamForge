@@ -55,8 +55,8 @@ export const MainLayout = () => {
 
   return (
     <div className="min-h-screen bg-[#050505] text-[#F5F5F5] flex">
-      {/* Desktop Nothing OS Sidebar */}
-      <aside className="hidden lg:flex flex-col w-[265px] border-r border-[#1F1F1F] bg-[#050505] sticky top-0 h-screen z-30 justify-between select-none">
+      {/* Desktop Nothing OS Sidebar - z-index: 1000 ensures it is always above canvas & visualization elements */}
+      <aside className="hidden lg:flex flex-col w-[265px] border-r border-[#1F1F1F] bg-[#050505] sticky top-0 h-screen z-[1000] justify-between select-none">
         <div className="flex flex-col">
           {/* Logo Header */}
           <div className="h-16 flex items-center px-6 border-b border-[#1F1F1F] gap-3">
@@ -210,7 +210,7 @@ export const MainLayout = () => {
       {/* Main Content Column */}
       <div className="flex-1 flex flex-col min-w-0 pb-20 lg:pb-8">
         {/* Top Header Bar */}
-        <header className="sticky top-0 z-20 h-16 bg-[#050505]/95 backdrop-blur-md border-b border-[#1F1F1F] px-4 sm:px-8 flex items-center justify-between gap-4">
+        <header className="sticky top-0 z-[900] h-16 bg-[#050505]/95 backdrop-blur-md border-b border-[#1F1F1F] px-4 sm:px-8 flex items-center justify-between gap-4">
           {/* Mobile hamburger & title */}
           <div className="flex items-center gap-3 lg:hidden">
             <button
@@ -257,7 +257,7 @@ export const MainLayout = () => {
 
         {/* Mobile Flyout Menu */}
         {mobileMenuOpen && (
-          <div className="lg:hidden fixed inset-0 z-40 bg-black/80 backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)}>
+          <div className="lg:hidden fixed inset-0 z-[1050] bg-black/80 backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)}>
             <div className="w-68 bg-[#0A0A0A] border-r border-[#1F1F1F] h-full p-4 flex flex-col justify-between" onClick={e => e.stopPropagation()}>
               <div>
                 <div className="flex items-center justify-between pb-4 border-b border-[#1F1F1F] mb-4">
@@ -312,7 +312,7 @@ export const MainLayout = () => {
       </div>
 
       {/* Mobile Bottom Navigation Bar */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 h-16 bg-[#050505]/95 backdrop-blur-md border-t border-[#1F1F1F] z-30 flex items-center justify-around px-2">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 h-16 bg-[#050505]/95 backdrop-blur-md border-t border-[#1F1F1F] z-[1000] flex items-center justify-around px-2">
         <Link to="/dashboard" className={`flex flex-col items-center gap-1 text-[10px] font-mono ${location.pathname === '/dashboard' ? 'text-white font-bold' : 'text-[#777777] hover:text-white'}`}>
           <LayoutDashboard className="w-4 h-4" />
           <span>HOME</span>

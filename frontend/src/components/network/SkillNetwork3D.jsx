@@ -156,13 +156,18 @@ const GraphScene = ({
               </mesh>
             )}
 
-            <Html distanceFactor={13} center position={[0, nodeSize + 0.45, 0]}>
+            <Html
+              distanceFactor={13}
+              center
+              position={[0, nodeSize + 0.45, 0]}
+              zIndexRange={[2, 5]}
+            >
               <div
                 className={`bg-[#111111]/95 backdrop-blur-md px-3 py-1 rounded-full shadow-2xl pointer-events-none text-center whitespace-nowrap transition-all duration-150 ${
                   isSelected
-                    ? 'border-2 border-white shadow-[0_0_15px_rgba(255,255,255,0.4)] scale-110 z-20'
+                    ? 'border-2 border-white shadow-[0_0_15px_rgba(255,255,255,0.4)] scale-110'
                     : isHovered
-                    ? 'border border-[#E50914] shadow-lg scale-105 z-10'
+                    ? 'border border-[#E50914] shadow-lg scale-105'
                     : isConnected
                     ? 'border border-[#E50914]/60 shadow-md'
                     : 'border border-[#242424]'
@@ -383,8 +388,8 @@ export const SkillNetwork3D = () => {
 
   return (
     <div className="bg-[#111111] border border-[#242424] rounded-3xl overflow-hidden shadow-soft relative flex flex-col h-[780px] max-h-[85vh]">
-      {/* Top Header & Toolbar */}
-      <div className="p-4 sm:p-5 bg-[#161616] border-b border-[#242424] flex flex-wrap items-center justify-between gap-4 z-10">
+      {/* Top Header & Toolbar - z-10 */}
+      <div className="p-4 sm:p-5 bg-[#161616] border-b border-[#242424] flex flex-wrap items-center justify-between gap-4 z-10 relative">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-[#111111] border border-[#242424] text-[#E50914] flex items-center justify-center">
             <Compass className="w-5 h-5" />
@@ -466,19 +471,20 @@ export const SkillNetwork3D = () => {
         </div>
       </div>
 
-      {/* Main Canvas / 2D List Area */}
-      <div className="flex-1 relative overflow-hidden bg-[#050505]">
+      {/* Main Canvas / 2D List Area - z-1 */}
+      <div className="flex-1 relative overflow-hidden bg-[#050505] z-[1]">
         {loading ? (
           <div className="h-full flex flex-col items-center justify-center space-y-3">
             <div className="w-8 h-8 border-2 border-[#E50914] border-t-transparent rounded-full animate-spin" />
             <p className="text-xs font-mono text-[#888888]">Constructing 3D Entity Topology...</p>
           </div>
         ) : viewMode === '3D' ? (
-          <div className="w-full h-full relative cursor-grab active:cursor-grabbing">
+          <div className="w-full h-full relative cursor-grab active:cursor-grabbing z-[1]">
             <Canvas
               camera={{ position: [0, 0, 11], fov: 48 }}
               dpr={[1, 1.5]}
               gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
+              className="z-[1]"
             >
               <ambientLight intensity={0.65} />
               <pointLight position={[12, 12, 12]} intensity={1.3} color="#E50914" />
@@ -506,7 +512,7 @@ export const SkillNetwork3D = () => {
               </Suspense>
             </Canvas>
 
-            {/* Bottom Legend */}
+            {/* Bottom Legend - z-10 */}
             <div className="absolute bottom-4 left-4 z-10 bg-[#111111]/90 backdrop-blur-md border border-[#242424] px-3.5 py-1.5 rounded-full shadow-xl flex items-center gap-3 text-[10px] font-mono font-bold">
               <span className="text-[#666666] uppercase text-[9px]">Legend:</span>
               <div className="flex items-center gap-1.5">
@@ -523,7 +529,7 @@ export const SkillNetwork3D = () => {
               </div>
             </div>
 
-            {/* Interaction Hint */}
+            {/* Interaction Hint - z-10 */}
             <div className="absolute bottom-4 right-4 z-10 hidden sm:block bg-[#111111]/80 backdrop-blur-sm border border-[#242424] px-3 py-1 rounded-full text-[10px] font-mono text-[#666666]">
               Drag to rotate • Scroll to zoom • Click node to inspect
             </div>
@@ -560,13 +566,13 @@ export const SkillNetwork3D = () => {
           </div>
         )}
 
-        {/* Right Relationship Inspector Drawer */}
+        {/* Right Relationship Inspector / Project Details Drawer - z-index: 1100 */}
         {selectedNode && (
-          <div className="absolute top-0 right-0 bottom-0 w-80 sm:w-96 bg-[#111111]/98 backdrop-blur-xl border-l border-[#242424] p-5 overflow-y-auto space-y-5 shadow-2xl z-20">
+          <div className="absolute top-0 right-0 bottom-0 w-80 sm:w-96 bg-[#111111]/98 backdrop-blur-xl border-l border-[#242424] p-5 overflow-y-auto space-y-5 shadow-2xl z-[1100]">
             <div className="flex items-start justify-between gap-3 pb-4 border-b border-[#1F1F1F]">
               <div className="flex items-center gap-3">
                 <div
-                  className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold shadow-md"
+                  className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold shadow-md flex-shrink-0"
                   style={{ backgroundColor: ENTITY_COLORS[selectedNode.type] || '#E50914' }}
                 >
                   {selectedNode.type === 'student' ? (
@@ -592,6 +598,7 @@ export const SkillNetwork3D = () => {
                 type="button"
                 onClick={() => setSelectedNode(null)}
                 className="p-1.5 text-[#888888] hover:text-white rounded-full hover:bg-[#161616] cursor-pointer"
+                title="Close Inspector"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -625,7 +632,7 @@ export const SkillNetwork3D = () => {
                       <div className="min-w-0">
                         <div className="flex items-center gap-1.5">
                           <span
-                            className="w-2 h-2 rounded-full"
+                            className="w-2 h-2 rounded-full flex-shrink-0"
                             style={{ backgroundColor: ENTITY_COLORS[conn.type] }}
                           />
                           <span className="text-xs font-mono font-bold text-[#F5F5F5] truncate">
@@ -634,7 +641,7 @@ export const SkillNetwork3D = () => {
                         </div>
                         <span className="text-[9px] font-mono text-[#888888] capitalize">{conn.type}</span>
                       </div>
-                      <ArrowRight className="w-3.5 h-3.5 text-[#888888]" />
+                      <ArrowRight className="w-3.5 h-3.5 text-[#888888] flex-shrink-0" />
                     </div>
                   ))}
                 </div>
@@ -649,7 +656,7 @@ export const SkillNetwork3D = () => {
                 >
                   <button
                     type="button"
-                    className="w-full py-2 bg-[#E50914] hover:bg-[#FF1F2D] text-white rounded-full text-xs font-mono font-bold transition-all text-center cursor-pointer shadow-[0_0_12px_rgba(229,9,20,0.4)]"
+                    className="w-full py-2.5 bg-[#E50914] hover:bg-[#FF1F2D] text-white rounded-full text-xs font-mono font-bold transition-all text-center cursor-pointer shadow-[0_0_12px_rgba(229,9,20,0.4)]"
                   >
                     View Project Workspace
                   </button>
@@ -660,7 +667,7 @@ export const SkillNetwork3D = () => {
                 <Link to="/groups" className="w-full block">
                   <button
                     type="button"
-                    className="w-full py-2 bg-[#E50914] hover:bg-[#FF1F2D] text-white rounded-full text-xs font-mono font-bold transition-all text-center flex items-center justify-center gap-1.5 cursor-pointer shadow-[0_0_12px_rgba(229,9,20,0.4)]"
+                    className="w-full py-2.5 bg-[#E50914] hover:bg-[#FF1F2D] text-white rounded-full text-xs font-mono font-bold transition-all text-center flex items-center justify-center gap-1.5 cursor-pointer shadow-[0_0_12px_rgba(229,9,20,0.4)]"
                   >
                     <MessageSquare className="w-3.5 h-3.5" />
                     <span>Message Student</span>
